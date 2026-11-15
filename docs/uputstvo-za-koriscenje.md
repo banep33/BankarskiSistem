@@ -32,6 +32,16 @@ Klijent ne može sam da se registruje. Nalog mu pravi bankar, kao kada se u stva
 
 Posle 5 pogrešnih lozinki nalog se zaključava na 30 minuta. Otključati ga može bankar ili administrator.
 
+### Zaboravljena lozinka
+
+1. Na ekranu za prijavu klikni **Zaboravili ste lozinku?**.
+2. Unesi email adresu naloga i novu lozinku dva puta (najmanje 8 karaktera, veliko i malo slovo i cifra) i klikni **Pošalji zahtev**.
+3. Poruka je uvek ista, bez obzira na to da li nalog postoji, da niko ne bi mogao da proverava koje adrese su klijenti banke.
+4. Do odobrenja važi stara lozinka. Banka proverava identitet (na primer povratnim pozivom na broj iz evidencije), a administrator zatim odobrava zahtev.
+5. Posle odobrenja nova lozinka je aktivna, nalog je otključan, a sve ranije prijave na drugim uređajima su odjavljene.
+
+Zahtev važi 72 sata. Novi zahtev poništava prethodni, a dnevno se mogu poslati najviše 3 zahteva. Vlasnik naloga u aplikaciji dobija bezbednosno obaveštenje o svakom zahtevu, pa odmah vidi ako ga je poslao neko drugi.
+
 ### Raspored ekrana
 
 - **Bočni meni** levo sadrži sve odeljke dostupne tvojoj ulozi. Na telefonu se otvara ikonicom menija, a na dnu ekrana je traka sa 5 najvažnijih stavki.
@@ -127,6 +137,7 @@ Tri kartice sa zadacima: prigovori sa prekoračenim rokom (crveno), novi prigovo
 ### Klijenti
 
 - pretraga po imenu ili emailu i filter po statusu;
+- u svakom redu su dugmad **Detalji**, **Izmeni**, **Otključaj** (ako je nalog zaključan) i **Deaktiviraj** ili **Aktiviraj**;
 - **Novi klijent**: ime, prezime, email i početna lozinka (najmanje 8 karaktera, veliko i malo slovo i cifra). Lozinku predaj klijentu lično;
 - posle kreiranja otvara se detalj klijenta.
 
@@ -169,7 +180,8 @@ Ispod su poslednji odgovori sa komentarima.
 Administrator ima sve što i bankar, plus sledeće.
 
 - **Pregled sistema**: zdravlje glavne knjige, broj otvorenih AML upozorenja i ZZPL zahteva, statistike, dugme **Pokreni čišćenje sada** (briše pročitana obaveštenja i istekle sesije po rokovima čuvanja i prikazuje koliko je obrisano).
-- **Korisnici**: svi korisnici; pri kreiranju se bira uloga (klijent, bankar, administrator).
+- **Korisnici**: svi korisnici; pri kreiranju se bira uloga (klijent, bankar, administrator). U svakom redu su i **Otključaj**, **Deaktiviraj** ili **Aktiviraj** i ikonica korpe za **trajno brisanje**. Brisanje radi samo za nalog bez računa, transakcija i prijava (na primer nalog napravljen greškom); za ostale se koristi deaktivacija, jer banka mora da čuva podatke propisani broj godina.
+- **Zahtevi za lozinku**: korisnici koji su zaboravili lozinku. Za svaki zahtev vide se podnosilac, uloga, da li je nalog zaključan, IP adresa, uređaj i rok. **Odobri** traži da označiš da si proverio identitet nezavisnim kanalom, a **Odbij** traži razlog. O zahtevu za sopstvenu lozinku mora da odluči drugi administrator.
 - **Računi**: svi računi sa vlasnicima, pretraga i promena statusa.
 - **Glavna knjiga**:
   - **Bruto bilans** po valuti mora biti uravnotežen (zbir svih knjiženja je nula);
@@ -194,6 +206,8 @@ Administrator ima sve što i bankar, plus sledeće.
 |---|---|
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
+| Zaboravio sam lozinku | **Zaboravili ste lozinku?** na ekranu za prijavu; nova lozinka važi posle odobrenja banke |
+| Administrator je zaboravio lozinku | zahtev mora da odobri drugi administrator; ako postoji samo jedan, lozinku resetuje tehnička podrška direktno u bazi |
 | Ne mogu da otvorim račun klijentu | identitet klijenta mora biti verifikovan, a nalog aktivan |
 | Plaćanje je odbijeno zbog limita | dnevni limit se računa po valuti i obnavlja se u ponoć po beogradskom vremenu |
 | Traži se lozinka pri plaćanju | iznos je veći od praga za novog primaoca ili od tvog ličnog praga |
@@ -209,6 +223,22 @@ Pokreni backend i frontend kako piše u README-u i prolazi redom. Svaka stavka n
 - [ ] **Korisnici**, **Novi korisnik**, uloga Bankar: korisnik se pojavljuje u listi.
 - [ ] **Glavna knjiga**: bruto bilans je uravnotežen, tabela razlika je prazna.
 - [ ] Odjava iz menija korisnika.
+
+### A2. Zaboravljena lozinka
+
+- [ ] Na prijavi **Zaboravili ste lozinku?**, unesi email klijenta i novu lozinku: prikazuje se poruka da je zahtev prosleđen.
+- [ ] Isti postupak sa nepostojećom adresom: poruka je ista.
+- [ ] Prijava klijenta novom lozinkom ne uspeva, starom uspeva; u obaveštenjima je bezbednosno upozorenje o zahtevu.
+- [ ] Kao administrator otvori **Zahtevi za lozinku**: zahtev ima IP adresu i uređaj. **Odobri** bez štikliranja provere identiteta ne prolazi; sa štikliranjem prolazi.
+- [ ] Klijent se sada prijavljuje novom lozinkom, a stara više ne važi.
+- [ ] Pošalji zahtev za lozinku administratora: u redu piše „Odlučuje drugi administrator“.
+- [ ] Na **Pregledu sistema** kartica „zahteva za lozinku“ prikazuje broj zahteva koji čekaju.
+
+### A3. Upravljanje korisnicima
+
+- [ ] **Korisnici**: napravi probnog korisnika i obriši ga ikonicom korpe.
+- [ ] Pokušaj brisanja klijenta koji ima račune: poruka predlaže deaktivaciju.
+- [ ] **Deaktiviraj** klijenta: prijava tim nalogom ne uspeva; **Aktiviraj** vraća pristup.
 
 ### B. Bankar
 

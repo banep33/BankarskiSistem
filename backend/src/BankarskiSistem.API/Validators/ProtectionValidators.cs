@@ -96,6 +96,24 @@ namespace BankarskiSistem.API.Validators
         }
     }
 
+    public class ForgotPasswordRequestValidator : AbstractValidator<ForgotPasswordRequest>
+    {
+        public ForgotPasswordRequestValidator()
+        {
+            RuleFor(x => x.Email).ValidEmail();
+            RuleFor(x => x.NewPassword).StrongPassword();
+            RuleFor(x => x.ConfirmNewPassword).Equal(x => x.NewPassword).WithMessage("Lozinke se ne poklapaju.");
+        }
+    }
+
+    public class ReviewPasswordResetRequestValidator : AbstractValidator<ReviewPasswordResetRequest>
+    {
+        public ReviewPasswordResetRequestValidator()
+        {
+            RuleFor(x => x.Note).MaximumLength(500).WithMessage("Napomena ne sme biti duža od 500 karaktera.");
+        }
+    }
+
     public class RespondPrivacyRequestValidator : AbstractValidator<RespondPrivacyRequest>
     {
         public RespondPrivacyRequestValidator()

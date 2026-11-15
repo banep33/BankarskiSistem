@@ -26,6 +26,7 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
     children: [
       { path: 'pomoc', component: () => import('@/views/shared/HelpView.vue'), meta: { public: true, title: 'Pomoć i cenovnik' } },
+      { path: 'zaboravljena-lozinka', component: () => import('@/views/auth/ForgotPasswordView.vue'), meta: { public: true, title: 'Zaboravljena lozinka' } },
       { path: 'dokumenti/:type', component: () => import('@/views/shared/LegalDocumentView.vue'), meta: { public: true, title: 'Pravni dokumenti' } },
     ],
   },
@@ -60,6 +61,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'admin/racuni', component: () => import('@/views/admin/AllAccountsView.vue'), meta: { roles: administrator, title: 'Računi' } },
       { path: 'admin/knjiga', component: () => import('@/views/admin/LedgerView.vue'), meta: { roles: administrator, title: 'Glavna knjiga' } },
       { path: 'admin/aml', component: () => import('@/views/admin/ComplianceView.vue'), meta: { roles: administrator, title: 'AML upozorenja' } },
+      { path: 'admin/zahtevi-lozinka', component: () => import('@/views/admin/PasswordResetsView.vue'), meta: { roles: administrator, title: 'Zahtevi za lozinku' } },
       { path: 'admin/zahtevi-privatnost', component: () => import('@/views/admin/PrivacyRequestsView.vue'), meta: { roles: administrator, title: 'Zahtevi po ZZPL' } },
       { path: 'admin/audit', component: () => import('@/views/admin/AuditLogView.vue'), meta: { roles: administrator, title: 'Audit log' } },
       { path: 'admin/faq', component: () => import('@/views/admin/FaqAdminView.vue'), meta: { roles: administrator, title: 'Centar za pomoć' } },

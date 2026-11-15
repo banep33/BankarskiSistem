@@ -78,5 +78,7 @@ namespace BankarskiSistem.Tests.Integration
         public DataAccessLogger DataAccess => new(_context, _requestContext, Time);
         public SessionService Sessions => new(_context, _requestContext, new BCryptPasswordHasher(), Publisher, new SessionValidationCache(_protection, Time), _protection, Time);
         public ComplianceService Compliance => new(_context, Time);
+        public PasswordResetService PasswordResets => new(_context, new BCryptPasswordHasher(), Sessions,
+            new SessionValidationCache(_protection, Time), Publisher, _requestContext, Time);
     }
 }

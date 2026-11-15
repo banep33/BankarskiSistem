@@ -16,6 +16,7 @@ const overview = ref<SystemOverview | null>(null)
 const trialBalance = ref<TrialBalanceLine[]>([])
 const openAlerts = ref(0)
 const openPrivacyRequests = ref(0)
+const pendingPasswordResets = ref(0)
 const reconciliationIssues = ref(0)
 const isLoading = ref(true)
 const isRunningRetention = ref(false)
@@ -25,18 +26,20 @@ async function load(): Promise<void> {
   isLoading.value = true
   error.value = null
   try {
-    const [loadedOverview, balance, alerts, requests, differences] = await Promise.all([
+    const [loadedOverview, balance, alerts, requests, differences, resets] = await Promise.all([
       adminApi.overview(),
       adminApi.trialBalance(),
       adminApi.alerts('Otvoren'),
       adminApi.privacyRequests('Podnet'),
       adminApi.reconciliation(true),
+      adminApi.pendingPasswordResets(),
     ])
     overview.value = loadedOverview
     trialBalance.value = balance
     openAlerts.value = alerts.totalCount
     openPrivacyRequests.value = requests.totalCount
     reconciliationIssues.value = differences.length
+    pendingPasswordResets.value = resets.count
   } catch (caught) {
     error.value = errorMessage(caught)
   } finally {
@@ -91,9 +94,9 @@ onMounted(load)
           <AppIcon name="lock" />
           <span><strong>{{ openPrivacyRequests }} zahteva po ZZPL</strong><small>rok za odgovor 30 dana</small></span>
         </RouterLink>
-        <RouterLink to="/admin/audit" class="health ok">
-          <AppIcon name="activity" />
-          <span><strong>Audit log</strong><small>sve osetljive radnje su evidentirane</small></span>
+        <RouterLink to="/admin/zahtevi-lozinka" class="health" :class="pendingPasswordResets ? 'warn' : 'ok'">
+          <AppIcon name="key" />
+          <span><strong>{{ pendingPasswordResets }} zahteva za lozinku</strong><small>čeka proveru identiteta</small></span>
         </RouterLink>
       </div>
       <SystemOverviewPanel :overview="overview" />

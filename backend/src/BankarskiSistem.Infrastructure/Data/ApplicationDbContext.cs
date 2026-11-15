@@ -33,6 +33,7 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<FaqArticle> FaqArticles => Set<FaqArticle>();
         public DbSet<DataAccessLog> DataAccessLogs => Set<DataAccessLog>();
         public DbSet<PrivacyRequest> PrivacyRequests => Set<PrivacyRequest>();
+        public DbSet<PasswordResetRequest> PasswordResetRequests => Set<PasswordResetRequest>();
         public DbSet<ComplianceAlert> ComplianceAlerts => Set<ComplianceAlert>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -334,6 +335,20 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.Property(p => p.Response).HasColumnType("text");
                 entity.HasIndex(p => p.ReferenceNumber).IsUnique();
                 entity.HasOne(p => p.User).WithMany().HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<PasswordResetRequest>(entity =>
+            {
+                entity.ToTable("password_reset_requests");
+                entity.Property(p => p.ReferenceNumber).HasMaxLength(20).IsRequired();
+                entity.Property(p => p.NewPasswordHash).HasMaxLength(255);
+                entity.Property(p => p.Status).HasConversion<string>();
+                entity.Property(p => p.IpAddress).HasMaxLength(45);
+                entity.Property(p => p.UserAgent).HasMaxLength(256);
+                entity.Property(p => p.ReviewNote).HasMaxLength(500);
+                entity.HasIndex(p => p.ReferenceNumber).IsUnique();
+                entity.HasOne(p => p.User).WithMany().HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(p => p.ReviewedBy).WithMany().HasForeignKey(p => p.ReviewedByUserId).OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<ComplianceAlert>(entity =>

@@ -138,6 +138,14 @@ namespace BankarskiSistem.Core.Enums
         Odbijen
     }
 
+    public enum PasswordResetStatus
+    {
+        Podnet,
+        Odobren,
+        Odbijen,
+        Istekao
+    }
+
     public enum ComplianceAlertStatus
     {
         Otvoren,

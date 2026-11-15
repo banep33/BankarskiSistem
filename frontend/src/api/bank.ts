@@ -31,6 +31,8 @@ import type {
   PaymentOrder,
   PaymentOrderStatus,
   PaymentQuote,
+  PasswordResetRequest,
+  PasswordResetStatus,
   PaymentRequest,
   Preferences,
   PrivacyRequest,
@@ -66,6 +68,8 @@ export type TransactionFilters = {
 export const authApi = {
   login: (email: string, password: string) => post<LoginResponse>('/auth/login', { email, password }),
   logout: () => post<void>('/auth/logout'),
+  requestPasswordReset: (email: string, newPassword: string, confirmNewPassword: string) =>
+    post<{ message: string }>('/auth/password-reset', { email, newPassword, confirmNewPassword }),
 }
 
 export const meApi = {
@@ -214,5 +218,10 @@ export const adminApi = {
   saveFaq: (article: Omit<FaqArticle, 'id'>, id?: number) =>
     id ? put<FaqArticle>(`/admin/faq/${id}`, article) : post<FaqArticle>('/admin/faq', article),
   deleteFaq: (id: number) => del(`/admin/faq/${id}`),
+  passwordResets: (status?: PasswordResetStatus, page = 1) =>
+    get<PagedResponse<PasswordResetRequest>>('/admin/password-resets', { status, page }),
+  pendingPasswordResets: () => get<{ count: number }>('/admin/password-resets/pending-count'),
+  approvePasswordReset: (id: number, note: string | null) => post<PasswordResetRequest>(`/admin/password-resets/${id}/approve`, { note }),
+  rejectPasswordReset: (id: number, note: string) => post<PasswordResetRequest>(`/admin/password-resets/${id}/reject`, { note }),
   runRetention: () => post<{ readNotificationsDeleted: number; expiredSessionsDeleted: number }>('/admin/retention/run'),
 }

@@ -28,6 +28,7 @@ export type SurveyType = 'CSAT' | 'NPS' | 'CES'
 export type PrivacyRequestType = 'Ispravka' | 'Brisanje' | 'Ogranicenje' | 'Prigovor' | 'Pristup'
 export type PrivacyRequestStatus = 'Podnet' | 'UObradi' | 'Usvojen' | 'DelimicnoUsvojen' | 'Odbijen'
 export type ComplianceAlertStatus = 'Otvoren' | 'UProveri' | 'ZatvorenBezNalaza' | 'EskaliranSimulacija'
+export type PasswordResetStatus = 'Podnet' | 'Odobren' | 'Odbijen' | 'Istekao'
 export type StatisticsPeriod = 'Week' | 'Month' | 'Year'
 export type LegalDocumentType = 'PolitikaPrivatnosti' | 'UsloviKoriscenja'
 
@@ -437,6 +438,24 @@ export interface AuditLogEntry {
   isSuccess: boolean
   errorMessage: string | null
   createdAt: string
+}
+
+export interface PasswordResetRequest {
+  id: number
+  referenceNumber: string
+  userId: number
+  email: string | null
+  fullName: string | null
+  role: UserRole | null
+  userIsLocked: boolean
+  status: PasswordResetStatus
+  ipAddress: string | null
+  userAgent: string | null
+  createdAt: string
+  expiresAt: string
+  reviewedBy: string | null
+  reviewNote: string | null
+  reviewedAt: string | null
 }
 
 export interface ComplianceAlert {

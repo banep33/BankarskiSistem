@@ -5,6 +5,7 @@ import type {
   ComplianceAlertStatus,
   KycStatus,
   NotificationType,
+  PasswordResetStatus,
   PaymentOrderStatus,
   PrivacyRequestStatus,
   PrivacyRequestType,
@@ -91,6 +92,13 @@ export const privacyRequestStatusLabels: Record<PrivacyRequestStatus, { label: s
   Odbijen: { label: 'Odbijen', tone: 'danger' },
 }
 
+export const passwordResetStatusLabels: Record<PasswordResetStatus, { label: string; tone: Tone }> = {
+  Podnet: { label: 'Čeka odobrenje', tone: 'warning' },
+  Odobren: { label: 'Odobren', tone: 'success' },
+  Odbijen: { label: 'Odbijen', tone: 'danger' },
+  Istekao: { label: 'Istekao', tone: 'neutral' },
+}
+
 export const alertStatusLabels: Record<ComplianceAlertStatus, { label: string; tone: Tone }> = {
   Otvoren: { label: 'Otvoren', tone: 'danger' },
   UProveri: { label: 'U proveri', tone: 'warning' },
@@ -125,6 +133,7 @@ export const securityActionLabels: Record<string, string> = {
   'Izmenjen profil': 'Izmena profila',
   'Izvoz licnih podataka': 'Izvoz ličnih podataka',
   'Prihvaceni pravni dokumenti': 'Prihvatanje pravnih dokumenata',
+  'Zahtev za novu lozinku': 'Zahtev za novu lozinku',
 }
 
 export function isIncoming(transaction: Transaction, ownAccountIds: Set<number>): boolean {

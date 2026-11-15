@@ -91,6 +91,15 @@ namespace BankarskiSistem.Core.Interfaces
         Task<ComplianceAlert> ReviewAsync(int alertId, ComplianceAlertStatus status, string note, Actor actor);
     }
 
+    public interface IPasswordResetService
+    {
+        Task<PasswordResetRequest?> SubmitAsync(string email, string newPassword);
+        Task<PagedResult<PasswordResetRequest>> GetPagedAsync(PasswordResetStatus? status, PageRequest page, Actor actor);
+        Task<int> CountPendingAsync(Actor actor);
+        Task<PasswordResetRequest> ApproveAsync(int requestId, string? note, Actor actor);
+        Task<PasswordResetRequest> RejectAsync(int requestId, string note, Actor actor);
+    }
+
     public interface INotificationPublisher
     {
         Task PublishAsync(params Notification[] notifications);

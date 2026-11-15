@@ -39,6 +39,10 @@ namespace BankarskiSistem.API.Contracts
 
     public record RespondPrivacyRequest(PrivacyRequestStatus Status, string Response);
 
+    public record ForgotPasswordRequest(string Email, string NewPassword, string ConfirmNewPassword);
+
+    public record ReviewPasswordResetRequest(string? Note);
+
     public record ReviewComplianceAlertRequest(ComplianceAlertStatus Status, string Note);
 
     public record UpdateKycRequest(KycStatus Status, RiskLevel RiskRating);
@@ -125,6 +129,23 @@ namespace BankarskiSistem.API.Contracts
         DateTime CreatedAt,
         string? CustomerEmail);
 
+    public record PasswordResetResponse(
+        int Id,
+        string ReferenceNumber,
+        int UserId,
+        string? Email,
+        string? FullName,
+        UserRole? Role,
+        bool UserIsLocked,
+        PasswordResetStatus Status,
+        string? IpAddress,
+        string? UserAgent,
+        DateTime CreatedAt,
+        DateTime ExpiresAt,
+        string? ReviewedBy,
+        string? ReviewNote,
+        DateTime? ReviewedAt);
+
     public record ComplianceAlertResponse(
         int Id,
         string RuleCode,
@@ -185,6 +206,12 @@ namespace BankarskiSistem.API.Contracts
         public static PrivacyRequestResponse ToResponse(this PrivacyRequest request) =>
             new(request.Id, request.ReferenceNumber, request.RequestType, request.Details, request.Status, request.DueAt,
                 request.Response, request.RespondedAt, request.CreatedAt, request.User?.Email);
+
+        public static PasswordResetResponse ToResponse(this PasswordResetRequest request) =>
+            new(request.Id, request.ReferenceNumber, request.UserId, request.User?.Email,
+                request.User is null ? null : $"{request.User.FirstName} {request.User.LastName}", request.User?.Role,
+                request.User?.IsLocked ?? false, request.Status, request.IpAddress, request.UserAgent, request.CreatedAt,
+                request.ExpiresAt, request.ReviewedBy?.Email, request.ReviewNote, request.ReviewedAt);
 
         public static ComplianceAlertResponse ToResponse(this ComplianceAlert alert) =>
             new(alert.Id, alert.RuleCode, alert.Severity, alert.UserId, alert.User?.Email, alert.AccountId, alert.TransactionId,

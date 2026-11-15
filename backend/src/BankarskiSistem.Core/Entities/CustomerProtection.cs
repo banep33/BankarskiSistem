@@ -198,6 +198,26 @@ namespace BankarskiSistem.Core.Entities
         public User? User { get; set; }
     }
 
+    public class PasswordResetRequest
+    {
+        public int Id { get; set; }
+        public string ReferenceNumber { get; set; } = string.Empty;
+        public int UserId { get; set; }
+        public string? NewPasswordHash { get; set; }
+        public PasswordResetStatus Status { get; set; } = PasswordResetStatus.Podnet;
+        public string? IpAddress { get; set; }
+        public string? UserAgent { get; set; }
+        public DateTime ExpiresAt { get; set; }
+        public int? ReviewedByUserId { get; set; }
+        public string? ReviewNote { get; set; }
+        public DateTime? ReviewedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        public User? User { get; set; }
+        public User? ReviewedBy { get; set; }
+    }
+
     public class ComplianceAlert
     {
         public int Id { get; set; }

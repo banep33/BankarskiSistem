@@ -83,6 +83,7 @@ async function submit(): Promise<void> {
         <form class="stack form" novalidate @submit.prevent="submit">
           <AppField v-model="email" label="Email adresa" type="email" autocomplete="username" required inputmode="email" />
           <AppField v-model="password" label="Lozinka" type="password" autocomplete="current-password" required />
+          <RouterLink to="/javno/zaboravljena-lozinka" class="forgot">Zaboravili ste lozinku?</RouterLink>
           <div v-if="error" class="error-banner" role="alert">
             <AppIcon name="alert" :size="18" />
             <span>{{ error }}</span>
@@ -254,6 +255,14 @@ async function submit(): Promise<void> {
   margin-top: 0;
   background: var(--color-danger-soft);
   color: var(--color-danger);
+}
+
+.forgot {
+  align-self: flex-end;
+  margin-top: calc(var(--space-2) * -1);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary-hover);
 }
 
 .safety {

@@ -238,6 +238,40 @@ namespace BankarskiSistem.API.Controllers
             Ok((await feeService.GetCurrentScheduleAsync()).Select(f => f.ToResponse()));
     }
 
+    [Route(RoutePrefix + "/admin/password-resets")]
+    [Authorize(Policy = Policies.Administrator)]
+    public class AdminPasswordResetsController(IPasswordResetService passwordResetService, IAuditLogService auditLog) : ApiControllerBase
+    {
+        [HttpGet]
+        public async Task<ActionResult<PagedResponse<PasswordResetResponse>>> GetRequests(
+            [FromQuery] PasswordResetStatus? status, [FromQuery] int page = 1, [FromQuery] int pageSize = 20) =>
+            Ok((await passwordResetService.GetPagedAsync(status, new PageRequest(page, pageSize), CurrentActor)).ToResponse(r => r.ToResponse()));
+
+        [HttpGet("pending-count")]
+        public async Task<ActionResult<object>> GetPendingCount() =>
+            Ok(new { count = await passwordResetService.CountPendingAsync(CurrentActor) });
+
+        [HttpPost("{id:int}/approve")]
+        public async Task<ActionResult<PasswordResetResponse>> Approve(int id, ReviewPasswordResetRequest request)
+        {
+            var actor = CurrentActor;
+            var result = await passwordResetService.ApproveAsync(id, request.Note, actor);
+            await auditLog.LogAsync(new AuditEntry(actor.UserId, "Odobren zahtev za novu lozinku", "PasswordReset", id,
+                $"{result.ReferenceNumber}, korisnik {result.UserId}"));
+            return Ok(result.ToResponse());
+        }
+
+        [HttpPost("{id:int}/reject")]
+        public async Task<ActionResult<PasswordResetResponse>> Reject(int id, ReviewPasswordResetRequest request)
+        {
+            var actor = CurrentActor;
+            var result = await passwordResetService.RejectAsync(id, request.Note ?? string.Empty, actor);
+            await auditLog.LogAsync(new AuditEntry(actor.UserId, "Odbijen zahtev za novu lozinku", "PasswordReset", id,
+                $"{result.ReferenceNumber}, korisnik {result.UserId}"));
+            return Ok(result.ToResponse());
+        }
+    }
+
     [Route(RoutePrefix + "/admin")]
     public class AdminCustomerProtectionController(
         IFeedbackService feedbackService,

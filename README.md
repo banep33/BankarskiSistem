@@ -21,7 +21,8 @@ Edukativni sistem elektronskog bankarstva prilagođen platnom prometu u Republic
 - pregled svih transakcija i ocene zadovoljstva korisnika (CSAT, NPS, CES).
 
 **Administrator**
-- korisnici svih uloga, svi računi, audit log;
+- korisnici svih uloga (kreiranje, izmena, aktivacija i deaktivacija, otključavanje, brisanje naloga bez istorije), svi računi, audit log;
+- zahtevi za zaboravljenu lozinku: korisnik predlaže novu lozinku, a administrator je aktivira posle provere identiteta;
 - glavna knjiga: bruto bilans, usklađenost stanja računa sa knjiženjima, konta;
 - AML upozorenja, zahtevi po ZZPL, centar za pomoć (FAQ), brisanje po rokovima čuvanja.
 
@@ -46,7 +47,7 @@ backend/
   tests/BankarskiSistem.Tests          unit i integracioni testovi
   tests/BankarskiSistem.LoadTests      load test
 database/
-  migrations/                          V001 do V006
+  migrations/                          V001 do V007
   migrate.ps1, backup.ps1, restore.ps1
 docs/                                  uputstvo, bezbednosni koncepti, rezultati load testa
 frontend/                              Vue aplikacija
@@ -119,6 +120,7 @@ npm run lint
 ## Bezbednost u kratkim crtama
 
 - lozinke su heširane BCrypt-om, nalog se zaključava posle 5 neuspešnih pokušaja;
+- zaboravljena lozinka bez otkrivanja postojanja naloga: nova lozinka se odmah hešira, aktivira je administrator po principu četiri oka, a zahtev ističe za 72 sata;
 - JWT sa verzijom tokena i identifikatorom sesije; sesije se čuvaju na serveru i mogu se opozvati;
 - ponovna potvrda lozinkom za rizične radnje (veliko plaćanje novom primaocu, lični prag, izvoz podataka);
 - RBAC i provera vlasništva nad svakim resursom na backendu;

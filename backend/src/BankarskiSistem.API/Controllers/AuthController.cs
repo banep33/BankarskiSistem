@@ -13,6 +13,7 @@ namespace BankarskiSistem.API.Controllers
     public class AuthController(
         IAuthService authService,
         ILegalService legalService,
+        IPasswordResetService passwordResetService,
         IAuditLogService auditLog) : ApiControllerBase
     {
         [HttpPost("login")]
@@ -39,6 +40,21 @@ namespace BankarskiSistem.API.Controllers
                     ErrorMessage: exception.GetType().Name));
                 throw;
             }
+        }
+
+        [HttpPost("password-reset")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Submissions)]
+        public async Task<IActionResult> RequestPasswordReset(ForgotPasswordRequest request)
+        {
+            var created = await passwordResetService.SubmitAsync(request.Email, request.NewPassword);
+            if (created != null)
+                await auditLog.LogAsync(new AuditEntry(created.UserId, "Zahtev za novu lozinku", "PasswordReset", created.Id, created.ReferenceNumber));
+
+            return Accepted(new
+            {
+                message = "Ako nalog sa tom adresom postoji, zahtev je prosleđen banci. Nova lozinka važi tek kada je banka odobri, nakon provere identiteta."
+            });
         }
 
         [HttpPost("logout")]

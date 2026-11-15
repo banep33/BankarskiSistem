@@ -77,6 +77,7 @@ namespace BankarskiSistem.Infrastructure
             services.AddScoped<IFaqService, FaqService>();
             services.AddScoped<IDataAccessLogger, DataAccessLogger>();
             services.AddScoped<IPrivacyRequestService, PrivacyRequestService>();
+            services.AddScoped<IPasswordResetService, PasswordResetService>();
             services.AddScoped<IPreferencesService, PreferencesService>();
             services.AddScoped<IDataRetentionService, DataRetentionService>();
 

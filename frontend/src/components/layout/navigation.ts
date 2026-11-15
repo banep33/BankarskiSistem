@@ -74,6 +74,7 @@ const administratorNavigation: NavSection[] = [
     title: 'Usklađenost',
     items: [
       { to: '/admin/aml', label: 'AML upozorenja', icon: 'alert' },
+      { to: '/admin/zahtevi-lozinka', label: 'Zahtevi za lozinku', icon: 'key' },
       { to: '/admin/zahtevi-privatnost', label: 'Zahtevi po ZZPL', icon: 'lock' },
       { to: '/admin/audit', label: 'Audit log', icon: 'activity' },
       { to: '/bankar/prigovori', label: 'Prigovori', icon: 'chat' },
