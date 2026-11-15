@@ -20,6 +20,7 @@ Edukativni sistem elektronskog bankarstva prilagođen platnom prometu u Republic
 **Bankar**
 - klijenti, provera identiteta (KYC) i procena rizika, otvaranje računa, uplata na šalteru, blokada računa;
 - red prigovora sa dodelom, internim beleškama, produženjem roka i odgovorom;
+- storniranje pogrešnih transakcija po principu četiri oka (bankar predlaže, administrator odobrava), sa protivstavkom u glavnoj knjizi;
 - pregled svih transakcija i ocene zadovoljstva korisnika (CSAT, NPS, CES).
 
 **Administrator**
@@ -50,7 +51,7 @@ backend/
   tests/BankarskiSistem.Tests          unit i integracioni testovi
   tests/BankarskiSistem.LoadTests      load test
 database/
-  migrations/                          V001 do V010
+  migrations/                          V001 do V011
   migrate.ps1, backup.ps1, restore.ps1
 docs/                                  uputstvo, bezbednosni koncepti, rezultati load testa
 frontend/                              Vue aplikacija

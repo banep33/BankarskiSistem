@@ -43,7 +43,8 @@ const rows = computed(() =>
         </span>
         <span class="amount">
           <MoneyAmount :amount="row.transaction.amount" :currency="row.transaction.currency" :sign="row.incoming ? 'income' : 'expense'" />
-          <AppBadge v-if="row.transaction.status !== 'Uspesna'" :tone="row.transaction.status === 'NaCekanju' ? 'warning' : 'danger'">
+          <AppBadge v-if="row.transaction.reversedAt" tone="neutral">Stornirana</AppBadge>
+          <AppBadge v-else-if="row.transaction.status !== 'Uspesna'" :tone="row.transaction.status === 'NaCekanju' ? 'warning' : 'danger'">
             {{ row.transaction.status === 'NaCekanju' ? 'Na čekanju' : 'Neuspešna' }}
           </AppBadge>
           <span v-else-if="row.transaction.feeAmount > 0 && !row.incoming" class="fee">

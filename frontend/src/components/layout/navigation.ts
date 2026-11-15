@@ -49,6 +49,7 @@ const bankerNavigation: NavSection[] = [
       { to: '/bankar/klijenti', label: 'Klijenti', icon: 'users' },
       { to: '/bankar/transakcije', label: 'Transakcije', icon: 'list' },
       { to: '/bankar/prigovori', label: 'Prigovori', icon: 'chat' },
+      { to: '/bankar/storniranja', label: 'Storniranja', icon: 'refresh' },
       { to: '/bankar/ocene', label: 'Zadovoljstvo', icon: 'star' },
     ],
   },
@@ -77,6 +78,7 @@ const administratorNavigation: NavSection[] = [
     title: 'Usklađenost',
     items: [
       { to: '/admin/aml', label: 'AML upozorenja', icon: 'alert' },
+      { to: '/bankar/storniranja', label: 'Storniranja', icon: 'refresh' },
       { to: '/admin/zahtevi-lozinka', label: 'Zahtevi za lozinku', icon: 'key' },
       { to: '/admin/zahtevi-privatnost', label: 'Zahtevi po ZZPL', icon: 'lock' },
       { to: '/admin/audit', label: 'Audit log', icon: 'activity' },

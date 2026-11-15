@@ -25,6 +25,7 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<UserSession> UserSessions => Set<UserSession>();
         public DbSet<RecoveryCode> RecoveryCodes => Set<RecoveryCode>();
         public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();
+        public DbSet<TransactionReversal> TransactionReversals => Set<TransactionReversal>();
         public DbSet<CurrencyExchange> CurrencyExchanges => Set<CurrencyExchange>();
         public DbSet<StandingOrder> StandingOrders => Set<StandingOrder>();
         public DbSet<StandingOrderExecution> StandingOrderExecutions => Set<StandingOrderExecution>();
@@ -91,6 +92,7 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.Property(t => t.IdempotencyKey).HasMaxLength(64);
                 entity.HasIndex(t => t.ReferenceNumber).IsUnique();
                 entity.HasIndex(t => new { t.PerformedByUserId, t.IdempotencyKey }).IsUnique();
+                entity.HasIndex(t => t.ReversalOfTransactionId).IsUnique();
                 entity.HasOne(t => t.FromAccount)
                       .WithMany()
                       .HasForeignKey(t => t.FromAccountId)
@@ -243,6 +245,20 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.HasIndex(s => new { s.UserId, s.RevokedAt, s.ExpiresAt });
                 entity.HasIndex(s => s.RefreshTokenHash).IsUnique();
                 entity.HasIndex(s => s.PreviousRefreshTokenHash);
+            });
+
+            modelBuilder.Entity<TransactionReversal>(entity =>
+            {
+                entity.ToTable("transaction_reversals");
+                entity.Property(r => r.ReferenceNumber).HasMaxLength(20).IsRequired();
+                entity.Property(r => r.Reason).HasMaxLength(500).IsRequired();
+                entity.Property(r => r.ReviewNote).HasMaxLength(500);
+                entity.Property(r => r.Status).HasConversion<string>();
+                entity.HasIndex(r => r.ReferenceNumber).IsUnique();
+                entity.HasOne(r => r.OriginalTransaction).WithMany().HasForeignKey(r => r.OriginalTransactionId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne<Transaction>().WithMany().HasForeignKey(r => r.ReversalTransactionId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(r => r.RequestedBy).WithMany().HasForeignKey(r => r.RequestedByUserId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(r => r.ReviewedBy).WithMany().HasForeignKey(r => r.ReviewedByUserId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<ExchangeRate>(entity =>

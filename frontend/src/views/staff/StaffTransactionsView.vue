@@ -113,7 +113,8 @@ onMounted(load)
                   }}
                 </td>
                 <td>
-                  <AppBadge :tone="transaction.status === 'Uspesna' ? 'success' : transaction.status === 'NaCekanju' ? 'warning' : 'danger'">
+                  <AppBadge v-if="transaction.reversedAt" tone="neutral">Stornirana</AppBadge>
+                  <AppBadge v-else :tone="transaction.status === 'Uspesna' ? 'success' : transaction.status === 'NaCekanju' ? 'warning' : 'danger'">
                     {{ transaction.status === 'Uspesna' ? 'Uspešna' : transaction.status === 'NaCekanju' ? 'Na čekanju' : 'Neuspešna' }}
                   </AppBadge>
                 </td>
@@ -126,7 +127,7 @@ onMounted(load)
       </div>
     </AppCard>
 
-    <TransactionDetailModal :transaction="selected" @close="selected = null" />
+    <TransactionDetailModal :transaction="selected" allow-reversal-request @close="selected = null" @changed="load" />
   </div>
 </template>
 

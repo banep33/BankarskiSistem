@@ -54,7 +54,9 @@ import type {
   CurrencyExchange,
   ExchangeQuote,
   ExchangeRate,
+  ReversalStatus,
   StandingOrder,
+  TransactionReversal,
   StandingOrderDetail,
   StandingOrderRequest,
   TrialBalanceLine,
@@ -132,6 +134,13 @@ export const exchangeApi = {
   mine: (page = 1) => get<PagedResponse<CurrencyExchange>>('/exchange', { page }),
   publish: (rates: { currency: string; buyRate: number; middleRate: number; sellRate: number }[]) =>
     post<ExchangeRate[]>('/admin/exchange-rates', { rates }),
+}
+
+export const reversalsApi = {
+  request: (transactionId: number, reason: string) => post<TransactionReversal>(`/transactions/${transactionId}/reversals`, { reason }),
+  list: (status?: ReversalStatus, page = 1) => get<PagedResponse<TransactionReversal>>('/reversals', { status, page }),
+  approve: (id: number, note: string | null) => post<TransactionReversal>(`/reversals/${id}/approve`, { note }),
+  reject: (id: number, note: string) => post<TransactionReversal>(`/reversals/${id}/reject`, { note }),
 }
 
 export const standingOrdersApi = {

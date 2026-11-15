@@ -18,6 +18,8 @@ namespace BankarskiSistem.Core.Entities
         public string ReferenceNumber { get; set; } = string.Empty;
         public int? PerformedByUserId { get; set; }
         public string? IdempotencyKey { get; set; }
+        public int? ReversalOfTransactionId { get; set; }
+        public DateTime? ReversedAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Account? FromAccount { get; set; }

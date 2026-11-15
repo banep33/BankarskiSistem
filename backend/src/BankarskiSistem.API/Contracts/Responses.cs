@@ -83,7 +83,9 @@ namespace BankarskiSistem.API.Contracts
         string? CounterpartyAccountNumber,
         string? PaymentCode,
         string? PaymentReferenceModel,
-        string? PaymentReferenceNumber);
+        string? PaymentReferenceNumber,
+        int? ReversalOfTransactionId,
+        DateTime? ReversedAt);
 
     public record FinancialOperationResponse(
         string Message,

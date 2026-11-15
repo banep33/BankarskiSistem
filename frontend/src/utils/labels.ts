@@ -6,6 +6,7 @@ import type {
   KycStatus,
   NotificationType,
   PasswordResetStatus,
+  ReversalStatus,
   StandingOrderExecutionStatus,
   StandingOrderFrequency,
   StandingOrderStatus,
@@ -38,6 +39,7 @@ export const transactionTypeLabels: Record<TransactionType, string> = {
   Transfer: 'Plaćanje u banci',
   EksterniTransfer: 'Plaćanje drugoj banci',
   Konverzija: 'Menjačnica',
+  Storno: 'Storno',
 }
 
 export const paymentStatusLabels: Record<PaymentOrderStatus, { label: string; tone: Tone }> = {
@@ -94,6 +96,12 @@ export const privacyRequestStatusLabels: Record<PrivacyRequestStatus, { label: s
   Usvojen: { label: 'Usvojen', tone: 'success' },
   DelimicnoUsvojen: { label: 'Delimično usvojen', tone: 'success' },
   Odbijen: { label: 'Odbijen', tone: 'danger' },
+}
+
+export const reversalStatusLabels: Record<ReversalStatus, { label: string; tone: Tone }> = {
+  Podnet: { label: 'Čeka odobrenje', tone: 'warning' },
+  Izvrsen: { label: 'Stornirano', tone: 'success' },
+  Odbijen: { label: 'Odbijeno', tone: 'danger' },
 }
 
 export const frequencyLabels: Record<StandingOrderFrequency, { label: string; adverb: string }> = {
@@ -173,6 +181,7 @@ export function isIncoming(transaction: Transaction, ownAccountIds: Set<number>)
 export function counterpartyLabel(transaction: Transaction, incoming: boolean): string {
   if (transaction.type === 'Uplata') return 'Uplata na šalteru'
   if (transaction.type === 'Isplata') return 'Isplata sa računa'
+  if (transaction.type === 'Storno') return incoming ? 'Storno, povraćaj na račun' : 'Storno, povlačenje sa računa'
   if (transaction.type === 'Konverzija') return incoming ? 'Menjačnica, priliv' : 'Menjačnica, odliv'
   if (!incoming && transaction.counterpartyName) return transaction.counterpartyName
   if (incoming) return transaction.fromAccountNumber ? `Sa računa ${transaction.fromAccountNumber}` : 'Primljena uplata'

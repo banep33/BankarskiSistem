@@ -99,7 +99,9 @@ namespace BankarskiSistem.API.Contracts
                 transaction.PaymentOrder?.RecipientAccountNumber ?? transaction.ToAccount?.AccountNumber,
                 transaction.PaymentOrder?.PaymentCode,
                 transaction.PaymentOrder?.ReferenceModel,
-                transaction.PaymentOrder?.ReferenceNumber);
+                transaction.PaymentOrder?.ReferenceNumber,
+                transaction.ReversalOfTransactionId,
+                transaction.ReversedAt);
 
         public static FinancialOperationResponse ToResponse(this FinancialOperationResult result, string message) =>
             new(

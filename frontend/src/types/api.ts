@@ -1,6 +1,7 @@
 export type UserRole = 'Administrator' | 'Korisnik' | 'Bankar'
 export type AccountStatus = 'Aktivan' | 'Neaktivan' | 'Blokiran'
-export type TransactionType = 'Uplata' | 'Isplata' | 'Transfer' | 'EksterniTransfer' | 'Konverzija'
+export type TransactionType = 'Uplata' | 'Isplata' | 'Transfer' | 'EksterniTransfer' | 'Konverzija' | 'Storno'
+export type ReversalStatus = 'Podnet' | 'Izvrsen' | 'Odbijen'
 export type TransactionStatus = 'Uspesna' | 'Neuspesna' | 'NaCekanju'
 export type PaymentOrderStatus = 'Zakazan' | 'UObradi' | 'Izvrsen' | 'Odbijen' | 'Otkazan'
 export type KycStatus = 'NijePrimenljivo' | 'NijeVerifikovan' | 'Verifikovan' | 'Odbijen'
@@ -157,6 +158,29 @@ export interface Transaction {
   paymentCode: string | null
   paymentReferenceModel: string | null
   paymentReferenceNumber: string | null
+  reversalOfTransactionId: number | null
+  reversedAt: string | null
+}
+
+export interface TransactionReversal {
+  id: number
+  referenceNumber: string
+  originalTransactionId: number
+  originalReference: string | null
+  originalType: TransactionType | null
+  amount: number | null
+  currency: string | null
+  fromAccountNumber: string | null
+  toAccountNumber: string | null
+  originalCreatedAt: string | null
+  reason: string
+  status: ReversalStatus
+  requestedBy: string | null
+  reviewedBy: string | null
+  reviewNote: string | null
+  createdAt: string
+  reviewedAt: string | null
+  reversalTransactionId: number | null
 }
 
 export interface CurrencyAmount {

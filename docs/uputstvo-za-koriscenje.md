@@ -207,7 +207,17 @@ Svako otvaranje ove stranice beleži se i klijent to vidi u svom odeljku Privatn
 
 ### Transakcije
 
-Sve transakcije u sistemu, sa pretragom i filterima po vrsti, statusu i periodu. Klik na red otvara detalje.
+Sve transakcije u sistemu, sa pretragom i filterima po vrsti, statusu i periodu. Klik na red otvara detalje. Stornirane transakcije imaju oznaku **Stornirana**.
+
+### Storniranja
+
+Storniranje ispravlja pogrešnu transakciju, na primer uplatu proknjiženu na pogrešan račun ili interno plaćanje pogrešnom primaocu.
+
+- U **Transakcije** otvori transakciju i klikni **Zatraži storniranje**, upiši razlog (najmanje 10 karaktera) i pošalji.
+- Stornirati se mogu uplata, isplata i plaćanje u okviru banke, iz poslednjih 90 dana. Plaćanje drugoj banci ne može, jer je novac otišao u kliring.
+- Zahtev odobrava **administrator koji ga nije podneo** (princip četiri oka). Bankar vidi svoje i tuđe zahteve u **Storniranja**, ali ne može da ih odobri.
+- Posle odobrenja pravi se transakcija **Storno** koja tačno poništava sva knjiženja originala; stanja računa se vraćaju, a original dobija oznaku Stornirana. Vlasnici računa dobijaju obaveštenje.
+- Storniranje nije moguće ako na računu više nema dovoljno sredstava (na primer klijent je već podigao pogrešno uplaćen novac); tada administrator odbija zahtev uz obrazloženje, a slučaj se rešava dogovorom sa klijentom.
 
 ### Prigovori
 
@@ -235,6 +245,7 @@ Administrator ima sve što i bankar, plus sledeće.
 - **Korisnici**: svi korisnici; pri kreiranju se bira uloga (klijent, bankar, administrator). Korisnici sa uključenom dvostepenom prijavom imaju oznaku **2FA** i dugme **Resetuj 2FA** (za izgubljen telefon, posle provere identiteta; sve sesije korisnika se odjavljuju). U svakom redu su i **Otključaj**, **Deaktiviraj** ili **Aktiviraj** i ikonica korpe za **trajno brisanje**. Brisanje radi samo za nalog bez računa, transakcija i prijava (na primer nalog napravljen greškom); za ostale se koristi deaktivacija, jer banka mora da čuva podatke propisani broj godina.
 - **Zahtevi za lozinku**: korisnici koji su zaboravili lozinku. Za svaki zahtev vide se podnosilac, uloga, da li je nalog zaključan, IP adresa, uređaj i rok. **Odobri** traži da označiš da si proverio identitet nezavisnim kanalom, a **Odbij** traži razlog. O zahtevu za sopstvenu lozinku mora da odluči drugi administrator.
 - **Računi**: svi računi sa vlasnicima, pretraga i promena statusa.
+- **Storniranja**: zahtevi bankara za ispravku transakcija. **Odobri** pravi storno transakciju, **Odbij** traži razlog. Sopstveni zahtev ne može da odobri; u tom redu piše „Odlučuje drugi administrator“.
 - **Kursna lista**: važeća lista, obrazac **Nova kursna lista** (kupovni, srednji i prodajni kurs za svaku valutu) i istorija kurseva za 90 dana. Pravila: kupovni < srednji < prodajni, razlika između kupovnog i prodajnog najviše 10% srednjeg kursa, a srednji kurs ne sme da se promeni za više od 20% od važećeg (zaštita od greške u kucanju). Nova lista važi odmah. Kursna lista u aplikaciji je simulirana i nije povezana sa kursnom listom NBS.
 - **Glavna knjiga**:
   - **Bruto bilans** po valuti mora biti uravnotežen (zbir svih knjiženja je nula);
@@ -260,6 +271,7 @@ Administrator ima sve što i bankar, plus sledeće.
 |---|---|
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
+| U istoriji vidim „Storno“ | banka je ispravila pogrešnu transakciju; original ima oznaku Stornirana, a razlog je u obaveštenju |
 | Konverzija javlja da je kurs promenjen | banka je objavila novu kursnu listu; proveri novi obračun i potvrdi ponovo |
 | Ne mogu da menjam EUR u USD | menjaj u dva koraka preko dinarskog računa |
 | Trajni nalog se nije izvršio | otvori nalog i pogledaj Istoriju izvršenja: razlog je upisan (najčešće nedovoljno sredstava ili dnevni limit) |
@@ -390,6 +402,20 @@ Priprema: klijent sa dinarskim računom (bar 20.000 RSD) i deviznim EUR računom
 - [ ] Ostavi obračun otvoren, pa kao administrator u **Kursna lista** objavi novu listu sa malo izmenjenim EUR kursom. Kao klijent klikni **Potvrdi konverziju**: stiže poruka da je kurs promenjen i prikazuje se novi obračun.
 - [ ] Kao administrator pokušaj da objaviš kupovni kurs veći od srednjeg: greška. Istorija kurseva prikazuje i staru i novu listu.
 - [ ] **Glavna knjiga**: bilans je i dalje uravnotežen, a na kontima se vidi devizna pozicija banke i prihod od razlike u kursu.
+
+### C1c. Storniranje
+
+Priprema: dva administratora (drugog napravi u **Korisnici**), bankar i dva klijenta.
+
+- [ ] Klijent A plati klijentu B 2.500 RSD interno.
+- [ ] Kao bankar u **Transakcije** otvori to plaćanje, **Zatraži storniranje** sa kratkim razlogom: greška; sa razlogom od 10+ karaktera: zahtev je poslat.
+- [ ] Bankar u **Storniranja** vidi zahtev „Čeka odobrenje“, ali nema dugme Odobri.
+- [ ] Kao administrator **Odobri**: stanja oba klijenta su vraćena; kod klijenta B original ima oznaku Stornirana i postoji stavka Storno; B ima obaveštenje.
+- [ ] Ponovni zahtev za istu transakciju se odbija.
+- [ ] Kao administrator 1 zatraži storniranje jedne uplate: u redu piše „Odlučuje drugi administrator“. Kao administrator 2 odobri.
+- [ ] Zahtev za storniranje plaćanja drugoj banci se odbija uz objašnjenje o kliringu.
+- [ ] Uplati klijentu 3.000, klijent podigne 2.500, pa zatraži storniranje uplate: odobrenje ne uspeva zbog nedovoljnih sredstava; **Odbij** sa razlogom.
+- [ ] **Glavna knjiga**: bilans uravnotežen, bez razlika.
 
 ### C2. Klijent: profil, pomoć i privatnost
 

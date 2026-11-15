@@ -59,6 +59,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'bankar/transakcije', component: () => import('@/views/staff/StaffTransactionsView.vue'), meta: { roles: staff, title: 'Transakcije' } },
       { path: 'bankar/prigovori', component: () => import('@/views/staff/ComplaintsQueueView.vue'), meta: { roles: staff, title: 'Prigovori' } },
       { path: 'bankar/prigovori/:id', component: () => import('@/views/staff/StaffComplaintDetailView.vue'), meta: { roles: staff, title: 'Prigovor' } },
+      { path: 'bankar/storniranja', component: () => import('@/views/staff/ReversalsView.vue'), meta: { roles: staff, title: 'Storniranja' } },
       { path: 'bankar/ocene', component: () => import('@/views/staff/FeedbackView.vue'), meta: { roles: staff, title: 'Zadovoljstvo korisnika' } },
       { path: 'admin', component: () => import('@/views/admin/AdminDashboardView.vue'), meta: { roles: administrator, title: 'Pregled sistema' } },
       { path: 'admin/korisnici', component: () => import('@/views/admin/UsersView.vue'), meta: { roles: administrator, title: 'Korisnici' } },

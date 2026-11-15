@@ -77,6 +77,7 @@ namespace BankarskiSistem.Infrastructure.Services
                 throw new BusinessRuleException("Svaka valuta može se navesti samo jednom.");
 
             var current = (await GetCurrentRatesAsync()).ToDictionary(r => r.Currency);
+            var validFrom = new DateTime(UtcNow.Ticks - UtcNow.Ticks % TimeSpan.TicksPerSecond, DateTimeKind.Utc);
             var published = new List<ExchangeRate>();
             foreach (var input in rates)
             {
@@ -96,7 +97,7 @@ namespace BankarskiSistem.Infrastructure.Services
                     BuyRate = decimal.Round(input.BuyRate, 4),
                     MiddleRate = decimal.Round(input.MiddleRate, 4),
                     SellRate = decimal.Round(input.SellRate, 4),
-                    ValidFrom = UtcNow,
+                    ValidFrom = validFrom,
                     CreatedByUserId = actor.UserId,
                     CreatedAt = UtcNow
                 };

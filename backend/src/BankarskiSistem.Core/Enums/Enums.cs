@@ -13,7 +13,15 @@ namespace BankarskiSistem.Core.Enums
         Isplata,
         Transfer,
         EksterniTransfer,
-        Konverzija
+        Konverzija,
+        Storno
+    }
+
+    public enum ReversalStatus
+    {
+        Podnet,
+        Izvrsen,
+        Odbijen
     }
 
     public enum ExchangeRateType
