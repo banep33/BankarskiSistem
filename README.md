@@ -55,8 +55,8 @@ backend/
   tests/BankarskiSistem.Tests          unit i integracioni testovi
   tests/BankarskiSistem.LoadTests      load test
 database/
-  migrations/                          V001 do V014
-  migrate.ps1, backup.ps1, restore.ps1
+  migrations/                          V001 do V015
+  migrate.ps1, backup.ps1, restore.ps1, create-app-user.ps1
 docs/                                  uputstvo, bezbednosni koncepti, rezultati load testa
 frontend/                              Vue aplikacija
 ```
@@ -121,13 +121,17 @@ Integracioni testovi prave privremenu bazu i pokreću se kada je postavljena pro
 
 ```powershell
 cd frontend
+npm run test
 npm run build
 npm run lint
 ```
 
+Na svaki push i pull request GitHub Actions (`.github/workflows/ci.yml`) pokreće: build backenda bez upozorenja, sve backend testove na MySQL-u, proveru ranjivih NuGet paketa, frontend testove, proveru tipova, oba lintera, build, `npm audit` za produkcione zavisnosti i primenu svih migracija na praznoj bazi sa proverom kontrolnih suma.
+
 ## Bezbednost u kratkim crtama
 
-- lozinke su heširane BCrypt-om, nalog se zaključava posle 5 neuspešnih pokušaja;
+- lozinke su heširane BCrypt-om, nalog se zaključava posle 5 neuspešnih pokušaja, a odgovor za zaključan nalog sa pogrešnom lozinkom je isti kao za nepostojeći (bez otkrivanja postojanja naloga);
+- **obavezna dvostepena prijava za zaposlene**: sesija pamti nivo provere, access token nosi `amr` (`pwd` ili `mfa`, RFC 8176), a politike za bankara i administratora traže `mfa`; zaposleni bez 2FA mogu samo da je uključe;
 - zaboravljena lozinka bez otkrivanja postojanja naloga: nova lozinka se odmah hešira, aktivira je administrator po principu četiri oka, a zahtev ističe za 72 sata;
 - kratkotrajni JWT (15 minuta) samo u memoriji pregledača i refresh token u HttpOnly, SameSite=Strict kolačiću koji se menja pri svakoj upotrebi; ponovna upotreba starog tokena gasi sesiju;
 - dvostepena prijava po RFC 6238 (TOTP): tajna šifrovana preko ASP.NET Data Protection, zaštita od ponovne upotrebe koda, jednokratni rezervni kodovi čuvani kao heš;
@@ -136,10 +140,17 @@ npm run lint
 - RBAC i provera vlasništva nad svakim resursom na backendu;
 - pesimističko zaključavanje redova i idempotentni ključevi za sve finansijske operacije;
 - rate limiting po vrsti zahteva, greške u formatu RFC 9457 bez internih detalja;
-- audit log osetljivih radnji i evidencija svakog uvida zaposlenog u podatke klijenta;
+- audit log osetljivih radnji, nepromenljiv na nivou baze (okidači zabranjuju izmenu i brisanje), i evidencija svakog uvida zaposlenog u podatke klijenta;
+- Content Security Policy i bezbednosna zaglavlja i za frontend (Vite dev i preview server, `<meta>` u buildu), `X-Request-Id` za praćenje zahteva kroz logove, JSON logovi van razvoja, limit veličine zahteva od 1 MB;
+- migracije sa kontrolnim sumama: izmena već primenjene migracije se odbija;
+- `database/create-app-user.ps1` pravi MySQL korisnika samo sa SELECT, INSERT, UPDATE i DELETE pravima za rad aplikacije (princip najmanjih privilegija), dok se migracije pokreću administratorskim korisnikom;
 - obaveštenja sa maskiranim brojevima računa i brisanje podataka po rokovima čuvanja.
 
 Ako pronađeš bezbednosni propust, prijavi ga privatno vlasniku repozitorijuma umesto javnog issue-a.
+
+## Produkciona postavka frontenda
+
+Statički build (`frontend/dist`) treba servirati preko HTTPS-a sa istim zaglavljima koja koristi `vite preview` (videti `vite.config.ts`): `Content-Security-Policy` sa `frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` i `Permissions-Policy`. Ako API nije na istom domenu, njegov origin se automatski dodaje u `connect-src` iz `VITE_API_BASE_URL`.
 
 ## Ograničenja
 

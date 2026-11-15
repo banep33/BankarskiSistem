@@ -93,14 +93,14 @@ const describedBy = computed(() => [props.hint ? `${id}-hint` : null, props.erro
 }
 
 .required {
-  color: var(--color-primary);
+  color: var(--color-link);
   margin-left: 2px;
 }
 
 .control {
   width: 100%;
   padding: 0.7rem 0.9rem;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
   transition:

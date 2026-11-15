@@ -1,10 +1,10 @@
 using BankarskiSistem.API.Contracts;
 using BankarskiSistem.API.Middleware;
 using BankarskiSistem.API.Security;
+using BankarskiSistem.Core.Banking;
 using BankarskiSistem.Core.Exceptions;
 using BankarskiSistem.Core.Interfaces;
 using BankarskiSistem.Core.Models;
-using BankarskiSistem.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -34,7 +34,7 @@ namespace BankarskiSistem.API.Controllers
             {
                 await auditLog.LogAsync(new AuditEntry(
                     exception.UserId,
-                    StatisticsService.FailedLoginAction,
+                    AuditActions.FailedLogin,
                     "Auth",
                     exception.UserId,
                     NewValue: $"Email: {EmailNormalizer.Normalize(request.Email)}",
@@ -58,7 +58,7 @@ namespace BankarskiSistem.API.Controllers
             {
                 await auditLog.LogAsync(new AuditEntry(
                     exception.UserId,
-                    StatisticsService.FailedLoginAction,
+                    AuditActions.FailedLogin,
                     "Auth",
                     exception.UserId,
                     NewValue: "Pogresan kod dvostepene prijave",

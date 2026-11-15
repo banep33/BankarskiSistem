@@ -44,7 +44,7 @@ namespace BankarskiSistem.Tests.Fakes
 
         public DateTime NextSessionExpiry() => DateTime.UtcNow.AddHours(8);
 
-        public string CreateToken(User user, Guid sessionId, DateTime expiresAt) => $"token-{user.Id}-v{user.TokenVersion}-{sessionId}";
+        public string CreateToken(User user, Guid sessionId, DateTime expiresAt, bool mfaVerified = false) => $"token-{user.Id}-v{user.TokenVersion}-{sessionId}-{(mfaVerified ? "mfa" : "pwd")}";
 
         public string CreateTwoFactorChallenge(User user, DateTime expiresAt) => $"challenge:{user.Id}:{user.TokenVersion}";
 
@@ -97,12 +97,20 @@ namespace BankarskiSistem.Tests.Fakes
     {
         public List<UserSession> Sessions { get; } = [];
 
-        public Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash)
+        public Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash, bool mfaVerified = false)
         {
-            var session = new UserSession { Id = Guid.NewGuid(), UserId = userId, CreatedAt = DateTime.UtcNow, LastSeenAt = DateTime.UtcNow, ExpiresAt = expiresAt, RefreshTokenHash = refreshTokenHash };
+            var session = new UserSession { Id = Guid.NewGuid(), UserId = userId, CreatedAt = DateTime.UtcNow, LastSeenAt = DateTime.UtcNow, ExpiresAt = expiresAt, RefreshTokenHash = refreshTokenHash, MfaVerified = mfaVerified };
             Sessions.Add(session);
             return Task.FromResult(session);
         }
+
+        public Task MarkMfaVerifiedAsync(int userId, Guid sessionId)
+        {
+            Sessions.Single(s => s.Id == sessionId && s.UserId == userId).MfaVerified = true;
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> IsMfaVerifiedAsync(Guid sessionId) => Task.FromResult(Sessions.Any(s => s.Id == sessionId && s.MfaVerified));
 
         public Task<RefreshRotation> RotateRefreshTokenAsync(string presentedHash, string newHash)
         {

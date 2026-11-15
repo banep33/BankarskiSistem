@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import AppIcon from './AppIcon.vue'
+import { lockScroll, unlockScroll } from '@/composables/useScrollLock'
 
 const props = withDefaults(defineProps<{ open: boolean; title: string; width?: string; dismissible?: boolean }>(), {
   width: '520px',
@@ -11,6 +12,14 @@ const emit = defineEmits<{ close: [] }>()
 const dialog = ref<HTMLElement | null>(null)
 const titleId = useId()
 let previousFocus: HTMLElement | null = null
+let isLocked = false
+
+function setLocked(locked: boolean): void {
+  if (locked === isLocked) return
+  isLocked = locked
+  if (locked) lockScroll()
+  else unlockScroll()
+}
 
 function close(): void {
   if (props.dismissible) emit('close')
@@ -46,21 +55,19 @@ watch(
   async (open) => {
     if (open) {
       previousFocus = document.activeElement as HTMLElement | null
-      document.body.style.overflow = 'hidden'
+      setLocked(true)
       await nextTick()
       const firstInput = dialog.value?.querySelector<HTMLElement>('input, select, textarea')
       ;(firstInput ?? focusableElements()[0])?.focus()
     } else {
-      document.body.style.overflow = ''
+      setLocked(false)
       previousFocus?.focus()
     }
   },
   { immediate: true },
 )
 
-onBeforeUnmount(() => {
-  document.body.style.overflow = ''
-})
+onBeforeUnmount(() => setLocked(false))
 </script>
 
 <template>
@@ -98,14 +105,20 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: rgb(6 21 15 / 0.55);
   backdrop-filter: blur(3px);
 }
 
 .dialog {
   width: 100%;
-  max-height: calc(100vh - 2rem);
+  min-width: 0;
+  max-height: calc(100dvh - 2rem);
+  overflow-x: hidden;
   overflow-y: auto;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
@@ -120,7 +133,9 @@ onBeforeUnmount(() => {
 }
 
 .dialog-title {
+  min-width: 0;
   font-size: var(--font-size-xl);
+  overflow-wrap: anywhere;
 }
 
 .close {
@@ -129,8 +144,10 @@ onBeforeUnmount(() => {
   width: 36px;
   height: 36px;
   border: none;
+  flex-shrink: 0;
   border-radius: 50%;
   background: var(--color-surface-muted);
+  color: var(--color-text);
   cursor: pointer;
 }
 
@@ -144,6 +161,28 @@ onBeforeUnmount(() => {
   gap: var(--space-3);
   padding: 0 var(--space-6) var(--space-6);
   flex-wrap: wrap;
+}
+
+@media (max-width: 520px) {
+  .backdrop {
+    padding: var(--space-3);
+  }
+
+  .dialog-header {
+    padding: var(--space-5) var(--space-5) 0;
+  }
+
+  .dialog-body {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .dialog-footer {
+    padding: 0 var(--space-5) var(--space-5);
+  }
+
+  .dialog-footer > :deep(*) {
+    flex: 1 1 auto;
+  }
 }
 
 .modal-enter-active,

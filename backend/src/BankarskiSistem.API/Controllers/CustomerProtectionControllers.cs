@@ -2,8 +2,10 @@ using BankarskiSistem.API.BackgroundJobs;
 using BankarskiSistem.API.Contracts;
 using BankarskiSistem.API.Security;
 using BankarskiSistem.Core.Enums;
+using BankarskiSistem.Core.Exceptions;
 using BankarskiSistem.Core.Interfaces;
 using BankarskiSistem.Core.Models;
+using BankarskiSistem.Core.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -16,7 +18,8 @@ namespace BankarskiSistem.API.Controllers
         ISessionService sessionService,
         IPrivacyService privacyService,
         ITwoFactorService twoFactorService,
-        IAuditLogService auditLog) : ApiControllerBase
+        IAuditLogService auditLog,
+        IOptions<SecuritySettings> securitySettings) : ApiControllerBase
     {
         [HttpGet("two-factor")]
         public async Task<ActionResult<TwoFactorStatus>> GetTwoFactorStatus() =>
@@ -37,6 +40,9 @@ namespace BankarskiSistem.API.Controllers
         {
             var userId = CurrentActor.UserId;
             var codes = await twoFactorService.EnableAsync(userId, request.Code);
+            var sessionId = User.FindSessionId();
+            if (sessionId != null)
+                await sessionService.MarkMfaVerifiedAsync(userId, sessionId.Value);
             await auditLog.LogAsync(new AuditEntry(userId, "Ukljucena dvostepena prijava", "User", userId));
             return Ok(new RecoveryCodesResponse(codes));
         }
@@ -46,7 +52,10 @@ namespace BankarskiSistem.API.Controllers
         [EnableRateLimiting(RateLimitPolicies.Sensitive)]
         public async Task<IActionResult> DisableTwoFactor(TwoFactorCodeRequest request)
         {
-            var userId = CurrentActor.UserId;
+            var actor = CurrentActor;
+            if (actor.IsStaff && securitySettings.Value.RequireTwoFactorForStaff)
+                throw new BusinessRuleException("Zaposleni banke ne mogu da isključe dvostepenu prijavu. Za novi telefon koristite rezervni kod ili zatražite reset od drugog administratora.");
+            var userId = actor.UserId;
             await twoFactorService.DisableAsync(userId, request.Code);
             await auditLog.LogAsync(new AuditEntry(userId, "Iskljucena dvostepena prijava", "User", userId));
             return NoContent();

@@ -48,6 +48,6 @@ withDefaults(defineProps<{ tone?: Tone }>(), { tone: 'neutral' })
 
 .tone-brand {
   background: var(--color-primary-soft);
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 </style>

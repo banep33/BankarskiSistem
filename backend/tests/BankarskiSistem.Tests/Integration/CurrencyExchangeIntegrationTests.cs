@@ -63,7 +63,7 @@ namespace BankarskiSistem.Tests.Integration
             foreach (var account in accounts)
             {
                 var difference = await context.Database
-                    .SqlQueryRaw<decimal>($"SELECT Difference AS Value FROM v_account_reconciliation WHERE AccountId = {account.Id}")
+                    .SqlQuery<decimal>($"SELECT Difference AS Value FROM v_account_reconciliation WHERE AccountId = {account.Id}")
                     .SingleAsync();
                 Assert.Equal(0m, difference);
             }

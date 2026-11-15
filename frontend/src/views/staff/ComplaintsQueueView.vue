@@ -109,10 +109,6 @@ onMounted(load)
 </template>
 
 <style scoped>
-.card-body {
-  padding: var(--space-5) var(--space-6);
-}
-
 .filters {
   display: flex;
   align-items: flex-end;

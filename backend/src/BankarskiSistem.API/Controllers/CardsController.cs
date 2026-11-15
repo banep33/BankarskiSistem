@@ -1,10 +1,10 @@
 using BankarskiSistem.API.Contracts;
 using BankarskiSistem.API.Security;
+using BankarskiSistem.Core.Banking;
 using BankarskiSistem.Core.Entities;
 using BankarskiSistem.Core.Enums;
 using BankarskiSistem.Core.Interfaces;
 using BankarskiSistem.Core.Models;
-using BankarskiSistem.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -96,7 +96,7 @@ namespace BankarskiSistem.API.Controllers
 
         private CardResponse Map(Card card)
         {
-            var max = CardService.MaxLimits(card.Account?.Currency ?? "RSD");
+            var max = CardLimits.Max(card.Account?.Currency ?? "RSD");
             return card.ToResponse(businessCalendar.Today(), max.Purchase, max.Atm);
         }
     }

@@ -10,7 +10,7 @@ import StatusViews from '@/components/ui/StatusViews.vue'
 import { beneficiariesApi, helpApi } from '@/api/bank'
 import { useUiStore } from '@/stores/ui'
 import { errorMessage } from '@/composables/useAsync'
-import { formatAccountNumber, formatDate, initials } from '@/utils/format'
+import { formatAccountNumber, formatDate, gridColumnsClass, initials } from '@/utils/format'
 import { isValidAccountNumber, normalizeAccountNumber } from '@/utils/validation'
 import type { Beneficiary, BeneficiaryRequest, ReferenceData } from '@/types/api'
 
@@ -137,7 +137,7 @@ onMounted(load)
     <StatusViews v-else-if="error" state="error" :message="error" @retry="load" />
     <StatusViews v-else-if="!beneficiaries.length" state="empty" icon="users" title="Nemate sačuvane primaoce" message="Primaoca možete sačuvati ovde ili prilikom plaćanja." />
 
-    <div v-else class="grid-3">
+    <div v-else :class="gridColumnsClass(filtered.length)">
       <AppCard v-for="beneficiary in filtered" :key="beneficiary.id">
         <div class="beneficiary">
           <span class="avatar">{{ initials(beneficiary.nickname.split(' ')[0], beneficiary.nickname.split(' ')[1]) }}</span>
@@ -251,7 +251,7 @@ onMounted(load)
   padding: 0.4rem 0.6rem;
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .form-error {

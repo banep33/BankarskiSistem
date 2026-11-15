@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text;
 using BankarskiSistem.Core.Entities;
 using BankarskiSistem.Core.Enums;
 using BankarskiSistem.Core.Exceptions;
@@ -13,7 +11,6 @@ namespace BankarskiSistem.Infrastructure.Services
     public class StatementService : IStatementService
     {
         public const int MaxPeriodDays = 366;
-        private static readonly CultureInfo Serbian = CultureInfo.GetCultureInfo("sr-Latn-RS");
 
         private readonly ApplicationDbContext _context;
         private readonly IBusinessCalendar _businessCalendar;
@@ -87,40 +84,6 @@ namespace BankarskiSistem.Infrastructure.Services
             return new AccountStatement(account.Id, account.AccountNumber, account.Currency, account.UserId, account.User?.FullName ?? string.Empty, from, to,
                 opening, lines.Sum(l => l.Debit), lines.Sum(l => l.Credit), balance, _timeProvider.GetUtcNow().UtcDateTime, lines);
         }
-
-        public static string ToCsv(AccountStatement statement)
-        {
-            var builder = new StringBuilder();
-            builder.Append('﻿');
-            AppendRow(builder, "Izvod po računu", statement.AccountNumber);
-            AppendRow(builder, "Vlasnik", statement.OwnerName);
-            AppendRow(builder, "Valuta", statement.Currency);
-            AppendRow(builder, "Period", $"{statement.From:dd.MM.yyyy} - {statement.To:dd.MM.yyyy}");
-            AppendRow(builder, "Početno stanje", Amount(statement.OpeningBalance));
-            builder.AppendLine();
-            AppendRow(builder, "Datum", "Referenca", "Vrsta", "Opis", "Protivstrana", "Duguje", "Potražuje", "Stanje");
-            foreach (var line in statement.Lines)
-            {
-                AppendRow(builder, line.Date.ToString("dd.MM.yyyy HH:mm", Serbian), line.Reference, line.Type?.ToString() ?? "", line.Description,
-                    line.Counterparty, line.Debit == 0 ? "" : Amount(line.Debit), line.Credit == 0 ? "" : Amount(line.Credit), Amount(line.BalanceAfter));
-            }
-            builder.AppendLine();
-            AppendRow(builder, "Ukupno duguje", Amount(statement.TotalDebits));
-            AppendRow(builder, "Ukupno potražuje", Amount(statement.TotalCredits));
-            AppendRow(builder, "Krajnje stanje", Amount(statement.ClosingBalance));
-            return builder.ToString();
-        }
-
-        public static string EscapeCsv(string value)
-        {
-            var safe = value.Length > 0 && "=+-@\t\r".Contains(value[0]) ? "'" + value : value;
-            return safe.IndexOfAny([';', '"', '\n', '\r']) >= 0 ? $"\"{safe.Replace("\"", "\"\"")}\"" : safe;
-        }
-
-        private static void AppendRow(StringBuilder builder, params string[] cells) =>
-            builder.Append(string.Join(';', cells.Select(EscapeCsv))).Append("\r\n");
-
-        private static string Amount(decimal value) => value.ToString("0.00", Serbian);
 
         private static string Counterparty(Transaction? transaction, int accountId, IReadOnlyDictionary<int, string> originals)
         {

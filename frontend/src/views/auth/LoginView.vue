@@ -336,7 +336,7 @@ function backToPassword(): void {
   padding: 0;
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
   cursor: pointer;
 }
 
@@ -345,7 +345,7 @@ function backToPassword(): void {
   margin-top: calc(var(--space-2) * -1);
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .safety {

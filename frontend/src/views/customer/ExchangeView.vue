@@ -348,10 +348,6 @@ onMounted(load)
   font-size: var(--font-size-sm);
 }
 
-.card-body {
-  padding: var(--space-5) var(--space-6);
-}
-
 .numeric {
   text-align: right;
 }

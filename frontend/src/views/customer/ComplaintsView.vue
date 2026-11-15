@@ -158,10 +158,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.card-body {
-  padding: var(--space-5) var(--space-6);
-}
-
 .process {
   margin: var(--space-3) 0;
   padding-left: var(--space-5);

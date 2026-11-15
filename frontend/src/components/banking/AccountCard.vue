@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<{ account: Account; to?: string; variant?
         {{ accountStatusLabels[account.status].label }}
       </AppBadge>
     </div>
-    <div class="balance">
+    <div class="balance amount-fit">
       <span class="caption">Raspoloživo</span>
       <MoneyAmount class="amount" :amount="account.balance" :currency="account.currency" />
     </div>
@@ -60,8 +60,9 @@ const props = withDefaults(defineProps<{ account: Account; to?: string; variant?
 }
 
 .variant-forest {
-  background: var(--color-forest-900);
-  color: #fff;
+  background: var(--color-emphasis-bg);
+  border: 1px solid var(--color-emphasis-border);
+  color: var(--color-emphasis-text);
 }
 
 .variant-coral {
@@ -71,7 +72,7 @@ const props = withDefaults(defineProps<{ account: Account; to?: string; variant?
 
 .variant-cream {
   background: var(--color-cream);
-  color: var(--color-forest-900);
+  color: var(--color-text);
 }
 
 .top {
@@ -89,12 +90,13 @@ const props = withDefaults(defineProps<{ account: Account; to?: string; variant?
   letter-spacing: 0.06em;
 }
 
-.variant-cream .currency {
-  background: rgb(11 35 32 / 0.08);
+.variant-cream .currency,
+.variant-forest .currency {
+  background: var(--color-emphasis-chip);
 }
 
 .variant-forest .currency {
-  color: var(--color-lime-400);
+  color: var(--color-emphasis-accent);
 }
 
 .caption {
@@ -103,10 +105,19 @@ const props = withDefaults(defineProps<{ account: Account; to?: string; variant?
   opacity: 0.75;
 }
 
+.balance {
+  --amount-max: var(--font-size-2xl);
+  --amount-min: 1.125rem;
+  --amount-scale: 9cqi;
+}
+
 .amount {
-  font-size: var(--font-size-2xl);
   font-weight: 600;
   letter-spacing: -0.02em;
+}
+
+.number {
+  overflow-wrap: anywhere;
 }
 
 .number {

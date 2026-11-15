@@ -1,4 +1,4 @@
-namespace BankarskiSistem.Infrastructure.Services
+namespace BankarskiSistem.Core.Banking
 {
     public static class EmailNormalizer
     {

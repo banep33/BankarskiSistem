@@ -21,6 +21,13 @@ namespace BankarskiSistem.Tests.Unit
             Assert.Equal(expectedValid, result.IsValid);
         }
 
+        [Fact]
+        public void MoneyRequest_MaximumAmountMessage_UsesSerbianNumberFormat()
+        {
+            var result = new MoneyRequestValidator().Validate(new MoneyRequest(10_000_001m, null));
+            Assert.Contains(result.Errors, e => e.ErrorMessage == "Iznos ne sme biti veći od 10.000.000.");
+        }
+
         [Theory]
         [InlineData("205-0000001234567-89", true)]
         [InlineData("205-1234567-89", true)]

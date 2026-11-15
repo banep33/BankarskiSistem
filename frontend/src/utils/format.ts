@@ -60,6 +60,18 @@ export function formatAccountNumber(accountNumber: string): string {
   return `${bank}-${middle.replace(/^0+(?=\d)/, '')}-${control}`
 }
 
+export function pluralSr(count: number, one: string, few: string, many: string): string {
+  const lastTwo = Math.abs(count) % 100
+  const last = lastTwo % 10
+  if (last === 1 && lastTwo !== 11) return one
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return few
+  return many
+}
+
+export function gridColumnsClass(count: number, maxColumns = 3): string {
+  return `grid-${Math.max(1, Math.min(count, maxColumns))}`
+}
+
 export function toIsoDate(date: Date): string {
   const offset = date.getTimezoneOffset() * 60_000
   return new Date(date.getTime() - offset).toISOString().slice(0, 10)

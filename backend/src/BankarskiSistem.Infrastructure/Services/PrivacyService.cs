@@ -1,3 +1,4 @@
+using BankarskiSistem.Core.Banking;
 using BankarskiSistem.Core.Exceptions;
 using BankarskiSistem.Core.Interfaces;
 using BankarskiSistem.Core.Models;
@@ -12,7 +13,7 @@ namespace BankarskiSistem.Infrastructure.Services
         public static readonly string[] SecurityActions =
         [
             "Uspesna prijava",
-            StatisticsService.FailedLoginAction,
+            AuditActions.FailedLogin,
             "Promena lozinke",
             "Izmenjen profil",
             "Izvoz licnih podataka",

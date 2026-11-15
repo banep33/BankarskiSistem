@@ -63,6 +63,6 @@ async function submit(): Promise<void> {
 }
 
 .notice :deep(svg) {
-  color: var(--color-primary);
+  color: var(--color-link);
 }
 </style>

@@ -40,7 +40,22 @@ withDefaults(defineProps<{ title?: string; subtitle?: string; padded?: boolean; 
 }
 
 .card:not(.padded) .card-header {
+  margin-bottom: var(--space-1);
   padding: var(--space-5) var(--space-6) 0;
+}
+
+@media (max-width: 720px) {
+  .padded {
+    padding: var(--space-5);
+  }
+
+  .card:not(.padded) .card-header {
+    padding: var(--space-4) var(--space-4) 0;
+  }
+
+  .card-header {
+    flex-wrap: wrap;
+  }
 }
 
 .card-title {
@@ -60,13 +75,13 @@ withDefaults(defineProps<{ title?: string; subtitle?: string; padded?: boolean; 
 }
 
 .tone-dark {
-  background: var(--color-forest-900);
-  border-color: var(--color-forest-800);
-  color: var(--color-text-inverse);
+  background: var(--color-emphasis-bg);
+  border-color: var(--color-emphasis-border);
+  color: var(--color-emphasis-text);
 }
 
 .tone-dark .card-subtitle {
-  color: rgb(255 255 255 / 0.65);
+  color: var(--color-emphasis-text-muted);
 }
 
 .tone-cream {

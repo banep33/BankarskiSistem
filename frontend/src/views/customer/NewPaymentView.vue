@@ -573,30 +573,30 @@ onMounted(load)
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-2) 0;
-  color: rgb(255 255 255 / 0.8);
+  color: var(--color-emphasis-text-muted);
 }
 
 .calc dt small {
   display: block;
   font-size: var(--font-size-xs);
-  color: rgb(255 255 255 / 0.5);
+  color: var(--color-emphasis-text-muted);
 }
 
 .calc dd {
   margin: 0;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-emphasis-text);
 }
 
 .calc .total {
   margin: var(--space-2) 0;
   padding: var(--space-3) 0;
-  border-top: 1px solid rgb(255 255 255 / 0.15);
-  border-bottom: 1px solid rgb(255 255 255 / 0.15);
+  border-top: 1px solid var(--color-emphasis-chip-border);
+  border-bottom: 1px solid var(--color-emphasis-chip-border);
 }
 
 .calc .total dd {
-  color: var(--color-lime-400);
+  color: var(--color-emphasis-accent);
   font-size: var(--font-size-xl);
 }
 
@@ -606,7 +606,7 @@ onMounted(load)
   align-items: center;
   margin-top: var(--space-3);
   font-size: var(--font-size-sm);
-  color: var(--color-lime-400);
+  color: var(--color-emphasis-accent);
 }
 
 .done {
@@ -646,7 +646,7 @@ onMounted(load)
 
 .link {
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 @media (max-width: 1000px) {

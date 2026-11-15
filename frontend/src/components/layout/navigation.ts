@@ -38,7 +38,7 @@ const customerNavigation: NavSection[] = [
   {
     title: 'Nalog',
     items: [
-      { to: '/profil', label: 'Profil', icon: 'settings' },
+      { to: '/postavke', label: 'Postavke', icon: 'settings' },
       { to: '/bezbednost', label: 'Bezbednost', icon: 'shield' },
       { to: '/privatnost', label: 'Privatnost', icon: 'lock' },
     ],
@@ -59,7 +59,7 @@ const bankerNavigation: NavSection[] = [
   {
     title: 'Nalog',
     items: [
-      { to: '/profil', label: 'Profil', icon: 'settings' },
+      { to: '/postavke', label: 'Postavke', icon: 'settings' },
       { to: '/bezbednost', label: 'Bezbednost', icon: 'shield' },
       { to: '/obavestenja', label: 'Obaveštenja', icon: 'bell' },
     ],
@@ -93,7 +93,7 @@ const administratorNavigation: NavSection[] = [
   {
     title: 'Nalog',
     items: [
-      { to: '/profil', label: 'Profil', icon: 'settings' },
+      { to: '/postavke', label: 'Postavke', icon: 'settings' },
       { to: '/bezbednost', label: 'Bezbednost', icon: 'shield' },
     ],
   },
@@ -113,7 +113,7 @@ export function mobileNavigationFor(role: UserRole | null): NavItem[] {
       { to: '/racuni', label: 'Računi', icon: 'wallet' },
       { to: '/placanja/novo', label: 'Plati', icon: 'send' },
       { to: '/transakcije', label: 'Istorija', icon: 'list' },
-      { to: '/profil', label: 'Profil', icon: 'settings' },
+      { to: '/postavke', label: 'Postavke', icon: 'settings' },
     ]
   }
   return navigationFor(role)[0]?.items.slice(0, 5) ?? []

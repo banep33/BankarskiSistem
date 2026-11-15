@@ -125,7 +125,7 @@ namespace BankarskiSistem.Core.Interfaces
     {
         DateTime NextExpiry();
         DateTime NextSessionExpiry();
-        string CreateToken(User user, Guid sessionId, DateTime expiresAt);
+        string CreateToken(User user, Guid sessionId, DateTime expiresAt, bool mfaVerified = false);
         string CreateTwoFactorChallenge(User user, DateTime expiresAt);
         (int UserId, int TokenVersion)? ReadTwoFactorChallenge(string token);
     }

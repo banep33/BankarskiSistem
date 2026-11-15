@@ -47,10 +47,6 @@ namespace BankarskiSistem.Infrastructure.Services
 
         private DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
 
-        public static (decimal Purchase, decimal Atm) DefaultLimits(string currency) => currency == "RSD" ? (100_000m, 40_000m) : (1_000m, 400m);
-
-        public static (decimal Purchase, decimal Atm) MaxLimits(string currency) => currency == "RSD" ? (500_000m, 100_000m) : (5_000m, 1_000m);
-
         public async Task<Card> IssueAsync(int accountId, CardBrand brand, Actor actor)
         {
             if (!actor.IsStaff)
@@ -89,7 +85,7 @@ namespace BankarskiSistem.Infrastructure.Services
             var card = await LoadOwnedAsync(cardId, actor);
             if (card.Status == CardStatus.Ukinuta)
                 throw new BusinessRuleException("Kartica je ukinuta.");
-            var max = MaxLimits(card.Account!.Currency);
+            var max = CardLimits.Max(card.Account!.Currency);
             if (settings.DailyPurchaseLimit < 0 || settings.DailyPurchaseLimit > max.Purchase)
                 throw new BusinessRuleException($"Dnevni limit za plaćanje mora biti između 0 i {MoneyRules.Format(max.Purchase, card.Account.Currency)}.");
             if (settings.DailyAtmLimit < 0 || settings.DailyAtmLimit > max.Atm)
@@ -283,7 +279,7 @@ namespace BankarskiSistem.Infrastructure.Services
             while (await _context.Cards.AnyAsync(c => c.PanHash == hash));
 
             var expiry = _businessCalendar.Today().AddYears(ValidityYears);
-            var defaults = DefaultLimits(account.Currency);
+            var defaults = CardLimits.Default(account.Currency);
             var card = new Card
             {
                 UserId = account.UserId,

@@ -64,12 +64,26 @@ namespace BankarskiSistem.Tests.Unit
 
             await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
             await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
-            await Assert.ThrowsAsync<AccountLockedException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
+            await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
 
             Assert.True(_customer.IsLocked);
             Assert.True(_customer.TokenVersion > versionBefore);
             Assert.Contains(_notifications.Published, n => n.UserId == _customer.Id && n.Type == NotificationType.Bezbednost);
             await Assert.ThrowsAsync<AccountLockedException>(() => _service.LoginAsync(_customer.Email, "Ispravna123"));
+        }
+
+        [Fact]
+        public async Task Login_LockedAccountWithWrongPassword_LooksLikeUnknownAccount()
+        {
+            for (var attempt = 0; attempt < 3; attempt++)
+                await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
+            var lockedUntil = _customer.LockedUntil;
+
+            var locked = await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync(_customer.Email, "opet-pogresna"));
+            var unknown = await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync("niko@test.local", "opet-pogresna"));
+
+            Assert.Equal(unknown.Message, locked.Message);
+            Assert.Equal(lockedUntil, _customer.LockedUntil);
         }
 
         [Fact]
@@ -178,6 +192,47 @@ namespace BankarskiSistem.Tests.Unit
 
             _customer.IsActive = false;
             await Assert.ThrowsAsync<InvalidRefreshTokenException>(() => _service.RefreshAsync(refreshed.RefreshToken!));
+        }
+
+        private User AddBanker()
+        {
+            var banker = new User { Email = "bankar@test.local", PasswordHash = "hashed:Ispravna123", Role = UserRole.Bankar, IsActive = true };
+            _users.AddAsync(banker).Wait();
+            return banker;
+        }
+
+        [Fact]
+        public async Task Login_StaffWithoutSecondFactor_GetsPasswordOnlySessionThatRequiresSetup()
+        {
+            var banker = AddBanker();
+
+            var staff = (await _service.LoginAsync(banker.Email, "Ispravna123")).Session!;
+            var customer = (await _service.LoginAsync(_customer.Email, "Ispravna123")).Session!;
+
+            Assert.False(staff.MfaVerified);
+            Assert.True(staff.TwoFactorSetupRequired);
+            Assert.EndsWith("-pwd", staff.Token);
+            Assert.False(customer.TwoFactorSetupRequired);
+        }
+
+        [Fact]
+        public async Task SecondFactorAssurance_IsKeptThroughRefreshAndPasswordChange()
+        {
+            var banker = AddBanker();
+            banker.TotpEnabledAt = DateTime.UtcNow;
+            banker.TotpSecretProtected = "tajna";
+
+            var challenge = (await _service.LoginAsync(banker.Email, "Ispravna123")).Challenge!;
+            var verified = await _service.CompleteTwoFactorAsync(challenge.Token, _twoFactor.ValidCode);
+            Assert.True(verified.MfaVerified);
+            Assert.False(verified.TwoFactorSetupRequired);
+            Assert.EndsWith("-mfa", verified.Token);
+
+            var refreshed = await _service.RefreshAsync(verified.RefreshToken!);
+            Assert.True(refreshed.MfaVerified);
+
+            var changed = await _service.ChangePasswordAsync(banker.Id, refreshed.SessionId, "Ispravna123", "NovaLozinka123");
+            Assert.True(changed.MfaVerified);
         }
     }
 }

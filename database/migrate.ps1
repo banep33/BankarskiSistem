@@ -46,12 +46,46 @@ Invoke-MySql -Sql "CREATE DATABASE IF NOT EXISTS ``$Database`` CHARACTER SET utf
 $migrationsDirectory = Join-Path $PSScriptRoot "migrations"
 $migrations = Get-ChildItem $migrationsDirectory -Filter "V*.sql" | Sort-Object Name
 
+function Get-MigrationChecksum {
+    param([System.IO.FileInfo]$File)
+    $text = [System.IO.File]::ReadAllText($File.FullName).Replace("`r`n", "`n")
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($text)
+    return ([System.BitConverter]::ToString([System.Security.Cryptography.SHA256]::Create().ComputeHash($bytes))).Replace("-", "").ToLowerInvariant()
+}
+
+function Test-ChecksumColumn {
+    $count = Invoke-MySql -TargetDatabase $Database -Sql "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'schema_migrations' AND column_name = 'Checksum';"
+    return [int]$count -gt 0
+}
+
+function Save-PendingChecksums {
+    param([hashtable]$Pending)
+    foreach ($entry in $Pending.GetEnumerator()) {
+        Invoke-MySql -TargetDatabase $Database -Sql "UPDATE schema_migrations SET Checksum = '$($entry.Value)' WHERE Version = '$($entry.Key)' AND Checksum IS NULL;" | Out-Null
+    }
+    $Pending.Clear()
+}
+
+$pendingChecksums = @{}
+
 foreach ($migration in $migrations) {
     $version = $migration.Name.Split("__")[0]
+    $checksum = Get-MigrationChecksum -File $migration
     $tableExists = Invoke-MySql -TargetDatabase $Database -Sql "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'schema_migrations';"
     if ([int]$tableExists -gt 0) {
         $applied = Invoke-MySql -TargetDatabase $Database -Sql "SELECT COUNT(*) FROM schema_migrations WHERE Version = '$version';"
         if ([int]$applied -gt 0) {
+            if (Test-ChecksumColumn) {
+                $stored = "$(Invoke-MySql -TargetDatabase $Database -Sql "SELECT IFNULL(Checksum, '') FROM schema_migrations WHERE Version = '$version';")".Trim()
+                if ($stored -eq '') {
+                    $pendingChecksums[$version] = $checksum
+                    Save-PendingChecksums -Pending $pendingChecksums
+                } elseif ($stored -ne $checksum) {
+                    throw "Migracija $($migration.Name) je izmenjena posle primene (kontrolna suma se ne poklapa). Primenjene migracije se ne menjaju; napravite novu migraciju."
+                }
+            } else {
+                $pendingChecksums[$version] = $checksum
+            }
             Write-Host "[preskoceno] $($migration.Name)" -ForegroundColor DarkGray
             continue
         }
@@ -60,6 +94,10 @@ foreach ($migration in $migrations) {
     Write-Host "[primena]    $($migration.Name)" -ForegroundColor Cyan
     $scriptPath = $migration.FullName.Replace("\", "/")
     Invoke-MySql -TargetDatabase $Database -Sql "source $scriptPath" | Out-Null
+    $pendingChecksums[$version] = $checksum
+    if (Test-ChecksumColumn) {
+        Save-PendingChecksums -Pending $pendingChecksums
+    }
     Write-Host "[uspesno]    $($migration.Name)" -ForegroundColor Green
 }
 

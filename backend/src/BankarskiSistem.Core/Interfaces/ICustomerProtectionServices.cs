@@ -6,7 +6,9 @@ namespace BankarskiSistem.Core.Interfaces
 {
     public interface ISessionService
     {
-        Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash);
+        Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash, bool mfaVerified = false);
+        Task MarkMfaVerifiedAsync(int userId, Guid sessionId);
+        Task<bool> IsMfaVerifiedAsync(Guid sessionId);
         Task<RefreshRotation> RotateRefreshTokenAsync(string presentedHash, string newHash);
         Task<bool> ValidateAndTouchAsync(Guid sessionId, int userId);
         Task<IReadOnlyList<UserSession>> GetActiveAsync(int userId);

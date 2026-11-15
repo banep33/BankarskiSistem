@@ -85,9 +85,9 @@ async function submit(): Promise<void> {
 }
 
 .score.active {
-  background: var(--color-forest-900);
-  color: var(--color-lime-400);
-  border-color: var(--color-forest-900);
+  background: var(--color-contrast-bg);
+  color: var(--color-contrast-text);
+  border-color: var(--color-contrast-bg);
 }
 
 .comment {

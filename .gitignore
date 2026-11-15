@@ -1,4 +1,13 @@
 prateca-dokumentacija/
+interno/
+docs/backend_frontend_security_concepts.md
+docs/interno/
+*.procena.md
+
+.claude/
+CLAUDE.local.md
+.mcp.json
+
 database/backups/
 *.sql.gz
 

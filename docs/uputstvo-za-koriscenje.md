@@ -54,7 +54,9 @@ Zahtev važi 72 sata. Novi zahtev poništava prethodni, a dnevno se mogu poslati
 ### Raspored ekrana
 
 - **Bočni meni** levo sadrži sve odeljke dostupne tvojoj ulozi. Na telefonu se otvara ikonicom menija, a na dnu ekrana je traka sa 5 najvažnijih stavki.
-- **Gornja traka**: pozdrav, ikonica oka za sakrivanje iznosa, promena teme (svetla ili tamna), zvonce sa brojem nepročitanih obaveštenja i meni korisnika sa odjavom.
+- **Gornja traka**: pozdrav, ikonica oka za sakrivanje iznosa, promena teme (svetla ili tamna), zvonce sa brojem nepročitanih obaveštenja i meni na inicijalima (**Bezbednost i uređaji**, za klijente **Privatnost**, i **Odjavi se**, jedino mesto za odjavu). Meni se zatvara klikom van njega ili tasterom Escape.
+- **Tema** se primenjuje na celu aplikaciju, uključujući bočni meni, istaknute kartice i grafikone. **Sistemska** tema (u Postavkama) prati podešavanje uređaja.
+- Na telefonu i tabletu stranica se nikada ne pomera bočno; široke tabele se skroluju unutar svoje kartice.
 
 ## 2. Klijent
 
@@ -252,7 +254,7 @@ Svako otvaranje ove stranice beleži se i klijent to vidi u svom odeljku Privatn
 - **Izvod** u redu računa otvara izvod klijenta za izabrani period, sa preuzimanjem CSV i štampom. Izrada izvoda se evidentira u klijentovom odeljku Privatnost.
 - **Računi klijenta**:
   - **Uplata** proknjižava gotovinsku uplatu na šalteru. Uplate iznad praga automatski se prijavljuju AML proveri;
-  - **Blokiraj** i **Aktiviraj** menjaju status računa;
+  - **Blokiraj** i **Aktiviraj** menjaju status računa, uvek posle potvrde u prozoru koji prikazuje broj računa;
   - klik na broj računa prikazuje poslednje transakcije.
 
 ### Transakcije
@@ -294,7 +296,7 @@ Administrator ima sve što i bankar, plus sledeće.
 - **Pregled sistema**: zdravlje glavne knjige, broj otvorenih AML upozorenja i ZZPL zahteva, statistike, dugme **Pokreni čišćenje sada** (briše pročitana obaveštenja i istekle sesije po rokovima čuvanja i prikazuje koliko je obrisano).
 - **Korisnici**: svi korisnici; pri kreiranju se bira uloga (klijent, bankar, administrator). Korisnici sa uključenom dvostepenom prijavom imaju oznaku **2FA** i dugme **Resetuj 2FA** (za izgubljen telefon, posle provere identiteta; sve sesije korisnika se odjavljuju). U svakom redu su i **Otključaj**, **Deaktiviraj** ili **Aktiviraj** i ikonica korpe za **trajno brisanje**. Brisanje radi samo za nalog bez računa, transakcija i prijava (na primer nalog napravljen greškom); za ostale se koristi deaktivacija, jer banka mora da čuva podatke propisani broj godina.
 - **Zahtevi za lozinku**: korisnici koji su zaboravili lozinku. Za svaki zahtev vide se podnosilac, uloga, da li je nalog zaključan, IP adresa, uređaj i rok. **Odobri** traži da označiš da si proverio identitet nezavisnim kanalom, a **Odbij** traži razlog. O zahtevu za sopstvenu lozinku mora da odluči drugi administrator.
-- **Računi**: svi računi sa vlasnicima, pretraga i promena statusa.
+- **Računi**: svi računi sa vlasnicima, pretraga i promena statusa. **Blokiraj** prvo otvara prozor za potvrdu sa brojem računa, vlasnikom, stanjem i trenutnim statusom; račun se blokira tek kada potvrdiš (**Blokiraj račun**), a **Odustani** ne menja ništa. Dok zahtev traje, dugme je zaključano, pa nije moguće poslati ga dva puta. Isto važi za **Aktiviraj**.
 - **Storniranja**: zahtevi bankara za ispravku transakcija. **Odobri** pravi storno transakciju, **Odbij** traži razlog. Sopstveni zahtev ne može da odobri; u tom redu piše „Odlučuje drugi administrator“.
 - **Kursna lista**: važeća lista, obrazac **Nova kursna lista** (kupovni, srednji i prodajni kurs za svaku valutu) i istorija kurseva za 90 dana. Pravila: kupovni < srednji < prodajni, razlika između kupovnog i prodajnog najviše 10% srednjeg kursa, a srednji kurs ne sme da se promeni za više od 20% od važećeg (zaštita od greške u kucanju). Nova lista važi odmah. Kursna lista u aplikaciji je simulirana i nije povezana sa kursnom listom NBS.
 - **Glavna knjiga**:
@@ -311,7 +313,9 @@ Administrator ima sve što i bankar, plus sledeće.
 - **Automatska odjava**: posle 5 minuta bez aktivnosti. Minut ranije pojavljuje se prozor sa odbrojavanjem i dugmetom **Ostajem prijavljen/a**.
 - **Bezbednost**: dvostepena prijava, aktivne sesije sa uređajem, IP adresom i vremenom aktivnosti; **Odjavi** za jedan uređaj ili **Odjavi sve druge uređaje**; istorija prijava i bezbednosnih događaja.
 - **Dvostepena prijava (2FA)**: u odeljku Bezbednost klikni **Uključi** i potvrdi lozinku. Na telefonu otvori aplikaciju za autentifikaciju (Google Authenticator, Microsoft Authenticator, Authy), skeniraj QR kod ili ručno unesi ključ, pa upiši kod koji aplikacija prikazuje. Dobićeš 10 rezervnih kodova: preuzmi ih ili prepiši, jer se prikazuju samo jednom i svaki važi jednom. Isti kod iz aplikacije ne može se iskoristiti dva puta. **Novi rezervni kodovi** poništava stare, a **Isključi** traži lozinku i kod. Ako izgubiš i telefon i rezervne kodove, administrator može da isključi dvostepenu prijavu posle provere identiteta.
-- **Profil**: izmena imena i prezimena, promena lozinke (odjavljuje sve druge uređaje), izbor teme, odjava.
+- **Obavezna dvostepena prijava za zaposlene**: bankar i administrator posle prve prijave lozinkom vide samo odeljak **Bezbednost** sa porukom „Uključite dvostepenu prijavu da biste nastavili“. Dostupni su još samo Postavke, Obaveštenja i Pomoć. Kada uključe 2FA, odmah dobijaju pristup svim odeljcima, a svaka sledeća prijava traži kod. Zaposleni ne mogu sami da isključe dvostepenu prijavu; za novi telefon koriste rezervni kod ili traže reset od drugog administratora. Klijentima je dvostepena prijava preporučena, ali nije obavezna. Pravilo se uključuje i isključuje podešavanjem `SecuritySettings:RequireTwoFactorForStaff` (podrazumevano uključeno).
+- **Postavke** (ranije „Profil“; stara adresa `/profil` automatski vodi na `/postavke`): izmena imena i prezimena, promena lozinke (odjavljuje sve druge uređaje) i izbor teme (sistemska, svetla, tamna). Podatak „Klijent od“ vidi samo klijent, ispod imena i oznaka.
+- **Odjava** je isključivo u meniju na inicijalima u gornjoj traci: klik na inicijale, pa **Odjavi se**. Meni sadrži i **Bezbednost i uređaji** i, za klijente, **Privatnost**; stranica Postavke je u bočnom meniju.
 - **Sakrivanje iznosa**: ikonica oka u gornjoj traci. Iznosi u obračunu plaćanja se ne sakrivaju, jer moraš da vidiš šta potvrđuješ.
 - Banka nikada ne traži lozinku telefonom, porukom ili emailom.
 
@@ -323,6 +327,10 @@ Administrator ima sve što i bankar, plus sledeće.
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
 | Ne mogu da platim sa štednog računa | štedni račun služi samo za štednju; prebaci novac na tekući račun (Štednja, Povuci) |
 | Kartica je odbijena | otvori Kartice, Istorija transakcija kartice: razlog je upisan (blokada, isključen internet ili inostranstvo, dnevni limit kartice, nedovoljno sredstava) |
+| Kao bankar ili administrator vidim samo Bezbednost | uključi dvostepenu prijavu (Bezbednost, Uključi); posle toga se otvaraju svi odeljci |
+| Kao zaposleni ne mogu da isključim 2FA | to je namerno; za novi telefon koristi rezervni kod ili zatraži reset od drugog administratora |
+| Vremena u aplikaciji su bila pomerena za sat | ispravljeno: server sada vraća vreme sa oznakom UTC, a pregledač ga prikazuje po tvojoj vremenskoj zoni |
+| Ne vidim stranicu Profil | preimenovana je u **Postavke**; stara adresa vodi na novu |
 | Ne mogu da odblokiram karticu | ako je karticu blokirala banka, obrati se banci; ukinuta kartica se ne može vratiti, potrebna je zamenska |
 | Ne vidim pun broj kartice | banka ne čuva pun broj, prikazuju se samo poslednje četiri cifre |
 | Plaćanje je u pogrešnoj kategoriji | promeni kategoriju u Potrošnja i budžeti i izaberi Zapamti za primaoca |
@@ -370,6 +378,7 @@ Priprema:
 - Potrebna je aplikacija koja pravi šestocifrene kodove: Google Authenticator, Microsoft Authenticator ili Authy na telefonu. Bez telefona radi i KeePassXC ili proširenje za pregledač „Authenticator“; tada se umesto skeniranja QR koda ručno unosi ključ prikazan ispod njega.
 - Sat na uređaju mora biti podešen automatski, inače kodovi ne prolaze.
 - Testiraj na klijentu, a ne na jedinom administratoru. Administrator ne može sam sebi da resetuje dvostepenu prijavu, pa bi izgubljen telefon bez rezervnih kodova značio da nalogu više niko ne može da pristupi.
+- Za zaposlene je dvostepena prijava obavezna (vidi A3b). Pre testiranja obezbedi da postoje bar dva administratora sa uključenom 2FA, da bi jedan mogao drugome da resetuje 2FA.
 
 Provere:
 
@@ -384,6 +393,16 @@ Provere:
 - [ ] Kao administrator u **Korisnici** klijent ima oznaku 2FA; **Resetuj 2FA**: klijent je odjavljen i sledeća prijava ne traži kod.
 - [ ] Ponovo uključi dvostepenu prijavu (u aplikaciji prvo obriši stari nalog, jer je ključ nov). **Novi rezervni kodovi** uz kod iz aplikacije daje novih 10, a stari više ne važe.
 - [ ] **Isključi** u Bezbednosti traži lozinku i kod iz aplikacije ili rezervni kod.
+
+### A3b. Obavezna dvostepena prijava za zaposlene
+
+- [ ] Prijavi se kao bankar koji nema 2FA: otvara se **Bezbednost** sa porukom „Uključite dvostepenu prijavu da biste nastavili“.
+- [ ] Klikni **Klijenti** u bočnom meniju ili upiši `/bankar/klijenti`: vraća te na Bezbednost.
+- [ ] **Postavke**, **Obaveštenja** i **Pomoć** rade.
+- [ ] **Uključi** 2FA: posle potvrde koda poruka kaže da sada imaš pristup svim odeljcima, a **Klijenti** se otvaraju bez nove prijave.
+- [ ] U kartici Dvostepena prijava nema dugmeta **Isključi**, a piše da zaposleni ne mogu sami da je isključe.
+- [ ] Odjavi se i prijavi ponovo: traži se kod.
+- [ ] Prijavi se kao klijent bez 2FA: ulazi normalno na Početnu.
 
 ### A4. Upravljanje korisnicima
 
@@ -526,10 +545,11 @@ Priprema: klijent sa verifikovanim identitetom i bar 50.000 RSD na tekućem rač
 - [ ] **Istorija transakcija kartice** stare kartice prikazuje sve pokušaje, odobrene i odbijene, sa razlozima.
 - [ ] Kao **bankar** zatraži storniranje plaćanja karticom, a kao drugi **administrator** ga odobri: novac je vraćen na račun.
 
-### C2. Klijent: profil, pomoć i privatnost
+### C2. Klijent: postavke, pomoć i privatnost
 
-- [ ] **Profil**: promeni ime i sačuvaj; pozdrav u gornjoj traci i meni korisnika prikazuju novo ime.
-- [ ] **Profil**, **Promena lozinke**: indikator jačine reaguje dok kucaš; posle promene je prijava u drugom pregledaču odjavljena, a stara lozinka više ne važi.
+- [ ] **Postavke**: promeni ime i sačuvaj; pozdrav u gornjoj traci i meni korisnika prikazuju novo ime.
+- [ ] Upiši adresu `/profil`: otvara se stranica **Postavke**.
+- [ ] **Postavke**, **Promena lozinke**: indikator jačine reaguje dok kucaš; posle promene je prijava u drugom pregledaču odjavljena, a stara lozinka više ne važi.
 - [ ] **Privatnost**, uključi **Sakrij stanja pri prijavi** i sačuvaj; odjavi se i prijavi ponovo: iznosi su odmah sakriveni.
 - [ ] **Pomoć i cenovnik**: pretraga „naknada“ sužava listu pitanja; klik na pitanje otvara odgovor; cenovnik prikazuje naknadu za plaćanje drugoj banci.
 
@@ -550,12 +570,20 @@ Priprema: klijent sa verifikovanim identitetom i bar 50.000 RSD na tekućem rač
 - [ ] **Audit log**: pretraga „prijava“, klik na red prikazuje detalje.
 - [ ] **Centar za pomoć**: dodaj pitanje, proveri ga na stranici Pomoć, obriši ga.
 - [ ] **Pregled sistema**: **Pokreni čišćenje sada** prikazuje broj obrisanih zapisa.
-- [ ] **Računi**: pretraga po imenu klijenta; **Blokiraj** jedan račun. Kao klijent proveri da se blokiran račun ne nudi pri plaćanju; kao administrator **Aktiviraj** ga ponovo.
+- [ ] **Računi**: pretraga po imenu klijenta; **Blokiraj** otvara potvrdu sa brojem računa i vlasnikom. **Odustani** ne menja status; zatim **Blokiraj račun**. Kao klijent proveri da se blokiran račun ne nudi pri plaćanju; kao administrator **Aktiviraj** ga ponovo.
 - [ ] **Glavna knjiga**: posle svih radnji bilans je i dalje uravnotežen.
 
 ### F. Opšte
 
-- [ ] Promena teme u tamnu i nazad.
+- [ ] Promena teme u tamnu i nazad: bočni meni, istaknute kartice, kartice računa, grafikoni i modali menjaju boje; iznos u **Detalji transakcije** je čitljiv u obe teme.
+- [ ] Kao administrator i bankar, **Postavke** ne prikazuju „Klijent od“; kao klijent je „Klijent od …“ ispod oznaka, poravnato sa imenom, i na telefonu.
+- [ ] **Postavke** nemaju odjavu; meni na inicijalima nema stavku Postavke, a **Odjavi se** u njemu radi.
+- [ ] Početna sa 1, 2 i 3 računa: kartice računa i prometa uvek popunjavaju celu širinu (1 račun preko cele širine, 2 po pola), a „Svi računi“ je poravnato sa karticama. Na stranici Računi sa 5 računa raspored je 3 + 2, kartice iste širine.
+- [ ] Brojevi uz imenice su gramatički tačni: „1 aktivan od 1 računa“, „2 aktivna od 2 računa“, „5 aktivnih od 5 računa“.
+- [ ] Vreme prijave u **Bezbednost**, Aktivne sesije, poklapa se sa satom na računaru („aktivnost pre nekoliko sekundi“, ne „pre 1 sata“).
+- [ ] Modali (izmena i brisanje korisnika, blokiranje računa, brisanje pitanja u centru za pomoć, detalji transakcije) su centrirani na računaru, tabletu i telefonu, a stranica iza njih se ne pomera.
+- [ ] Na širini telefona (DevTools, 375 px) stranice **Korisnici** i **Računi** nemaju bočno pomeranje; tabela se skroluje unutar kartice, a donja traka ostaje na mestu.
+- [ ] Na početnoj, veliki iznos (na primer više od 10 miliona) ostaje unutar kartice na svim širinama.
 - [ ] Suženje prozora ispod 960 px: pojavljuju se donja traka i meni preko ikonice.
 - [ ] Navigacija samo tastaturom (Tab): fokus je vidljiv, modal se zatvara na Escape.
 - [ ] Klijent koji ručno upiše adresu `/admin` vraća se na svoju početnu.

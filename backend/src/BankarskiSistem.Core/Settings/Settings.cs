@@ -22,6 +22,7 @@ namespace BankarskiSistem.Core.Settings
         public decimal DefaultDailyLimit { get; set; } = 100_000m;
         public Dictionary<string, decimal> DailyLimitsByCurrency { get; set; } = new();
         public string BusinessTimeZone { get; set; } = "Europe/Belgrade";
+        public bool RequireTwoFactorForStaff { get; set; } = true;
 
         public decimal GetDailyLimit(string currency) =>
             DailyLimitsByCurrency.TryGetValue(currency, out var limit) ? limit : DefaultDailyLimit;

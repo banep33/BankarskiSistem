@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import AppCard from '@/components/ui/AppCard.vue'
 import MoneyAmount from '@/components/ui/MoneyAmount.vue'
-import { formatNumber } from '@/utils/format'
+import { formatNumber, pluralSr } from '@/utils/format'
 import type { SystemOverview } from '@/types/api'
 
 const props = defineProps<{ overview: SystemOverview }>()
@@ -27,17 +27,17 @@ function dayLabel(value: string): string {
       <AppCard>
         <p class="label">Klijenti</p>
         <p class="value">{{ formatNumber(overview.customers) }}</p>
-        <p class="sub muted">{{ overview.activeUsers }} aktivnih korisnika ukupno</p>
+        <p class="sub muted">{{ overview.activeUsers }} {{ pluralSr(overview.activeUsers, 'aktivan korisnik', 'aktivna korisnika', 'aktivnih korisnika') }} ukupno</p>
       </AppCard>
       <AppCard>
         <p class="label">Računi</p>
         <p class="value">{{ formatNumber(overview.totalAccounts) }}</p>
-        <p class="sub muted">{{ overview.activeAccounts }} aktivnih, {{ overview.blockedAccounts }} blokiranih</p>
+        <p class="sub muted">{{ overview.activeAccounts }} {{ pluralSr(overview.activeAccounts, 'aktivan', 'aktivna', 'aktivnih') }}, {{ overview.blockedAccounts }} {{ pluralSr(overview.blockedAccounts, 'blokiran', 'blokirana', 'blokiranih') }}</p>
       </AppCard>
       <AppCard :tone="overview.failedLoginsLast24Hours > 20 ? 'cream' : 'default'">
         <p class="label">Neuspešne prijave (24 h)</p>
         <p class="value">{{ formatNumber(overview.failedLoginsLast24Hours) }}</p>
-        <p class="sub muted">{{ overview.lockedUsers }} zaključanih naloga</p>
+        <p class="sub muted">{{ overview.lockedUsers }} {{ pluralSr(overview.lockedUsers, 'zaključan nalog', 'zaključana naloga', 'zaključanih naloga') }}</p>
       </AppCard>
     </div>
 

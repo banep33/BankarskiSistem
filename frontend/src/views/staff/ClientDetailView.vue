@@ -106,14 +106,23 @@ async function showAccount(account: Account): Promise<void> {
   }
 }
 
-async function changeStatus(account: Account, status: AccountStatus): Promise<void> {
+const pendingStatus = ref<{ account: Account; status: AccountStatus } | null>(null)
+const isChangingStatus = ref(false)
+
+async function confirmStatusChange(): Promise<void> {
+  if (!pendingStatus.value || isChangingStatus.value) return
+  const { account, status } = pendingStatus.value
+  isChangingStatus.value = true
   try {
     const updated = await accountsApi.changeStatus(account.id, status)
     accounts.value = accounts.value.map((item) => (item.id === updated.id ? updated : item))
     if (selectedAccount.value?.id === updated.id) selectedAccount.value = updated
+    pendingStatus.value = null
     ui.notify(`Status računa je promenjen u: ${accountStatusLabels[status].label}.`)
   } catch (caught) {
     ui.notify(errorMessage(caught), 'danger')
+  } finally {
+    isChangingStatus.value = false
   }
 }
 
@@ -222,8 +231,8 @@ onMounted(load)
                   <td class="actions">
                     <RouterLink :to="`/bankar/racuni/${account.id}/izvod`" class="statement-link">Izvod</RouterLink>
                     <AppButton v-if="account.status === 'Aktivan'" size="sm" variant="secondary" icon="arrow-down" @click="openDeposit(account)">Uplata</AppButton>
-                    <AppButton v-if="account.status === 'Aktivan'" size="sm" variant="ghost" @click="changeStatus(account, 'Blokiran')">Blokiraj</AppButton>
-                    <AppButton v-else size="sm" variant="ghost" @click="changeStatus(account, 'Aktivan')">Aktiviraj</AppButton>
+                    <AppButton v-if="account.status === 'Aktivan'" size="sm" variant="ghost" icon="lock" @click="pendingStatus = { account, status: 'Blokiran' }">Blokiraj</AppButton>
+                    <AppButton v-else size="sm" variant="ghost" @click="pendingStatus = { account, status: 'Aktivan' }">Aktiviraj</AppButton>
                   </td>
                 </tr>
               </tbody>
@@ -287,6 +296,25 @@ onMounted(load)
       </template>
     </AppModal>
 
+    <AppModal
+      :open="pendingStatus !== null"
+      :title="pendingStatus?.status === 'Blokiran' ? 'Blokiranje računa' : 'Aktiviranje računa'"
+      width="460px"
+      @close="!isChangingStatus && (pendingStatus = null)"
+    >
+      <p v-if="pendingStatus" class="muted">
+        {{ pendingStatus.status === 'Blokiran' ? 'Da li zaista želite da blokirate račun' : 'Da li zaista želite da aktivirate račun' }}
+        <strong class="mono">{{ formatAccountNumber(pendingStatus.account.accountNumber) }}</strong> ({{ pendingStatus.account.currency }})?
+        {{ pendingStatus.status === 'Blokiran' ? 'Dok je blokiran, klijent ne može da plaća niti podiže gotovinu sa njega.' : 'Klijent će odmah moći da ga koristi.' }}
+      </p>
+      <template #footer>
+        <AppButton variant="ghost" :disabled="isChangingStatus" @click="pendingStatus = null">Odustani</AppButton>
+        <AppButton :variant="pendingStatus?.status === 'Blokiran' ? 'danger' : 'primary'" :loading="isChangingStatus" @click="confirmStatusChange">
+          {{ pendingStatus?.status === 'Blokiran' ? 'Blokiraj račun' : 'Aktiviraj račun' }}
+        </AppButton>
+      </template>
+    </AppModal>
+
     <TransactionDetailModal :transaction="selectedTransaction" @close="selectedTransaction = null" />
   </div>
 </template>
@@ -322,7 +350,7 @@ onMounted(load)
 }
 
 .email {
-  color: rgb(255 255 255 / 0.7);
+  color: var(--color-emphasis-text-muted);
   font-size: var(--font-size-sm);
 }
 
@@ -351,18 +379,13 @@ onMounted(load)
   flex: 1;
 }
 
-.card-body {
-  padding: var(--space-5) var(--space-6);
-}
-
 .numeric {
   text-align: right;
 }
 
 .actions {
-  display: flex;
-  gap: var(--space-1);
-  justify-content: flex-end;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .statement-link {
@@ -370,7 +393,7 @@ onMounted(load)
   margin-right: var(--space-2);
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .selected {
@@ -381,7 +404,7 @@ onMounted(load)
   border: none;
   background: none;
   padding: 0;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;

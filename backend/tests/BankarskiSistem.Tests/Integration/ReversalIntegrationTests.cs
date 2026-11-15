@@ -72,7 +72,7 @@ namespace BankarskiSistem.Tests.Integration
             await using var context = _database.CreateContext();
             foreach (var id in accountIds)
             {
-                var difference = await context.Database.SqlQueryRaw<decimal>($"SELECT Difference AS Value FROM v_account_reconciliation WHERE AccountId = {id}").SingleAsync();
+                var difference = await context.Database.SqlQuery<decimal>($"SELECT Difference AS Value FROM v_account_reconciliation WHERE AccountId = {id}").SingleAsync();
                 Assert.Equal(0m, difference);
             }
         }

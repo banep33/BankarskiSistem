@@ -290,14 +290,14 @@ onMounted(load)
 
 .subtle-inverse {
   font-size: var(--font-size-sm);
-  color: rgb(255 255 255 / 0.7);
+  color: var(--color-emphasis-text-muted);
   margin-top: var(--space-2);
 }
 
 .dates {
   margin: var(--space-2) 0;
   padding-left: var(--space-5);
-  color: var(--color-lime-400);
+  color: var(--color-emphasis-accent);
   font-weight: 600;
 }
 

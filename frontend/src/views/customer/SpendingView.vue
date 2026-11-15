@@ -125,15 +125,15 @@ onMounted(load)
       <div class="grid-3">
         <AppCard>
           <p class="label">Prihodi</p>
-          <MoneyAmount class="value income" :amount="summary.totalIncome" currency="RSD" />
+          <p class="value income amount-fit"><MoneyAmount :amount="summary.totalIncome" currency="RSD" /></p>
         </AppCard>
         <AppCard>
           <p class="label">Rashodi</p>
-          <MoneyAmount class="value" :amount="summary.totalExpense" currency="RSD" />
+          <p class="value amount-fit"><MoneyAmount :amount="summary.totalExpense" currency="RSD" /></p>
         </AppCard>
         <AppCard tone="dark">
           <p class="label">Razlika</p>
-          <MoneyAmount class="value" :amount="summary.totalIncome - summary.totalExpense" currency="RSD" />
+          <p class="value amount-fit"><MoneyAmount :amount="summary.totalIncome - summary.totalExpense" currency="RSD" /></p>
         </AppCard>
       </div>
 
@@ -236,7 +236,7 @@ onMounted(load)
 
 .month-input {
   padding: 0.55rem 0.8rem;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }
@@ -247,9 +247,9 @@ onMounted(load)
 }
 
 .value {
-  display: block;
+  --amount-max: var(--font-size-2xl);
+  --amount-min: 1.125rem;
   margin-top: var(--space-2);
-  font-size: var(--font-size-2xl);
   font-weight: 600;
 }
 
@@ -327,14 +327,14 @@ onMounted(load)
 
 .budgets li {
   display: grid;
-  grid-template-columns: 1fr 110px auto auto;
+  grid-template-columns: minmax(0, 1fr) minmax(80px, 110px) auto auto;
   gap: var(--space-2);
   align-items: center;
 }
 
 .limit-input {
   padding: 0.4rem 0.6rem;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   text-align: right;
@@ -348,22 +348,23 @@ onMounted(load)
 }
 
 .new-budget {
-  display: grid;
-  grid-template-columns: 1fr 120px auto;
-  gap: var(--space-2);
-  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: flex-end;
   margin-top: var(--space-5);
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-border);
 }
 
-.card-body {
-  padding: var(--space-5) var(--space-6);
+.new-budget > :not(button) {
+  flex: 1 1 140px;
+  min-width: 0;
 }
 
 .category-select {
   padding: 0.35rem 0.5rem;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
 }

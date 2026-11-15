@@ -6,7 +6,7 @@ import AppPagination from '@/components/ui/AppPagination.vue'
 import StatusViews from '@/components/ui/StatusViews.vue'
 import { feedbackApi } from '@/api/bank'
 import { errorMessage } from '@/composables/useAsync'
-import { formatDateTime, formatNumber } from '@/utils/format'
+import { formatDateTime, formatNumber, gridColumnsClass } from '@/utils/format'
 import type { FeedbackEntry, FeedbackSummary, PagedResponse, SurveyType } from '@/types/api'
 
 const days = ref(90)
@@ -61,7 +61,7 @@ onMounted(load)
     <StatusViews v-else-if="error" state="error" :message="error" @retry="load" />
 
     <template v-else-if="summary">
-      <div class="grid-3">
+      <div :class="gridColumnsClass(summary.scores.length)">
         <AppCard v-for="score in summary.scores" :key="score.surveyType" :tone="score.surveyType === 'CSAT' ? 'dark' : 'default'">
           <p class="metric-label">{{ surveyInfo[score.surveyType].title }}</p>
           <p class="metric">{{ score.score === null ? 'Nema podataka' : formatNumber(score.score, 1) }}<span v-if="score.score !== null && score.surveyType === 'CSAT'">%</span></p>
@@ -144,7 +144,7 @@ onMounted(load)
 
 .select {
   padding: 0.45rem 0.8rem;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }

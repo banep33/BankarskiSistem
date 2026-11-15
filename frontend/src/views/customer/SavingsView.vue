@@ -13,7 +13,7 @@ import { meApi, savingsApi } from '@/api/bank'
 import { newIdempotencyKey } from '@/api/http'
 import { useUiStore } from '@/stores/ui'
 import { errorMessage } from '@/composables/useAsync'
-import { formatAccountNumber, formatDate, toIsoDate } from '@/utils/format'
+import { formatAccountNumber, formatDate, gridColumnsClass, toIsoDate } from '@/utils/format'
 import type { Account, SavingsGoal } from '@/types/api'
 
 type Mode = 'create' | 'edit' | 'contribute' | 'withdraw' | 'close'
@@ -135,13 +135,13 @@ onMounted(load)
         <div class="summary">
           <div>
             <p class="label">Ukupno ušteđeno (RSD ciljevi)</p>
-            <MoneyAmount class="big" :amount="totalSaved" currency="RSD" />
+            <p class="big amount-fit"><MoneyAmount :amount="totalSaved" currency="RSD" /></p>
           </div>
           <p class="tip"><AppIcon name="repeat" :size="16" /> Za automatsku štednju napravite trajni nalog ka štednom računu cilja, dugmetom „Automatska štednja“.</p>
         </div>
       </AppCard>
 
-      <div class="grid-2">
+      <div v-if="open.length" :class="gridColumnsClass(open.length, 2)">
         <AppCard v-for="goal in open" :key="goal.id">
           <div class="row-between">
             <h2 class="goal-name">{{ goal.name }}</h2>
@@ -223,13 +223,17 @@ onMounted(load)
 
 .label {
   font-size: var(--font-size-sm);
-  color: rgb(255 255 255 / 0.75);
+  color: var(--color-emphasis-text-muted);
+}
+
+.summary > div {
+  flex: 1 1 260px;
+  min-width: 0;
 }
 
 .big {
-  display: block;
+  --amount-max: var(--font-size-3xl);
   margin-top: var(--space-2);
-  font-size: var(--font-size-3xl);
   font-weight: 600;
 }
 
@@ -239,7 +243,7 @@ onMounted(load)
   align-items: center;
   max-width: 420px;
   font-size: var(--font-size-sm);
-  color: var(--color-lime-400);
+  color: var(--color-emphasis-accent);
 }
 
 .goal-name {
@@ -298,7 +302,7 @@ onMounted(load)
 .auto-link {
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .closed {

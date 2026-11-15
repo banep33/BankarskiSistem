@@ -1,6 +1,6 @@
+using System.Globalization;
 using BankarskiSistem.API.Contracts;
 using BankarskiSistem.Core.Banking;
-using BankarskiSistem.Infrastructure.Services.Payments;
 using FluentValidation;
 
 namespace BankarskiSistem.API.Validators
@@ -39,7 +39,7 @@ namespace BankarskiSistem.API.Validators
         public static IRuleBuilderOptions<T, decimal> ValidMoneyAmount<T>(this IRuleBuilder<T, decimal> rule) =>
             rule.GreaterThan(0).WithMessage("Iznos mora biti veći od 0.")
                 .LessThanOrEqualTo(MoneyRules.MaxSingleAmount)
-                    .WithMessage($"Iznos ne sme biti veći od {MoneyRules.MaxSingleAmount:N0}.")
+                    .WithMessage($"Iznos ne sme biti veći od {MoneyRules.MaxSingleAmount.ToString("N0", CultureInfo.GetCultureInfo("sr-Latn-RS"))}.")
                 .Must(amount => decimal.Round(amount, 2) == amount)
                     .WithMessage("Iznos može imati najviše dve decimale.");
 

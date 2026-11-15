@@ -81,7 +81,7 @@ namespace BankarskiSistem.Tests.Integration
             Assert.True(external.Debit > 1_000m);
             Assert.Contains("Struja", external.Counterparty);
 
-            var csv = StatementService.ToCsv(statement);
+            var csv = StatementCsv.Write(statement);
             Assert.StartsWith("﻿", csv);
             Assert.Contains("\"Struja; \"\"EPS\"\"", csv);
             Assert.Contains("20000,00", csv);
@@ -115,7 +115,7 @@ namespace BankarskiSistem.Tests.Integration
         [InlineData("a;b", "\"a;b\"")]
         public void CsvCells_AreEscaped(string input, string expected)
         {
-            Assert.Equal(expected, StatementService.EscapeCsv(input));
+            Assert.Equal(expected, StatementCsv.EscapeCsv(input));
         }
     }
 }

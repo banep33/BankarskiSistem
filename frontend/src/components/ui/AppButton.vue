@@ -105,17 +105,17 @@ withDefaults(
 }
 
 .variant-danger {
-  background: var(--color-danger);
+  background: var(--color-danger-strong);
   color: #fff;
 }
 
 .variant-dark {
-  background: var(--color-forest-900);
-  color: #fff;
+  background: var(--color-contrast-bg);
+  color: var(--color-contrast-text);
 }
 
 .variant-dark:hover:not(:disabled) {
-  background: var(--color-forest-800);
+  background: var(--color-contrast-bg-hover);
 }
 
 .variant-lime {

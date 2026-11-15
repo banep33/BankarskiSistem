@@ -154,8 +154,7 @@ onMounted(load)
           <table class="data-table">
             <thead>
               <tr>
-                <th scope="col">Ime i prezime</th>
-                <th scope="col">Email</th>
+                <th scope="col">Korisnik</th>
                 <th v-if="!fixedRole" scope="col">Uloga</th>
                 <th scope="col">KYC</th>
                 <th scope="col">Status</th>
@@ -168,8 +167,8 @@ onMounted(load)
                 <td>
                   <RouterLink v-if="user.role === 'Korisnik'" :to="`/bankar/klijenti/${user.id}`"><strong>{{ user.firstName }} {{ user.lastName }}</strong></RouterLink>
                   <strong v-else>{{ user.firstName }} {{ user.lastName }}</strong>
+                  <div class="subtle email">{{ user.email }}</div>
                 </td>
-                <td class="muted">{{ user.email }}</td>
                 <td v-if="!fixedRole">{{ roleLabels[user.role] }}</td>
                 <td><AppBadge :tone="kycLabels[user.kycStatus].tone">{{ kycLabels[user.kycStatus].label }}</AppBadge></td>
                 <td>
@@ -237,16 +236,13 @@ onMounted(load)
 </template>
 
 <style scoped>
-.card-body {
-  padding: var(--space-5) var(--space-6);
+.actions {
+  min-width: 220px;
+  text-align: right;
 }
 
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+.email {
+  overflow-wrap: anywhere;
 }
 
 .two-factor-badge {
@@ -257,7 +253,7 @@ onMounted(load)
   margin-right: var(--space-2);
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .filters {

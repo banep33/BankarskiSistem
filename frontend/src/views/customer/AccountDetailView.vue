@@ -160,7 +160,7 @@ onMounted(load)
       <div class="summary">
         <AppCard tone="dark">
           <p class="caption">Raspoloživo stanje</p>
-          <MoneyAmount class="big" :amount="account.balance" :currency="account.currency" />
+          <p class="big amount-fit"><MoneyAmount :amount="account.balance" :currency="account.currency" /></p>
           <div class="row summary-meta">
             <AppBadge :tone="accountStatusLabels[account.status].tone">{{ accountStatusLabels[account.status].label }}</AppBadge>
             <span>Otvoren {{ formatDate(account.createdAt) }}</span>
@@ -246,21 +246,21 @@ onMounted(load)
 }
 
 .caption {
-  color: rgb(255 255 255 / 0.7);
+  color: var(--color-emphasis-text-muted);
   font-size: var(--font-size-sm);
 }
 
 .big {
-  display: block;
+  --amount-max: var(--font-size-display);
+  --amount-min: 1.5rem;
   margin: var(--space-2) 0 var(--space-4);
-  font-size: var(--font-size-display);
   font-weight: 600;
   letter-spacing: -0.04em;
 }
 
 .summary-meta {
   font-size: var(--font-size-sm);
-  color: rgb(255 255 255 / 0.7);
+  color: var(--color-emphasis-text-muted);
 }
 
 .metric {

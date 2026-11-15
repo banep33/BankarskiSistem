@@ -130,14 +130,9 @@ onMounted(load)
 </template>
 
 <style scoped>
-.card-body {
-  padding: var(--space-5) var(--space-6);
-}
-
 .actions {
-  display: flex;
-  gap: var(--space-1);
-  justify-content: flex-end;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .check {

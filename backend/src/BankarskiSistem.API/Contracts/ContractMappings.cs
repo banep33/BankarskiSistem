@@ -43,7 +43,9 @@ namespace BankarskiSistem.API.Contracts
                 result.User.LastName,
                 result.User.Role,
                 result.ExpiresAt,
-                pendingDocuments.Select(d => d.ToSummary()).ToList());
+                pendingDocuments.Select(d => d.ToSummary()).ToList(),
+                result.MfaVerified,
+                result.TwoFactorSetupRequired);
 
         public static UserResponse ToResponse(this User user) =>
             new(

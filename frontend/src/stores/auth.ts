@@ -12,11 +12,31 @@ interface ActiveSession {
   firstName: string
   lastName: string
   role: UserRole
+  mfaVerified: boolean
+  twoFactorSetupRequired: boolean
 }
 
 export type LoginStep = { kind: 'done' } | { kind: 'two-factor'; challengeToken: string; expiresAt: string }
 
 const LEGACY_STORAGE_KEY = 'bs.session'
+const SESSION_HINT_KEY = 'bs.signedIn'
+
+function setSessionHint(active: boolean): void {
+  try {
+    if (active) localStorage.setItem(SESSION_HINT_KEY, '1')
+    else localStorage.removeItem(SESSION_HINT_KEY)
+  } catch {
+    return
+  }
+}
+
+function hasSessionHint(): boolean {
+  try {
+    return localStorage.getItem(SESSION_HINT_KEY) === '1'
+  } catch {
+    return true
+  }
+}
 
 function isChallenge(response: LoginResponse | TwoFactorChallengeResponse): response is TwoFactorChallengeResponse {
   return 'requiresTwoFactor' in response && response.requiresTwoFactor === true
@@ -40,7 +60,8 @@ export const useAuthStore = defineStore('auth', () => {
   const isAdministrator = computed(() => role.value === 'Administrator')
   const isStaff = computed(() => isBanker.value || isAdministrator.value)
   const fullName = computed(() => (session.value ? `${session.value.firstName} ${session.value.lastName}` : ''))
-  const homeRoute = computed(() => (isCustomer.value ? '/pocetna' : isBanker.value ? '/bankar' : '/admin'))
+  const twoFactorSetupRequired = computed(() => session.value?.twoFactorSetupRequired === true)
+  const homeRoute = computed(() => (twoFactorSetupRequired.value ? '/bezbednost' : isCustomer.value ? '/pocetna' : isBanker.value ? '/bankar' : '/admin'))
 
   function applyLogin(response: LoginResponse): void {
     session.value = {
@@ -51,9 +72,12 @@ export const useAuthStore = defineStore('auth', () => {
       firstName: response.firstName,
       lastName: response.lastName,
       role: response.role,
+      mfaVerified: response.mfaVerified,
+      twoFactorSetupRequired: response.twoFactorSetupRequired,
     }
     pendingDocuments.value = response.pendingDocuments
     setAuthToken(response.token)
+    setSessionHint(true)
   }
 
   async function login(email: string, password: string): Promise<LoginStep> {
@@ -72,12 +96,13 @@ export const useAuthStore = defineStore('auth', () => {
       applyLogin(await authApi.refresh())
       return true
     } catch {
+      setSessionHint(false)
       return false
     }
   }
 
   function initialize(): Promise<void> {
-    initialization ??= refresh().then(() => undefined)
+    initialization ??= hasSessionHint() ? refresh().then(() => undefined) : Promise.resolve()
     return initialization
   }
 
@@ -100,6 +125,7 @@ export const useAuthStore = defineStore('auth', () => {
     session.value = null
     pendingDocuments.value = []
     setAuthToken(null)
+    setSessionHint(false)
   }
 
   return {
@@ -113,6 +139,7 @@ export const useAuthStore = defineStore('auth', () => {
     isStaff,
     fullName,
     homeRoute,
+    twoFactorSetupRequired,
     login,
     completeTwoFactor,
     refresh,

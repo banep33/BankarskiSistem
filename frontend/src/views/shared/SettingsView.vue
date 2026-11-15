@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppField from '@/components/ui/AppField.vue'
@@ -17,7 +16,6 @@ import type { User } from '@/types/api'
 
 const auth = useAuthStore()
 const ui = useUiStore()
-const router = useRouter()
 const user = ref<User | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
@@ -50,7 +48,7 @@ async function saveProfile(): Promise<void> {
   try {
     user.value = await meApi.updateProfile(profile.firstName.trim(), profile.lastName.trim())
     auth.updateName(user.value.firstName, user.value.lastName)
-    ui.notify('Profil je sačuvan.')
+    ui.notify('Lični podaci su sačuvani.')
   } catch (caught) {
     ui.notify(errorMessage(caught), 'danger')
   } finally {
@@ -81,11 +79,6 @@ async function changePassword(): Promise<void> {
   }
 }
 
-async function logout(): Promise<void> {
-  await auth.logout()
-  await router.push('/prijava')
-}
-
 onMounted(load)
 </script>
 
@@ -93,8 +86,8 @@ onMounted(load)
   <div class="page">
     <header class="page-header">
       <div>
-        <h1 class="page-title">Profil</h1>
-        <p class="page-subtitle">Lični podaci i pristup nalogu.</p>
+        <h1 class="page-title">Postavke</h1>
+        <p class="page-subtitle">Lični podaci, lozinka i izgled aplikacije.</p>
       </div>
     </header>
 
@@ -113,8 +106,8 @@ onMounted(load)
               <AppBadge v-if="user.role === 'Korisnik'" :tone="kycLabels[user.kycStatus].tone">Identitet: {{ kycLabels[user.kycStatus].label }}</AppBadge>
               <AppBadge v-if="user.role === 'Korisnik'" :tone="riskLabels[user.riskRating].tone">{{ riskLabels[user.riskRating].label }}</AppBadge>
             </div>
+            <p v-if="user.role === 'Korisnik'" class="since">Klijent od {{ formatDate(user.createdAt) }}</p>
           </div>
-          <p class="since">Klijent od {{ formatDate(user.createdAt) }}</p>
         </div>
       </AppCard>
 
@@ -145,15 +138,11 @@ onMounted(load)
         </AppCard>
       </div>
 
-      <AppCard title="Izgled">
-        <div class="row theme-row">
-          <span class="muted">Tema aplikacije</span>
-          <div class="segmented" role="group" aria-label="Tema">
-            <button v-for="option in [{ v: 'system', l: 'Sistemska' }, { v: 'light', l: 'Svetla' }, { v: 'dark', l: 'Tamna' }] as const" :key="option.v" type="button" :class="{ active: ui.theme === option.v }" :aria-pressed="ui.theme === option.v" @click="ui.theme = option.v">
-              {{ option.l }}
-            </button>
-          </div>
-          <AppButton class="logout" variant="ghost" icon="logout" @click="logout">Odjavi se</AppButton>
+      <AppCard title="Izgled" subtitle="Sistemska tema prati podešavanje uređaja.">
+        <div class="segmented" role="group" aria-label="Tema aplikacije">
+          <button v-for="option in [{ v: 'system', l: 'Sistemska' }, { v: 'light', l: 'Svetla' }, { v: 'dark', l: 'Tamna' }] as const" :key="option.v" type="button" :class="{ active: ui.theme === option.v }" :aria-pressed="ui.theme === option.v" @click="ui.theme = option.v">
+            {{ option.l }}
+          </button>
         </div>
       </AppCard>
     </template>
@@ -180,12 +169,18 @@ onMounted(load)
   font-weight: 700;
 }
 
+.identity > div {
+  min-width: 0;
+}
+
 .identity h2 {
   font-size: var(--font-size-2xl);
+  overflow-wrap: anywhere;
 }
 
 .email {
-  color: rgb(255 255 255 / 0.7);
+  color: var(--color-emphasis-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .badges {
@@ -194,8 +189,8 @@ onMounted(load)
 }
 
 .since {
-  margin-left: auto;
-  color: rgb(255 255 255 / 0.6);
+  margin-top: var(--space-2);
+  color: var(--color-emphasis-text-muted);
   font-size: var(--font-size-sm);
 }
 
@@ -228,12 +223,9 @@ onMounted(load)
   font-size: var(--font-size-sm);
 }
 
-.theme-row {
-  flex-wrap: wrap;
-}
-
 .segmented {
   display: inline-flex;
+  flex-wrap: wrap;
   padding: 3px;
   border-radius: var(--radius-pill);
   background: var(--color-surface-muted);
@@ -256,8 +248,13 @@ onMounted(load)
   box-shadow: var(--shadow-sm);
 }
 
-.logout {
-  margin-left: auto;
-  color: var(--color-danger);
+@media (max-width: 520px) {
+  .segmented {
+    width: 100%;
+  }
+
+  .segmented button {
+    flex: 1;
+  }
 }
 </style>

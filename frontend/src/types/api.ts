@@ -88,6 +88,8 @@ export interface LoginResponse {
   role: UserRole
   expiresAt: string
   pendingDocuments: LegalDocumentSummary[]
+  mfaVerified: boolean
+  twoFactorSetupRequired: boolean
 }
 
 export interface TwoFactorChallengeResponse {

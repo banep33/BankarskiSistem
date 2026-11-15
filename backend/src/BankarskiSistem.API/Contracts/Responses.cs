@@ -28,7 +28,9 @@ namespace BankarskiSistem.API.Contracts
         string LastName,
         UserRole Role,
         DateTime ExpiresAt,
-        IReadOnlyList<LegalDocumentSummary> PendingDocuments);
+        IReadOnlyList<LegalDocumentSummary> PendingDocuments,
+        bool MfaVerified,
+        bool TwoFactorSetupRequired);
 
     public record UserResponse(
         int Id,

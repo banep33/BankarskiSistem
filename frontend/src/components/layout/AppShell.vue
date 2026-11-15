@@ -21,6 +21,7 @@ const sections = computed(() => navigationFor(auth.role))
 const mobileItems = computed(() => mobileNavigationFor(auth.role))
 const unreadCount = ref(0)
 const menuOpen = ref(false)
+const userMenu = ref<HTMLElement | null>(null)
 let pollTimer: number | undefined
 
 async function refreshUnread(): Promise<void> {
@@ -65,13 +66,29 @@ async function applyPrivacyPreferences(): Promise<void> {
   }
 }
 
+function onDocumentPointer(event: PointerEvent): void {
+  if (menuOpen.value && userMenu.value && !userMenu.value.contains(event.target as Node)) menuOpen.value = false
+}
+
+function onDocumentKey(event: KeyboardEvent): void {
+  if (event.key !== 'Escape') return
+  menuOpen.value = false
+  ui.sidebarOpen = false
+}
+
 onMounted(() => {
   refreshUnread()
   applyPrivacyPreferences()
   pollTimer = window.setInterval(refreshUnread, 60_000)
+  document.addEventListener('pointerdown', onDocumentPointer)
+  document.addEventListener('keydown', onDocumentKey)
 })
 
-onBeforeUnmount(() => window.clearInterval(pollTimer))
+onBeforeUnmount(() => {
+  window.clearInterval(pollTimer)
+  document.removeEventListener('pointerdown', onDocumentPointer)
+  document.removeEventListener('keydown', onDocumentKey)
+})
 </script>
 
 <template>
@@ -149,13 +166,12 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
             <AppIcon name="bell" />
             <span v-if="unreadCount > 0" class="bell-dot">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
           </RouterLink>
-          <div class="user-menu">
+          <div ref="userMenu" class="user-menu">
             <button type="button" class="avatar-button" :aria-expanded="menuOpen" aria-haspopup="menu" @click="menuOpen = !menuOpen">
               <span class="avatar">{{ initials(auth.session?.firstName, auth.session?.lastName) }}</span>
               <span class="user-name">{{ auth.fullName }}</span>
             </button>
             <div v-if="menuOpen" class="dropdown" role="menu">
-              <RouterLink to="/profil" role="menuitem">Profil</RouterLink>
               <RouterLink to="/bezbednost" role="menuitem">Bezbednost i uređaji</RouterLink>
               <RouterLink v-if="auth.isCustomer" to="/privatnost" role="menuitem">Privatnost</RouterLink>
               <button type="button" role="menuitem" class="logout" @click="logout()">
@@ -198,9 +214,11 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   flex-direction: column;
   gap: var(--space-6);
   padding: var(--space-6) var(--space-4);
-  background: var(--color-forest-900);
-  color: #dfe9e5;
+  background: var(--color-sidebar-bg);
+  border-right: 1px solid var(--color-sidebar-border);
+  color: var(--color-sidebar-text);
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .brand {
@@ -209,7 +227,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   gap: var(--space-3);
   padding: 0 var(--space-2);
   text-decoration: none;
-  color: #fff;
+  color: var(--color-sidebar-text-strong);
 }
 
 .brand strong {
@@ -219,7 +237,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
 }
 
 .brand small {
-  color: var(--color-lime-400);
+  color: var(--color-sidebar-accent);
   font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -245,7 +263,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgb(223 233 229 / 0.45);
+  color: var(--color-sidebar-muted);
 }
 
 .nav-link {
@@ -254,7 +272,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   gap: var(--space-3);
   padding: 0.65rem var(--space-3);
   border-radius: var(--radius-md);
-  color: rgb(223 233 229 / 0.82);
+  color: var(--color-sidebar-text);
   text-decoration: none;
   font-weight: 500;
   transition:
@@ -263,13 +281,13 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
 }
 
 .nav-link:hover {
-  background: var(--color-forest-800);
-  color: #fff;
+  background: var(--color-sidebar-hover);
+  color: var(--color-sidebar-text-strong);
 }
 
 .nav-link.active {
-  background: var(--color-forest-700);
-  color: #fff;
+  background: var(--color-sidebar-active);
+  color: var(--color-sidebar-text-strong);
   box-shadow: inset 3px 0 0 var(--color-coral-500);
 }
 
@@ -278,7 +296,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   min-width: 22px;
   padding: 1px 7px;
   border-radius: var(--radius-pill);
-  background: var(--color-coral-500);
+  background: var(--color-primary);
   color: #fff;
   font-size: var(--font-size-xs);
   text-align: center;
@@ -289,18 +307,19 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   gap: var(--space-3);
   padding: var(--space-4);
   border-radius: var(--radius-md);
-  background: var(--color-forest-800);
-  color: #fff;
+  background: var(--color-sidebar-card);
+  color: var(--color-sidebar-text-strong);
   text-decoration: none;
 }
 
 .help-card :deep(svg) {
-  color: var(--color-lime-400);
+  flex-shrink: 0;
+  color: var(--color-sidebar-accent);
 }
 
 .help-card small {
   display: block;
-  color: rgb(223 233 229 / 0.6);
+  color: var(--color-sidebar-muted);
   font-size: var(--font-size-xs);
 }
 
@@ -308,6 +327,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow-x: clip;
 }
 
 .topbar {
@@ -318,6 +338,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   align-items: center;
   gap: var(--space-4);
   height: var(--topbar-height);
+  min-width: 0;
   padding: 0 var(--space-8);
   background: color-mix(in srgb, var(--color-bg) 88%, transparent);
   backdrop-filter: blur(10px);
@@ -329,9 +350,16 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   color: var(--color-text-muted);
 }
 
+.greeting {
+  min-width: 0;
+}
+
 .greeting-name {
   font-size: var(--font-size-lg);
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-actions {
@@ -348,6 +376,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   width: 42px;
   height: 42px;
   border: 1px solid var(--color-border);
+  flex-shrink: 0;
   border-radius: 50%;
   background: var(--color-surface);
   color: var(--color-text);
@@ -367,7 +396,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   height: 19px;
   padding: 0 5px;
   border-radius: var(--radius-pill);
-  background: var(--color-coral-500);
+  background: var(--color-primary);
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -391,6 +420,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
+  color: var(--color-text);
   cursor: pointer;
 }
 
@@ -407,6 +437,10 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
 }
 
 .user-name {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 600;
   font-size: var(--font-size-sm);
 }
@@ -423,6 +457,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
+  z-index: 60;
 }
 
 .dropdown a,
@@ -434,6 +469,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
+  color: var(--color-text);
   text-decoration: none;
   text-align: left;
   font-size: var(--font-size-sm);
@@ -445,7 +481,7 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   background: var(--color-surface-muted);
 }
 
-.logout {
+.dropdown .logout {
   color: var(--color-danger);
   border-top: 1px solid var(--color-border) !important;
   margin-top: var(--space-1);
@@ -474,12 +510,17 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
     inset: 0 auto 0 0;
     z-index: 300;
     width: min(300px, 85vw);
+    height: 100dvh;
     transform: translateX(-100%);
-    transition: transform var(--transition-base);
+    visibility: hidden;
+    transition:
+      transform var(--transition-base),
+      visibility var(--transition-base);
   }
 
   .sidebar.open {
     transform: translateX(0);
+    visibility: visible;
   }
 
   .scrim {
@@ -495,7 +536,12 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
   }
 
   .topbar {
+    gap: var(--space-3);
     padding: 0 var(--space-4);
+  }
+
+  .topbar-actions {
+    gap: var(--space-1);
   }
 
   .content {
@@ -523,13 +569,16 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
 
   .mobile-nav a {
     display: flex;
+    flex: 1 1 0;
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    min-width: 56px;
+    min-width: 0;
     padding: var(--space-1);
     color: var(--color-text-muted);
     text-decoration: none;
+    text-align: center;
+    line-height: 1.25;
     font-size: 11px;
     font-weight: 600;
   }
@@ -541,6 +590,17 @@ onBeforeUnmount(() => window.clearInterval(pollTimer))
 
 @media (max-width: 520px) {
   .greeting-small {
+    display: none;
+  }
+
+  .icon-button {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 360px) {
+  .greeting {
     display: none;
   }
 }

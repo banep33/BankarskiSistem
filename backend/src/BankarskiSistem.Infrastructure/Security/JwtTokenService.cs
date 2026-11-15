@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BankarskiSistem.Core.Banking;
 using BankarskiSistem.Core.Entities;
 using BankarskiSistem.Core.Interfaces;
 using BankarskiSistem.Core.Settings;
@@ -87,7 +88,7 @@ namespace BankarskiSistem.Infrastructure.Security
 
         private string TwoFactorAudience => $"{_settings.Audience}:{TwoFactorPurpose}";
 
-        public string CreateToken(User user, Guid sessionId, DateTime expiresAt)
+        public string CreateToken(User user, Guid sessionId, DateTime expiresAt, bool mfaVerified = false)
         {
             var now = _timeProvider.GetUtcNow().UtcDateTime;
 
@@ -100,6 +101,7 @@ namespace BankarskiSistem.Infrastructure.Security
                 new Claim(ClaimTypes.Surname, user.LastName),
                 new Claim(TokenVersionClaim, user.TokenVersion.ToString()),
                 new Claim(SessionIdClaim, sessionId.ToString()),
+                new Claim(AuthMethods.ClaimType, AuthMethods.For(mfaVerified)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

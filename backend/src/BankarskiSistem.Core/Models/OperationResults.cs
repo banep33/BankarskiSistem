@@ -3,7 +3,7 @@ using BankarskiSistem.Core.Enums;
 
 namespace BankarskiSistem.Core.Models
 {
-    public record AuthResult(User User, string Token, DateTime ExpiresAt, Guid SessionId, string? RefreshToken, DateTime RefreshExpiresAt);
+    public record AuthResult(User User, string Token, DateTime ExpiresAt, Guid SessionId, string? RefreshToken, DateTime RefreshExpiresAt, bool MfaVerified = false, bool TwoFactorSetupRequired = false);
 
     public record ExchangeQuote(
         int FromAccountId,

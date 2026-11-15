@@ -43,7 +43,7 @@ namespace BankarskiSistem.Infrastructure.Services
 
         private DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
 
-        public async Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash)
+        public async Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash, bool mfaVerified = false)
         {
             var userAgent = Truncate(_requestContext.UserAgent, 255);
             var deviceLabel = DeviceLabelParser.Describe(userAgent);
@@ -62,6 +62,7 @@ namespace BankarskiSistem.Infrastructure.Services
                 ExpiresAt = expiresAt,
                 RefreshTokenHash = refreshTokenHash,
                 RefreshRotatedAt = UtcNow,
+                MfaVerified = mfaVerified,
                 IpAddress = _requestContext.IpAddress,
                 UserAgent = userAgent,
                 DeviceLabel = deviceLabel
@@ -136,6 +137,17 @@ namespace BankarskiSistem.Infrastructure.Services
             }
             return true;
         }
+
+        public async Task MarkMfaVerifiedAsync(int userId, Guid sessionId)
+        {
+            var session = await _context.UserSessions.FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId)
+                ?? throw new NotFoundException("Sesija nije pronađena.");
+            session.MfaVerified = true;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsMfaVerifiedAsync(Guid sessionId) =>
+            await _context.UserSessions.AnyAsync(s => s.Id == sessionId && s.MfaVerified);
 
         public async Task<IReadOnlyList<UserSession>> GetActiveAsync(int userId)
         {

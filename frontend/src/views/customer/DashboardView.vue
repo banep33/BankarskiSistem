@@ -12,6 +12,7 @@ import FeedbackPrompt from '@/components/banking/FeedbackPrompt.vue'
 import { exchangeApi, meApi } from '@/api/bank'
 import { useUiStore } from '@/stores/ui'
 import { errorMessage } from '@/composables/useAsync'
+import { gridColumnsClass, pluralSr } from '@/utils/format'
 import type { Account, CustomerDashboard, ExchangeRate, Transaction } from '@/types/api'
 
 const ui = useUiStore()
@@ -73,7 +74,7 @@ onMounted(load)
               {{ ui.hideBalances ? 'Prikaži' : 'Sakrij' }}
             </button>
           </div>
-          <p class="hero-amount">
+          <p class="hero-amount amount-fit">
             <MoneyAmount v-if="primaryBalance" :amount="primaryBalance.amount" :currency="primaryBalance.currency" />
             <span v-else>Nemate otvorenih računa</span>
           </p>
@@ -85,7 +86,7 @@ onMounted(load)
           <p v-if="totalInDinars !== null" class="hero-equivalent">
             Ukupno u dinarskoj protivvrednosti: <MoneyAmount :amount="totalInDinars" currency="RSD" /> <span>(po srednjem kursu)</span>
           </p>
-          <p class="hero-meta">{{ dashboard.activeAccounts }} aktivnih od {{ dashboard.totalAccounts }} računa</p>
+          <p class="hero-meta">{{ dashboard.activeAccounts }} {{ pluralSr(dashboard.activeAccounts, 'aktivan', 'aktivna', 'aktivnih') }} od {{ dashboard.totalAccounts }} {{ pluralSr(dashboard.totalAccounts, 'računa', 'računa', 'računa') }}</p>
         </div>
         <nav class="quick-actions" aria-label="Brze radnje">
           <RouterLink v-for="action in quickActions" :key="action.to" :to="action.to" class="quick-action">
@@ -95,7 +96,7 @@ onMounted(load)
         </nav>
       </section>
 
-      <div class="grid-3">
+      <div :class="gridColumnsClass(dashboard.monthCashFlow.length)">
         <AppCard v-for="flow in dashboard.monthCashFlow" :key="flow.currency" :title="`Ovaj mesec, ${flow.currency}`">
           <div class="flow">
             <div>
@@ -122,7 +123,7 @@ onMounted(load)
           <h2 class="section-title">Moji računi</h2>
           <RouterLink to="/racuni" class="see-all">Svi računi</RouterLink>
         </div>
-        <div class="grid-3">
+        <div v-if="accounts.length" :class="gridColumnsClass(accounts.length)">
           <AccountCard v-for="(account, index) in accounts.slice(0, 3)" :key="account.id" :account="account" :variant="variants[index % 3]" />
         </div>
         <StatusViews
@@ -162,17 +163,18 @@ onMounted(load)
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: var(--space-6);
   padding: var(--space-8);
+  border: 1px solid var(--color-emphasis-border);
   border-radius: var(--radius-xl);
-  color: #fff;
+  color: var(--color-emphasis-text);
   background:
     radial-gradient(circle at 100% 0%, rgb(200 241 105 / 0.18), transparent 40%),
-    radial-gradient(circle at 0% 100%, rgb(240 90 60 / 0.35), transparent 45%),
-    var(--color-forest-900);
+    radial-gradient(circle at 0% 100%, rgb(240 90 60 / 0.22), transparent 45%),
+    var(--color-emphasis-bg);
 }
 
 .hero-label {
   font-size: var(--font-size-sm);
-  color: rgb(255 255 255 / 0.7);
+  color: var(--color-emphasis-text-muted);
 }
 
 .hide-toggle {
@@ -180,20 +182,24 @@ onMounted(load)
   align-items: center;
   gap: 6px;
   padding: 0.3rem 0.75rem;
-  border: 1px solid rgb(255 255 255 / 0.25);
+  border: 1px solid var(--color-emphasis-chip-border);
   border-radius: var(--radius-pill);
   background: transparent;
-  color: #fff;
+  color: var(--color-emphasis-text);
   font-size: var(--font-size-xs);
   cursor: pointer;
 }
 
+.hero-main {
+  min-width: 0;
+}
+
 .hero-amount {
+  --amount-max: var(--font-size-display);
+  --amount-min: 1.5rem;
   margin-top: var(--space-2);
-  font-size: var(--font-size-display);
   font-weight: 600;
   letter-spacing: -0.04em;
-  line-height: 1.1;
 }
 
 .hero-other {
@@ -206,24 +212,24 @@ onMounted(load)
 .chip {
   padding: 0.3rem 0.8rem;
   border-radius: var(--radius-pill);
-  background: rgb(255 255 255 / 0.1);
+  background: var(--color-emphasis-chip);
   font-size: var(--font-size-sm);
 }
 
 .hero-equivalent {
   margin-top: var(--space-3);
   font-size: var(--font-size-sm);
-  color: rgb(255 255 255 / 0.85);
+  color: var(--color-emphasis-text-muted);
 }
 
 .hero-equivalent span {
-  color: rgb(255 255 255 / 0.55);
+  color: var(--color-emphasis-text-muted);
 }
 
 .hero-meta {
   margin-top: var(--space-4);
   font-size: var(--font-size-sm);
-  color: var(--color-lime-400);
+  color: var(--color-emphasis-accent);
 }
 
 .quick-actions {
@@ -239,16 +245,16 @@ onMounted(load)
   gap: var(--space-3);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  background: rgb(255 255 255 / 0.07);
-  border: 1px solid rgb(255 255 255 / 0.1);
-  color: #fff;
+  background: var(--color-emphasis-chip);
+  border: 1px solid var(--color-emphasis-chip-border);
+  color: var(--color-emphasis-text);
   text-decoration: none;
   font-weight: 600;
   transition: background var(--transition-fast);
 }
 
 .quick-action:hover {
-  background: rgb(255 255 255 / 0.14);
+  background: var(--color-emphasis-chip-border);
 }
 
 .quick-icon {
@@ -263,8 +269,9 @@ onMounted(load)
 
 .flow {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-3) var(--space-4);
 }
 
 .flow-value {
@@ -288,11 +295,11 @@ onMounted(load)
 }
 
 .flow-in {
-  background: var(--color-forest-700);
+  background: var(--color-chart-income);
 }
 
 .flow-out {
-  background: var(--color-coral-500);
+  background: var(--color-chart-expense);
 }
 
 .section-title {
@@ -302,7 +309,7 @@ onMounted(load)
 .see-all {
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .dashboard-bottom {
@@ -313,7 +320,7 @@ onMounted(load)
 }
 
 .security-copy {
-  color: rgb(255 255 255 / 0.75);
+  color: var(--color-emphasis-text-muted);
   font-size: var(--font-size-sm);
 }
 
@@ -322,7 +329,7 @@ onMounted(load)
   align-items: center;
   gap: 6px;
   margin-top: var(--space-4);
-  color: var(--color-lime-400);
+  color: var(--color-emphasis-accent);
   font-weight: 600;
   text-decoration: none;
 }
@@ -337,6 +344,17 @@ onMounted(load)
 @media (max-width: 720px) {
   .hero {
     padding: var(--space-5);
+  }
+
+  .quick-action {
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+}
+
+@media (max-width: 360px) {
+  .quick-actions {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

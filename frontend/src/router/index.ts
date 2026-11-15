@@ -55,7 +55,8 @@ const routes: RouteRecordRaw[] = [
       { path: 'privatnost', component: () => import('@/views/customer/PrivacyView.vue'), meta: { roles: customer, title: 'Privatnost' } },
       { path: 'pomoc', component: () => import('@/views/shared/HelpView.vue'), meta: { title: 'Pomoć i cenovnik' } },
       { path: 'obavestenja', component: () => import('@/views/shared/NotificationsView.vue'), meta: { title: 'Obaveštenja' } },
-      { path: 'profil', component: () => import('@/views/shared/ProfileView.vue'), meta: { title: 'Profil' } },
+      { path: 'postavke', component: () => import('@/views/shared/SettingsView.vue'), meta: { title: 'Postavke' } },
+      { path: 'profil', redirect: '/postavke' },
       { path: 'bezbednost', component: () => import('@/views/shared/SecurityView.vue'), meta: { title: 'Bezbednost' } },
       { path: 'bankar', component: () => import('@/views/staff/StaffDashboardView.vue'), meta: { roles: ['Bankar'], title: 'Pregled' } },
       { path: 'bankar/klijenti', component: () => import('@/views/staff/ClientsView.vue'), meta: { roles: staff, title: 'Klijenti' } },
@@ -81,6 +82,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/:pathMatch(.*)*', component: () => import('@/views/shared/NotFoundView.vue'), meta: { public: true, title: 'Stranica ne postoji' } },
 ]
 
+const SETUP_ALLOWED_PATHS = ['/bezbednost', '/postavke', '/obavestenja', '/pomoc']
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
@@ -94,6 +97,7 @@ router.beforeEach(async (to) => {
   if (to.path === '/prijava' && auth.isAuthenticated) return auth.homeRoute
   if (to.meta.public) return true
   if (!auth.isAuthenticated) return { path: '/prijava', query: { povratak: to.fullPath } }
+  if (auth.twoFactorSetupRequired && !SETUP_ALLOWED_PATHS.includes(to.path)) return { path: '/bezbednost', query: { obavezno: '1' } }
   if (to.meta.roles && auth.role && !to.meta.roles.includes(auth.role)) return auth.homeRoute
   return true
 })

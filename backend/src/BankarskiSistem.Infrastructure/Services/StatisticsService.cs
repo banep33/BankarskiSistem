@@ -1,3 +1,4 @@
+using BankarskiSistem.Core.Banking;
 using BankarskiSistem.Core.Enums;
 using BankarskiSistem.Core.Exceptions;
 using BankarskiSistem.Core.Interfaces;
@@ -9,7 +10,6 @@ namespace BankarskiSistem.Infrastructure.Services
 {
     public class StatisticsService : IStatisticsService
     {
-        public const string FailedLoginAction = "Neuspesna prijava";
         private const int RecentTransactionsCount = 6;
 
         private readonly ApplicationDbContext _context;
@@ -156,7 +156,7 @@ namespace BankarskiSistem.Infrastructure.Services
                 .ToListAsync();
 
             var failedLogins = await _context.AuditLogs
-                .CountAsync(a => !a.IsSuccess && a.Action == FailedLoginAction && a.CreatedAt >= now.AddHours(-24));
+                .CountAsync(a => !a.IsSuccess && a.Action == AuditActions.FailedLogin && a.CreatedAt >= now.AddHours(-24));
 
             var activity = await BuildActivityLast7DaysAsync();
 

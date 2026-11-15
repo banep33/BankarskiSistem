@@ -98,7 +98,7 @@ async function requestReversal(): Promise<void> {
   <AppModal :open="transaction !== null" title="Detalji transakcije" width="560px" @close="emit('close')">
     <template v-if="transaction">
       <div class="hero">
-        <MoneyAmount class="hero-amount" :amount="transaction.amount" :currency="transaction.currency" />
+        <p class="hero-amount amount-fit"><MoneyAmount :amount="transaction.amount" :currency="transaction.currency" /></p>
         <AppBadge v-if="transaction.reversedAt" tone="neutral">Stornirana</AppBadge>
         <AppBadge v-else :tone="transaction.status === 'Uspesna' ? 'success' : transaction.status === 'NaCekanju' ? 'warning' : 'danger'">
           {{ transaction.status === 'Uspesna' ? 'Uspešna' : transaction.status === 'NaCekanju' ? 'Na čekanju' : 'Neuspešna' }}
@@ -143,9 +143,12 @@ async function requestReversal(): Promise<void> {
 }
 
 .hero-amount {
-  font-size: var(--font-size-3xl);
+  --amount-max: var(--font-size-3xl);
+  --amount-scale: 8cqi;
+  width: 100%;
+  text-align: center;
   font-weight: 600;
-  color: var(--color-forest-900);
+  color: var(--color-text);
   letter-spacing: -0.03em;
 }
 
@@ -168,9 +171,11 @@ dt {
 
 dd {
   margin: 0;
+  min-width: 0;
   font-weight: 500;
+  color: var(--color-text);
   text-align: right;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .reversal {
@@ -183,6 +188,6 @@ dd {
 .complaint-link {
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 </style>

@@ -11,8 +11,11 @@ namespace BankarskiSistem.Tests.Integration
     public class CardIntegrationTests
     {
         private readonly MySqlDatabaseFixture _database;
-        private Actor Banker = null!;
-        private Actor Admin = null!;
+        private Actor? _banker;
+        private Actor? _admin;
+
+        private Actor Banker => _banker ?? throw new InvalidOperationException("Zaposleni nisu pripremljeni.");
+        private Actor Admin => _admin ?? throw new InvalidOperationException("Zaposleni nisu pripremljeni.");
 
         public CardIntegrationTests(MySqlDatabaseFixture database)
         {
@@ -40,13 +43,13 @@ namespace BankarskiSistem.Tests.Integration
 
         private async Task EnsureStaffAsync()
         {
-            Banker = await CreateStaffAsync(UserRole.Bankar);
-            Admin = await CreateStaffAsync(UserRole.Administrator);
+            _banker = await CreateStaffAsync(UserRole.Bankar);
+            _admin = await CreateStaffAsync(UserRole.Administrator);
         }
 
         private async Task<(Actor Owner, Account Account)> CreateCustomerAsync(decimal deposit, KycStatus kyc = KycStatus.Verifikovan)
         {
-            if (Banker == null)
+            if (_banker == null)
                 await EnsureStaffAsync();
             int ownerId;
             int accountId;

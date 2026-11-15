@@ -50,6 +50,12 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<PasswordResetRequest> PasswordResetRequests => Set<PasswordResetRequest>();
         public DbSet<ComplianceAlert> ComplianceAlerts => Set<ComplianceAlert>();
 
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+            configurationBuilder.Properties<DateTime?>().HaveConversion<NullableUtcDateTimeConverter>();
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

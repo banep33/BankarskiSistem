@@ -21,7 +21,7 @@ defineEmits<{ stay: []; logout: [] }>()
 
 <style scoped>
 .countdown {
-  color: var(--color-primary);
+  color: var(--color-link);
   font-variant-numeric: tabular-nums;
 }
 </style>

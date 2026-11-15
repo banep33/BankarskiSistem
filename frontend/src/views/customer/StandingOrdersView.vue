@@ -9,7 +9,7 @@ import StatusViews from '@/components/ui/StatusViews.vue'
 import { standingOrdersApi } from '@/api/bank'
 import { useAsync } from '@/composables/useAsync'
 import { frequencyLabels, standingOrderStatusLabels } from '@/utils/labels'
-import { formatAccountNumber, formatDate } from '@/utils/format'
+import { formatAccountNumber, formatDate, gridColumnsClass } from '@/utils/format'
 
 const { data: orders, isLoading, error, load } = useAsync(() => standingOrdersApi.list(), [])
 
@@ -55,14 +55,14 @@ onMounted(load)
         </AppCard>
         <AppCard>
           <p class="label muted">Prosečno mesečno (RSD)</p>
-          <MoneyAmount class="value" :amount="monthlyTotal" currency="RSD" />
+          <p class="value amount-fit"><MoneyAmount :amount="monthlyTotal" currency="RSD" /></p>
         </AppCard>
         <AppCard tone="cream">
           <p class="note"><AppIcon name="info" :size="16" /> Nalog se izvršava na dan dospeća. Ako tada nema dovoljno sredstava, dobijate obaveštenje, a posle 3 neuspeha zaredom nalog se pauzira.</p>
         </AppCard>
       </div>
 
-      <div class="grid-2">
+      <div v-if="active.length" :class="gridColumnsClass(active.length, 2)">
         <RouterLink v-for="order in active" :key="order.id" :to="`/trajni-nalozi/${order.id}`" class="order-card" :class="{ paused: order.status === 'Pauziran' }">
           <div class="row-between">
             <span class="recipient">{{ order.recipientName }}</span>
@@ -135,6 +135,8 @@ onMounted(load)
 }
 
 .value {
+  --amount-max: var(--font-size-2xl);
+  --amount-min: 1.125rem;
   display: block;
   margin-top: var(--space-2);
   font-size: var(--font-size-2xl);
@@ -188,10 +190,6 @@ onMounted(load)
   align-items: center;
   font-size: var(--font-size-xs);
   color: var(--color-danger);
-}
-
-.card-body {
-  padding: var(--space-5) var(--space-6);
 }
 
 .numeric {

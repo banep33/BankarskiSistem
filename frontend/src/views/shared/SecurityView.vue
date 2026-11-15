@@ -10,12 +10,14 @@ import StatusViews from '@/components/ui/StatusViews.vue'
 import TwoFactorCard from '@/components/security/TwoFactorCard.vue'
 import { securityApi } from '@/api/bank'
 import { useUiStore } from '@/stores/ui'
+import { useAuthStore } from '@/stores/auth'
 import { errorMessage } from '@/composables/useAsync'
 import { securityActionLabels } from '@/utils/labels'
-import { formatDateTime, formatRelative } from '@/utils/format'
+import { formatDateTime, formatRelative, gridColumnsClass } from '@/utils/format'
 import type { PagedResponse, SecurityEvent, Session } from '@/types/api'
 
 const ui = useUiStore()
+const auth = useAuthStore()
 const sessions = ref<Session[]>([])
 const events = ref<PagedResponse<SecurityEvent> | null>(null)
 const eventsPage = ref(1)
@@ -84,8 +86,16 @@ onMounted(load)
     <StatusViews v-else-if="error" state="error" :message="error" @retry="load" />
 
     <template v-else>
-      <div class="tips grid-3">
-        <AppCard tone="cream">
+      <AppCard v-if="auth.twoFactorSetupRequired" tone="cream" class="mfa-required" role="alert">
+        <AppIcon name="shield" />
+        <div>
+          <h2>Uključite dvostepenu prijavu da biste nastavili</h2>
+          <p class="muted">Zaposleni banke pristupaju podacima klijenata, pa je za njih dvostepena prijava obavezna. Dok je ne uključite, dostupni su samo Bezbednost, Postavke, Obaveštenja i Pomoć.</p>
+        </div>
+      </AppCard>
+
+      <div class="tips" :class="gridColumnsClass(auth.isCustomer ? 3 : 2)">
+        <AppCard v-if="auth.isCustomer" tone="cream">
           <AppIcon name="shield" />
           <h3>Lozinku znate samo vi</h3>
           <p class="muted">Zaposleni banke nikada ne traže lozinku, ni telefonom ni porukom.</p>
@@ -157,6 +167,18 @@ onMounted(load)
 </template>
 
 <style scoped>
+.mfa-required {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  border: 1px solid var(--color-warning);
+}
+
+.mfa-required h2 {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-1);
+}
+
 .tips h3 {
   margin: var(--space-2) 0 var(--space-1);
   font-size: var(--font-size-md);

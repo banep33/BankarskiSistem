@@ -136,7 +136,7 @@ onMounted(load)
   font-size: var(--font-size-sm);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-primary);
+  color: var(--color-link);
   margin-bottom: var(--space-2);
 }
 
@@ -179,7 +179,7 @@ onMounted(load)
 
 .subtle-inverse {
   font-size: var(--font-size-xs);
-  color: rgb(255 255 255 / 0.6);
+  color: var(--color-emphasis-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }

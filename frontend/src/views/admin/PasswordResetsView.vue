@@ -202,10 +202,6 @@ onMounted(load)
 </template>
 
 <style scoped>
-.card-body {
-  padding: var(--space-5) var(--space-6);
-}
-
 .status-filter {
   min-width: 220px;
 }
@@ -250,9 +246,8 @@ onMounted(load)
 }
 
 .actions {
-  display: flex;
-  gap: var(--space-1);
-  justify-content: flex-end;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .confirm {

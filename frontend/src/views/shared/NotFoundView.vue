@@ -28,7 +28,7 @@ const auth = useAuthStore()
 .code {
   font-size: 5rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-link);
   letter-spacing: -0.05em;
 }
 
@@ -36,8 +36,8 @@ const auth = useAuthStore()
   margin-top: var(--space-4);
   padding: 0.65rem 1.2rem;
   border-radius: var(--radius-pill);
-  background: var(--color-forest-900);
-  color: #fff;
+  background: var(--color-contrast-bg);
+  color: var(--color-contrast-text);
   text-decoration: none;
   font-weight: 600;
 }

@@ -8,7 +8,7 @@ import AccountCard from '@/components/banking/AccountCard.vue'
 import { meApi } from '@/api/bank'
 import { useAsync } from '@/composables/useAsync'
 import { accountStatusLabels } from '@/utils/labels'
-import { formatAccountNumber, formatDate } from '@/utils/format'
+import { formatAccountNumber, formatDate, gridColumnsClass } from '@/utils/format'
 
 const { data: accounts, isLoading, error, load } = useAsync(() => meApi.accounts(), [])
 const variants = ['forest', 'coral', 'cream'] as const
@@ -51,7 +51,7 @@ onMounted(load)
     />
 
     <template v-else>
-      <div class="grid-3">
+      <div :class="gridColumnsClass(accounts.length)">
         <AccountCard v-for="(account, index) in accounts" :key="account.id" :account="account" :variant="variants[index % 3]" />
       </div>
 

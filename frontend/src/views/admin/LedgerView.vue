@@ -7,7 +7,7 @@ import MoneyAmount from '@/components/ui/MoneyAmount.vue'
 import StatusViews from '@/components/ui/StatusViews.vue'
 import { adminApi } from '@/api/bank'
 import { errorMessage } from '@/composables/useAsync'
-import { formatAccountNumber, formatNumber } from '@/utils/format'
+import { formatAccountNumber, formatNumber, gridColumnsClass } from '@/utils/format'
 import type { LedgerAccountBalance, ReconciliationLine, TrialBalanceLine } from '@/types/api'
 
 const trialBalance = ref<TrialBalanceLine[]>([])
@@ -48,7 +48,7 @@ onMounted(load)
     <StatusViews v-else-if="error" state="error" :message="error" @retry="load" />
 
     <template v-else>
-      <div class="grid-3">
+      <div :class="gridColumnsClass(trialBalance.length)">
         <AppCard v-for="line in trialBalance" :key="line.currency" :tone="line.total === 0 ? 'dark' : 'cream'">
           <p class="label">Bruto bilans {{ line.currency }}</p>
           <p class="value">

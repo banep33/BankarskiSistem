@@ -58,6 +58,7 @@ const rows = computed(() =>
 
 <style scoped>
 .transaction-list {
+  container-type: inline-size;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -92,7 +93,7 @@ const rows = computed(() =>
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--color-primary-soft);
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .icon.incoming {
@@ -134,5 +135,32 @@ const rows = computed(() =>
   font-size: var(--font-size-xs);
   font-weight: 400;
   color: var(--color-text-subtle);
+}
+
+@container (max-width: 420px) {
+  .transaction {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    column-gap: var(--space-3);
+    row-gap: 2px;
+  }
+
+  .icon {
+    grid-row: span 2;
+  }
+
+  .title,
+  .meta {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .amount {
+    grid-column: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
 }
 </style>

@@ -4,6 +4,7 @@ import AppCard from '@/components/ui/AppCard.vue'
 import AppField from '@/components/ui/AppField.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppBadge from '@/components/ui/AppBadge.vue'
+import AppModal from '@/components/ui/AppModal.vue'
 import AppPagination from '@/components/ui/AppPagination.vue'
 import MoneyAmount from '@/components/ui/MoneyAmount.vue'
 import StatusViews from '@/components/ui/StatusViews.vue'
@@ -20,6 +21,8 @@ const page = ref(1)
 const result = ref<PagedResponse<Account> | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
+const pending = ref<{ account: Account; status: AccountStatus } | null>(null)
+const isChanging = ref(false)
 
 async function load(): Promise<void> {
   isLoading.value = true
@@ -33,14 +36,24 @@ async function load(): Promise<void> {
   }
 }
 
-async function changeStatus(account: Account, status: AccountStatus): Promise<void> {
+async function confirmStatusChange(): Promise<void> {
+  if (!pending.value || isChanging.value) return
+  const { account, status } = pending.value
+  isChanging.value = true
   try {
     const updated = await accountsApi.changeStatus(account.id, status)
     if (result.value) result.value.items = result.value.items.map((item) => (item.id === updated.id ? updated : item))
+    pending.value = null
     ui.notify(`Račun ${formatAccountNumber(updated.accountNumber)}: ${accountStatusLabels[status].label}.`)
   } catch (caught) {
     ui.notify(errorMessage(caught), 'danger')
+  } finally {
+    isChanging.value = false
   }
+}
+
+function closeConfirmation(): void {
+  if (!isChanging.value) pending.value = null
 }
 
 function submit(): void {
@@ -95,9 +108,9 @@ onMounted(load)
                 <td><AppBadge :tone="accountStatusLabels[account.status].tone">{{ accountStatusLabels[account.status].label }}</AppBadge></td>
                 <td class="subtle">{{ formatDate(account.createdAt) }}</td>
                 <td class="numeric"><MoneyAmount :amount="account.balance" :currency="account.currency" :sensitive="false" /></td>
-                <td>
-                  <AppButton v-if="account.status === 'Aktivan'" variant="ghost" size="sm" @click="changeStatus(account, 'Blokiran')">Blokiraj</AppButton>
-                  <AppButton v-else variant="ghost" size="sm" @click="changeStatus(account, 'Aktivan')">Aktiviraj</AppButton>
+                <td class="actions">
+                  <AppButton v-if="account.status === 'Aktivan'" variant="ghost" size="sm" icon="lock" @click="pending = { account, status: 'Blokiran' }">Blokiraj</AppButton>
+                  <AppButton v-else variant="ghost" size="sm" @click="pending = { account, status: 'Aktivan' }">Aktiviraj</AppButton>
                 </td>
               </tr>
             </tbody>
@@ -106,14 +119,32 @@ onMounted(load)
         <AppPagination v-if="result" :page="result.page" :total-pages="result.totalPages" :total-count="result.totalCount" @change="page = $event" />
       </div>
     </AppCard>
+
+    <AppModal :open="pending !== null" :title="pending?.status === 'Blokiran' ? 'Blokiranje računa' : 'Aktiviranje računa'" width="480px" @close="closeConfirmation">
+      <div v-if="pending" class="stack">
+        <p class="muted">
+          {{ pending.status === 'Blokiran'
+            ? 'Da li zaista želite da blokirate ovaj račun? Dok je račun blokiran, vlasnik ne može da plaća, podiže gotovinu niti prima nove naloge sa njega.'
+            : 'Da li zaista želite da ponovo aktivirate ovaj račun? Vlasnik će odmah moći da ga koristi.' }}
+        </p>
+        <dl class="confirm-details">
+          <div><dt>Račun</dt><dd class="mono">{{ formatAccountNumber(pending.account.accountNumber) }}</dd></div>
+          <div><dt>Vlasnik</dt><dd>{{ pending.account.ownerFullName ?? 'Nepoznat' }}</dd></div>
+          <div><dt>Stanje</dt><dd><MoneyAmount :amount="pending.account.balance" :currency="pending.account.currency" :sensitive="false" /></dd></div>
+          <div><dt>Trenutni status</dt><dd>{{ accountStatusLabels[pending.account.status].label }}</dd></div>
+        </dl>
+      </div>
+      <template #footer>
+        <AppButton variant="ghost" :disabled="isChanging" @click="closeConfirmation">Odustani</AppButton>
+        <AppButton :variant="pending?.status === 'Blokiran' ? 'danger' : 'primary'" :loading="isChanging" @click="confirmStatusChange">
+          {{ pending?.status === 'Blokiran' ? 'Blokiraj račun' : 'Aktiviraj račun' }}
+        </AppButton>
+      </template>
+    </AppModal>
   </div>
 </template>
 
 <style scoped>
-.card-body {
-  padding: var(--space-5) var(--space-6);
-}
-
 .search {
   display: flex;
   align-items: flex-end;
@@ -126,5 +157,47 @@ onMounted(load)
 
 .numeric {
   text-align: right;
+}
+
+.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.confirm-details {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  font-size: var(--font-size-sm);
+}
+
+.confirm-details div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.confirm-details dt {
+  color: var(--color-text-muted);
+}
+
+.confirm-details dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .search {
+    flex-wrap: wrap;
+  }
+
+  .search > :first-child {
+    flex-basis: 100%;
+  }
 }
 </style>

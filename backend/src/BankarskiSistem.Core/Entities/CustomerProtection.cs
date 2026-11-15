@@ -10,6 +10,7 @@ namespace BankarskiSistem.Core.Entities
         public DateTime LastSeenAt { get; set; }
         public DateTime ExpiresAt { get; set; }
         public DateTime? ReauthenticatedAt { get; set; }
+        public bool MfaVerified { get; set; }
         public string? RefreshTokenHash { get; set; }
         public string? PreviousRefreshTokenHash { get; set; }
         public DateTime? RefreshRotatedAt { get; set; }

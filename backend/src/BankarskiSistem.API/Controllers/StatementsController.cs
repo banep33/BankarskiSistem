@@ -1,8 +1,8 @@
 using System.Text;
 using BankarskiSistem.API.Security;
+using BankarskiSistem.Core.Banking;
 using BankarskiSistem.Core.Interfaces;
 using BankarskiSistem.Core.Models;
-using BankarskiSistem.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -29,7 +29,7 @@ namespace BankarskiSistem.API.Controllers
             await auditLog.LogAsync(new AuditEntry(CurrentActor.UserId, "Preuzet izvod", "Account", accountId,
                 $"{statement.From:yyyy-MM-dd} do {statement.To:yyyy-MM-dd}, CSV"));
             var fileName = $"izvod-{statement.AccountNumber}-{statement.From:yyyyMMdd}-{statement.To:yyyyMMdd}.csv";
-            return File(Encoding.UTF8.GetBytes(StatementService.ToCsv(statement)), "text/csv; charset=utf-8", fileName);
+            return File(Encoding.UTF8.GetBytes(StatementCsv.Write(statement)), "text/csv; charset=utf-8", fileName);
         }
 
         private async Task<AccountStatement> LoadAsync(int accountId, DateOnly from, DateOnly to)

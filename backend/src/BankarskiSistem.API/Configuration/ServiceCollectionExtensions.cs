@@ -11,6 +11,7 @@ using BankarskiSistem.Infrastructure.Security;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -115,13 +116,16 @@ namespace BankarskiSistem.API.Configuration
                 });
 
             services.AddAuthorizationBuilder()
-                .SetFallbackPolicy(new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+                .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build())
-                .AddPolicy(Policies.Administrator, policy => policy.RequireRole("Administrator"))
-                .AddPolicy(Policies.Banker, policy => policy.RequireRole("Bankar"))
+                .AddPolicy(Policies.Administrator, policy => policy.RequireRole("Administrator").AddRequirements(new TwoFactorAssuranceRequirement()))
+                .AddPolicy(Policies.Banker, policy => policy.RequireRole("Bankar").AddRequirements(new TwoFactorAssuranceRequirement()))
                 .AddPolicy(Policies.Customer, policy => policy.RequireRole("Korisnik"))
-                .AddPolicy(Policies.Staff, policy => policy.RequireRole("Bankar", "Administrator"));
+                .AddPolicy(Policies.Staff, policy => policy.RequireRole("Bankar", "Administrator").AddRequirements(new TwoFactorAssuranceRequirement()));
+
+            services.AddSingleton<IAuthorizationHandler, TwoFactorAssuranceHandler>();
+            services.AddSingleton<IAuthorizationMiddlewareResultHandler, ProblemAuthorizationResultHandler>();
 
             return services;
         }
@@ -213,6 +217,7 @@ namespace BankarskiSistem.API.Configuration
                     policy.WithOrigins(allowedOrigins)
                           .WithHeaders("Authorization", "Content-Type", "Idempotency-Key", RefreshTokenCookie.CsrfHeader)
                           .WithMethods("GET", "POST", "PUT", "DELETE")
+                          .WithExposedHeaders(RequestCorrelationMiddleware.HeaderName)
                           .AllowCredentials()));
 
             return services;

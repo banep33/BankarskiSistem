@@ -10,6 +10,7 @@ import AppModal from '@/components/ui/AppModal.vue'
 import StatusViews from '@/components/ui/StatusViews.vue'
 import { securityApi } from '@/api/bank'
 import { useReauthStore } from '@/stores/reauth'
+import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { errorMessage } from '@/composables/useAsync'
 import { formatDate } from '@/utils/format'
@@ -19,6 +20,7 @@ type Mode = 'setup' | 'disable' | 'regenerate' | 'codes'
 
 const ui = useUiStore()
 const reauth = useReauthStore()
+const auth = useAuthStore()
 const status = ref<TwoFactorStatus | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
@@ -85,7 +87,9 @@ async function confirm(): Promise<void> {
       dialog.secret = ''
       dialog.uri = ''
       showCodes(result.codes)
-      ui.notify('Dvostepena prijava je uključena.')
+      const wasRequired = auth.twoFactorSetupRequired
+      await auth.refresh()
+      ui.notify(wasRequired ? 'Dvostepena prijava je uključena. Sada imate pristup svim odeljcima.' : 'Dvostepena prijava je uključena.')
     } else if (dialog.mode === 'disable') {
       const done = await reauth.runWithReauth(() => securityApi.disableTwoFactor(dialog.code.trim()), 'Za isključivanje potvrdite lozinku.')
       if (done === null) return
@@ -144,14 +148,16 @@ onMounted(load)
           <p v-if="status.enabled" class="subtle">
             Od {{ formatDate(status.enabledAt) }} · preostalo rezervnih kodova: {{ status.recoveryCodesRemaining }}
           </p>
+          <p v-else-if="auth.isStaff" class="subtle">Obavezna je za zaposlene banke. Dok je ne uključite, ostali odeljci aplikacije nisu dostupni.</p>
           <p v-else class="subtle">Preporučujemo da je uključite. Čak i ako neko sazna vašu lozinku, bez telefona ne može da se prijavi.</p>
+          <p v-if="status.enabled && auth.isStaff" class="subtle">Zaposleni ne mogu sami da isključe dvostepenu prijavu. Za novi telefon koristite rezervni kod ili zatražite reset od drugog administratora.</p>
         </div>
       </div>
       <div class="row actions">
         <AppButton v-if="!status.enabled" icon="shield" @click="startSetup">Uključi</AppButton>
         <template v-else>
           <AppButton variant="secondary" icon="refresh" @click="reset('regenerate')">Novi rezervni kodovi</AppButton>
-          <AppButton variant="ghost" @click="reset('disable')">Isključi</AppButton>
+          <AppButton v-if="auth.isCustomer" variant="ghost" @click="reset('disable')">Isključi</AppButton>
         </template>
       </div>
       <p v-if="status.enabled && status.recoveryCodesRemaining <= 2" class="low-codes" role="status">

@@ -147,10 +147,6 @@ onMounted(load)
 </template>
 
 <style scoped>
-.card-body {
-  padding: var(--space-5) var(--space-6);
-}
-
 .new-link {
   padding: 0.65rem 1.2rem;
   border-radius: var(--radius-pill);
@@ -177,9 +173,9 @@ onMounted(load)
 }
 
 .filter-chips button.active {
-  background: var(--color-forest-900);
-  border-color: var(--color-forest-900);
-  color: #fff;
+  background: var(--color-contrast-bg);
+  border-color: var(--color-contrast-bg);
+  color: var(--color-contrast-text);
 }
 
 .numeric {

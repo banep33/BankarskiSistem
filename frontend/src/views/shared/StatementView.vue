@@ -214,12 +214,12 @@ onMounted(async () => {
   gap: var(--space-6);
   flex-wrap: wrap;
   padding-bottom: var(--space-5);
-  border-bottom: 2px solid var(--color-forest-900);
+  border-bottom: 2px solid var(--color-text);
 }
 
 .bank {
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-link);
 }
 
 .meta {

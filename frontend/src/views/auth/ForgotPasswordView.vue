@@ -142,7 +142,7 @@ async function submit(): Promise<void> {
   align-self: center;
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .steps {
@@ -152,17 +152,17 @@ async function submit(): Promise<void> {
   flex-direction: column;
   gap: var(--space-3);
   font-size: var(--font-size-sm);
-  color: rgb(255 255 255 / 0.85);
+  color: var(--color-emphasis-text-muted);
 }
 
 .steps strong {
-  color: var(--color-lime-400);
+  color: var(--color-emphasis-accent);
 }
 
 .note {
   margin-top: var(--space-4);
   font-size: var(--font-size-xs);
-  color: rgb(255 255 255 / 0.6);
+  color: var(--color-emphasis-text-muted);
 }
 
 .done {

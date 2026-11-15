@@ -38,8 +38,8 @@ const icons = { success: 'check', danger: 'alert', info: 'info' } as const
   gap: var(--space-3);
   padding: var(--space-4);
   border-radius: var(--radius-md);
-  background: var(--color-forest-900);
-  color: #fff;
+  background: var(--color-contrast-bg);
+  color: var(--color-contrast-text);
   box-shadow: var(--shadow-lg);
   font-size: var(--font-size-sm);
 }
@@ -63,7 +63,8 @@ const icons = { success: 'check', danger: 'alert', info: 'info' } as const
 .dismiss {
   border: none;
   background: transparent;
-  color: rgb(255 255 255 / 0.7);
+  color: inherit;
+  opacity: 0.7;
   cursor: pointer;
 }
 

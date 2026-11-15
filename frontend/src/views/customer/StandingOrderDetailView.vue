@@ -170,7 +170,7 @@ onMounted(load)
       <div class="summary">
         <AppCard tone="dark">
           <p class="label">Iznos</p>
-          <MoneyAmount class="big" :amount="order.amount" :currency="order.currency" />
+          <p class="big amount-fit"><MoneyAmount :amount="order.amount" :currency="order.currency" /></p>
           <p class="label">{{ frequencyLabels[order.frequency].adverb }}, {{ endDescription }}</p>
         </AppCard>
         <AppCard title="Sledeća plaćanja">
@@ -289,13 +289,12 @@ onMounted(load)
 
 .label {
   font-size: var(--font-size-sm);
-  color: rgb(255 255 255 / 0.75);
+  color: var(--color-emphasis-text-muted);
 }
 
 .big {
-  display: block;
+  --amount-max: var(--font-size-3xl);
   margin: var(--space-2) 0;
-  font-size: var(--font-size-3xl);
   font-weight: 600;
 }
 
@@ -309,7 +308,7 @@ onMounted(load)
 
 .dates .first {
   font-weight: 700;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .today {
@@ -342,10 +341,6 @@ onMounted(load)
   margin: 0;
   font-weight: 600;
   text-align: right;
-}
-
-.card-body {
-  padding: var(--space-5) var(--space-6);
 }
 
 .reason {

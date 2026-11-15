@@ -318,7 +318,7 @@ onMounted(loadTab)
 <style scoped>
 .policy-link {
   font-weight: 600;
-  color: var(--color-primary-hover);
+  color: var(--color-link);
 }
 
 .tabs {
@@ -343,9 +343,9 @@ onMounted(loadTab)
 }
 
 .tabs button.active {
-  background: var(--color-forest-900);
-  border-color: var(--color-forest-900);
-  color: #fff;
+  background: var(--color-contrast-bg);
+  border-color: var(--color-contrast-bg);
+  color: var(--color-contrast-text);
 }
 
 .align-start {
