@@ -109,7 +109,7 @@ Plaćanje ima tri koraka.
 - za veće iznose novom primaocu ili iznose preko tvog ličnog praga traži se **ponovni unos lozinke**;
 - priznanica prikazuje status (Izvršen, Poslat u kliring, Zakazan), referencu i iznose; **Štampaj potvrdu** otvara štampu.
 
-Plaćanje u okviru banke izvršava se odmah i besplatno je. Plaćanje drugoj banci ide u simulirani kliring i naplaćuje se naknada iz cenovnika. Dnevni limit je 100.000 RSD, odnosno 1.000 EUR ili USD.
+Plaćanje u okviru banke izvršava se odmah i besplatno je. Plaćanje drugoj banci ide u simulirani kliring i naplaćuje se naknada iz cenovnika. Dnevni limit je 100.000 RSD, odnosno 1.000 EUR ili USD. Prenosi između sopstvenih računa (na primer na štednju) i konverzije ne troše limit.
 
 ### Nalozi
 
@@ -160,6 +160,18 @@ Konverzija između sopstvenih dinarskih i deviznih računa (EUR, USD), odmah i b
 ### Transakcije
 
 Filteri: pretraga po opisu, primaocu ili referenci, račun, vrsta, period od i do. **Primeni** pokreće pretragu, **Poništi** briše filtere. Klik na transakciju otvara detalje i link **Nešto nije u redu? Podnesite prigovor**, koji otvara prigovor već povezan sa tom transakcijom.
+
+### Štednja
+
+Ciljevi štednje, na primer letovanje ili novi telefon. Svaki cilj ima sopstveni **štedni račun**, pa je ušteđeni novac odvojen od tekućeg računa.
+
+- **Novi cilj**: naziv, ciljani iznos, opciono datum do kada želiš da uštediš, i valuta (potreban je tekući račun u toj valuti). Štedni račun se otvara automatski i vidi se i među **Računima** sa oznakom „štednja“.
+- Kartica cilja prikazuje koliko je ušteđeno, napredak u procentima, datum i, ako je datum zadat, **koliko je mesečno potrebno** da stigneš do cilja.
+- **Uplati**: prenos sa tekućeg računa na cilj. **Povuci**: vraćanje dela novca na tekući račun. Prenosi između sopstvenih računa su besplatni i ne troše dnevni limit za plaćanja.
+- Kada uštedeš ciljani iznos, cilj dobija oznaku **Ostvaren** i stiže obaveštenje. Ako posle toga povučeš novac, cilj se vraća u stanje „U toku“.
+- **Automatska štednja** otvara novi trajni nalog sa već upisanim štednim računom kao primaocem; izabereš iznos i učestalost.
+- **Izmeni** menja naziv, iznos i datum, a **Zatvori** vraća sav ušteđeni novac na izabrani tekući račun i zatvara štedni račun.
+- Sa štednog računa nije moguće plaćati drugima ni podizati gotovinu; novac se prvo vraća na tekući račun. Prenosi na sopstvene račune ne ulaze u potrošnju.
 
 ### Potrošnja i budžeti
 
@@ -296,6 +308,7 @@ Administrator ima sve što i bankar, plus sledeće.
 |---|---|
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
+| Ne mogu da platim sa štednog računa | štedni račun služi samo za štednju; prebaci novac na tekući račun (Štednja, Povuci) |
 | Plaćanje je u pogrešnoj kategoriji | promeni kategoriju u Potrošnja i budžeti i izaberi Zapamti za primaoca |
 | Ne vidim potrošnju sa deviznog računa | budžeti i potrošnja se vode za dinarske račune |
 | CSV se u Excel-u otvara u jednoj koloni | otvori ga preko Podaci, Iz teksta i izaberi tačka-zarez kao razdvajač, ili proveri da je Windows podešen na srpski format |
@@ -466,6 +479,19 @@ Priprema: klijent sa bar 40.000 RSD i drugi klijent kao primalac.
 - [ ] Prenos na sopstveni drugi račun ne ulazi u rashode.
 - [ ] Izaberi prethodni mesec: prikazuju se podaci za taj mesec.
 - [ ] Promeni iznos budžeta i obriši ga ikonicom korpe.
+
+### C1f. Štednja
+
+Priprema: klijent sa bar 200.000 RSD na tekućem računu.
+
+- [ ] **Štednja**, **Novi cilj**: Letovanje, 150.000 RSD, datum za 6 meseci. Na kartici je „mesečno je potrebno ...“, a u **Računi** se pojavio štedni račun.
+- [ ] **Uplati** 120.000 RSD (više od dnevnog limita od 100.000): prenos prolazi, jer je između sopstvenih računa.
+- [ ] Uplati još 30.000: cilj je **Ostvaren**, stiže obaveštenje.
+- [ ] **Povuci** 10.000: cilj se vraća u stanje „U toku“.
+- [ ] Na **Novo plaćanje** štedni račun se ne nudi kao račun platioca; na detalju štednog računa nema dugmeta za isplatu gotovine.
+- [ ] **Automatska štednja**: obrazac trajnog naloga ima upisan štedni račun; napravi nalog za danas na 5.000 i posle oko minut proveri da je iznos na cilju uvećan.
+- [ ] **Potrošnja i budžeti**: prenosi na štednju se ne vide kao rashod.
+- [ ] **Zatvori** cilj: sav novac je vraćen na tekući račun, štedni račun je neaktivan, a cilj je u listi zatvorenih.
 
 ### C2. Klijent: profil, pomoć i privatnost
 

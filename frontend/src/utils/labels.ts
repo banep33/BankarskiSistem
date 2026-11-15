@@ -159,6 +159,7 @@ export const notificationIcons: Record<NotificationType, string> = {
   TrajniNalog: 'repeat',
   Konverzija: 'exchange',
   Budzet: 'chart',
+  Stednja: 'star',
 }
 
 export const securityActionLabels: Record<string, string> = {

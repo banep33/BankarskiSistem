@@ -22,6 +22,7 @@ const customerNavigation: NavSection[] = [
       { to: '/menjacnica', label: 'Menjačnica', icon: 'exchange' },
       { to: '/transakcije', label: 'Transakcije', icon: 'list' },
       { to: '/potrosnja', label: 'Potrošnja i budžeti', icon: 'chart' },
+      { to: '/stednja', label: 'Štednja', icon: 'star' },
       { to: '/primaoci', label: 'Primaoci', icon: 'users' },
     ],
   },

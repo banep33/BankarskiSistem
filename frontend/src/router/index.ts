@@ -46,6 +46,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'trajni-nalozi/novi', component: () => import('@/views/customer/StandingOrderFormView.vue'), meta: { roles: customer, title: 'Novi trajni nalog' } },
       { path: 'trajni-nalozi/:id', component: () => import('@/views/customer/StandingOrderDetailView.vue'), meta: { roles: customer, title: 'Trajni nalog' } },
       { path: 'transakcije', component: () => import('@/views/customer/TransactionsView.vue'), meta: { roles: customer, title: 'Transakcije' } },
+      { path: 'stednja', component: () => import('@/views/customer/SavingsView.vue'), meta: { roles: customer, title: 'Štednja' } },
       { path: 'potrosnja', component: () => import('@/views/customer/SpendingView.vue'), meta: { roles: customer, title: 'Potrošnja i budžeti' } },
       { path: 'primaoci', component: () => import('@/views/customer/BeneficiariesView.vue'), meta: { roles: customer, title: 'Primaoci' } },
       { path: 'prigovori', component: () => import('@/views/customer/ComplaintsView.vue'), meta: { roles: customer, title: 'Prigovori' } },

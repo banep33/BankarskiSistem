@@ -52,7 +52,7 @@ const form = reactive({
   maxExecutions: '' as string | number,
 })
 
-const activeAccounts = computed(() => accounts.value.filter((account) => account.status === 'Aktivan'))
+const activeAccounts = computed(() => accounts.value.filter((account) => account.status === 'Aktivan' && account.kind === 'Tekuci'))
 const fromAccount = computed(() => accounts.value.find((account) => account.id === form.fromAccountId) ?? null)
 const accountOptions = computed(() => activeAccounts.value.map((account) => ({ value: account.id, label: `${formatAccountNumber(account.accountNumber)} (${account.currency})` })))
 const paymentCodeOptions = computed(() => (referenceData.value?.paymentCodes ?? []).map((item) => ({ value: item.code, label: `${item.code} ${item.description}` })))
@@ -134,6 +134,11 @@ async function load(): Promise<void> {
     form.fromAccountId = activeAccounts.value.find((account) => account.currency === 'RSD')?.id ?? activeAccounts.value[0]?.id ?? null
     const beneficiary = beneficiaries.value.find((item) => item.id === Number(route.query.primalac))
     if (beneficiary) applyBeneficiary(beneficiary)
+    if (typeof route.query.naRacun === 'string') {
+      form.recipientAccountNumber = route.query.naRacun
+      form.recipientName = 'Sopstveni štedni račun'
+      form.purpose = typeof route.query.naziv === 'string' ? `Štednja: ${route.query.naziv}`.slice(0, 140) : 'Štednja'
+    }
   } catch (caught) {
     loadError.value = errorMessage(caught)
   } finally {

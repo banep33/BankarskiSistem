@@ -51,7 +51,7 @@ const form = reactive({
   beneficiaryNickname: '',
 })
 
-const activeAccounts = computed(() => accounts.value.filter((account) => account.status === 'Aktivan'))
+const activeAccounts = computed(() => accounts.value.filter((account) => account.status === 'Aktivan' && account.kind === 'Tekuci'))
 const fromAccount = computed(() => accounts.value.find((account) => account.id === form.fromAccountId) ?? null)
 const accountOptions = computed(() =>
   activeAccounts.value.map((account) => ({ value: account.id, label: `${formatAccountNumber(account.accountNumber)} (${account.currency})` })),

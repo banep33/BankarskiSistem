@@ -19,6 +19,7 @@ export type NotificationType =
   | 'TrajniNalog'
   | 'Konverzija'
   | 'Budzet'
+  | 'Stednja'
 export type ComplaintCategory =
   | 'PlatniPromet'
   | 'Racun'
@@ -134,6 +135,24 @@ export interface Account {
   updatedAt: string
   ownerFullName: string | null
   ownerEmail: string | null
+  kind: 'Tekuci' | 'Stednja'
+}
+
+export interface SavingsGoal {
+  id: number
+  name: string
+  targetAmount: number
+  targetDate: string | null
+  status: 'Aktivan' | 'Ostvaren' | 'Zatvoren'
+  accountId: number
+  accountNumber: string | null
+  currency: string
+  savedAmount: number
+  progress: number
+  monthlyNeeded: number | null
+  createdAt: string
+  achievedAt: string | null
+  closedAt: string | null
 }
 
 export interface Transaction {

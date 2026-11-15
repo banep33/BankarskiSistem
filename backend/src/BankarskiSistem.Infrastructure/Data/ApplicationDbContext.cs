@@ -29,6 +29,7 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<TransactionCategory> TransactionCategories => Set<TransactionCategory>();
         public DbSet<CategoryRule> CategoryRules => Set<CategoryRule>();
         public DbSet<Budget> Budgets => Set<Budget>();
+        public DbSet<SavingsGoal> SavingsGoals => Set<SavingsGoal>();
         public DbSet<BudgetAlert> BudgetAlerts => Set<BudgetAlert>();
         public DbSet<TransactionReversal> TransactionReversals => Set<TransactionReversal>();
         public DbSet<CurrencyExchange> CurrencyExchanges => Set<CurrencyExchange>();
@@ -73,6 +74,7 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.Property(a => a.AccountNumber).HasMaxLength(20).IsRequired();
                 entity.Property(a => a.Currency).HasMaxLength(3).IsFixedLength().IsRequired();
                 entity.Property(a => a.Status).HasConversion<string>();
+                entity.Property(a => a.Kind).HasConversion<string>();
                 entity.Property(a => a.Balance).HasColumnType("decimal(18,2)");
                 entity.HasIndex(a => a.AccountNumber).IsUnique();
                 entity.Ignore(a => a.IsActive);
@@ -250,6 +252,17 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.HasIndex(s => new { s.UserId, s.RevokedAt, s.ExpiresAt });
                 entity.HasIndex(s => s.RefreshTokenHash).IsUnique();
                 entity.HasIndex(s => s.PreviousRefreshTokenHash);
+            });
+
+            modelBuilder.Entity<SavingsGoal>(entity =>
+            {
+                entity.ToTable("savings_goals");
+                entity.Property(g => g.Name).HasMaxLength(60).IsRequired();
+                entity.Property(g => g.TargetAmount).HasPrecision(18, 2);
+                entity.Property(g => g.Status).HasConversion<string>();
+                entity.HasIndex(g => g.AccountId).IsUnique();
+                entity.HasOne(g => g.Account).WithMany().HasForeignKey(g => g.AccountId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne<User>().WithMany().HasForeignKey(g => g.UserId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<SpendingCategory>(entity =>

@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<{ account: Account; to?: string; variant?
 <template>
   <RouterLink :to="to ?? `/racuni/${props.account.id}`" class="account-card" :class="`variant-${variant}`">
     <div class="top">
-      <span class="currency">{{ account.currency }}</span>
+      <span class="currency">{{ account.currency }}<template v-if="account.kind === 'Stednja'"> · štednja</template></span>
       <AppBadge v-if="account.status !== 'Aktivan'" :tone="accountStatusLabels[account.status].tone">
         {{ accountStatusLabels[account.status].label }}
       </AppBadge>

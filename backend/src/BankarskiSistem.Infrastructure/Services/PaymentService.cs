@@ -89,6 +89,8 @@ namespace BankarskiSistem.Infrastructure.Services
                 var account = await LockSingleAsync(command.AccountId);
                 AccountAccessPolicy.EnsureOwner(account, actor);
                 _pendingComplianceAccount = account;
+                if (account.Kind == AccountKind.Stednja)
+                    throw new BusinessRuleException("Sa štednog računa nije moguća isplata gotovine. Prvo prebacite novac na tekući račun.");
                 MoneyRules.EnsureActive(account, "Isplata nije moguća jer račun nije aktivan.");
                 await _dailyLimitPolicy.EnsureWithinLimitsAsync(account, command.Amount);
                 MoneyRules.EnsureSufficientFunds(account, command.Amount);

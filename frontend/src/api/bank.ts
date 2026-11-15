@@ -2,6 +2,7 @@ import { del, download, get, post, put, REFRESH_HEADER, withIdempotency } from '
 import type {
   Account,
   AccountStatement,
+  SavingsGoal,
   BudgetItem,
   SpendingCategory,
   SpendingSummary,
@@ -138,6 +139,19 @@ export const exchangeApi = {
   mine: (page = 1) => get<PagedResponse<CurrencyExchange>>('/exchange', { page }),
   publish: (rates: { currency: string; buyRate: number; middleRate: number; sellRate: number }[]) =>
     post<ExchangeRate[]>('/admin/exchange-rates', { rates }),
+}
+
+export const savingsApi = {
+  list: () => get<SavingsGoal[]>('/me/savings-goals'),
+  create: (name: string, targetAmount: number, targetDate: string | null, currency: string) =>
+    post<SavingsGoal>('/me/savings-goals', { name, targetAmount, targetDate, currency }),
+  update: (id: number, name: string, targetAmount: number, targetDate: string | null) =>
+    put<SavingsGoal>(`/me/savings-goals/${id}`, { name, targetAmount, targetDate }),
+  contribute: (id: number, accountId: number, amount: number, key: string) =>
+    post<SavingsGoal>(`/me/savings-goals/${id}/contributions`, { accountId, amount }, withIdempotency(key)),
+  withdraw: (id: number, accountId: number, amount: number, key: string) =>
+    post<SavingsGoal>(`/me/savings-goals/${id}/withdrawals`, { accountId, amount }, withIdempotency(key)),
+  close: (id: number, accountId: number) => post<SavingsGoal>(`/me/savings-goals/${id}/close`, { accountId }),
 }
 
 export const budgetsApi = {

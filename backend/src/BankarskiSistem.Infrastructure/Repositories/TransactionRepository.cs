@@ -127,6 +127,7 @@ namespace BankarskiSistem.Infrastructure.Repositories
                 .Where(t => t.FromAccountId == accountId
                             && t.Type != TransactionType.Konverzija
                             && t.Type != TransactionType.Storno
+                            && !(t.ToAccountId != null && t.ToAccount!.UserId == t.FromAccount!.UserId)
                             && t.Status == TransactionStatus.Uspesna
                             && t.CreatedAt >= sinceUtc)
                 .GroupBy(_ => 1)

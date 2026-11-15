@@ -59,7 +59,8 @@ namespace BankarskiSistem.API.Contracts
         DateTime CreatedAt,
         DateTime UpdatedAt,
         string? OwnerFullName,
-        string? OwnerEmail);
+        string? OwnerEmail,
+        AccountKind Kind);
 
     public record TransactionResponse(
         int Id,

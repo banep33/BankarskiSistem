@@ -145,14 +145,15 @@ onMounted(load)
       <header class="page-header">
         <div>
           <RouterLink to="/racuni" class="back">← Svi računi</RouterLink>
-          <h1 class="page-title">Račun {{ account.currency }}</h1>
+          <h1 class="page-title">{{ account.kind === 'Stednja' ? 'Štedni račun' : 'Račun' }} {{ account.currency }}</h1>
           <p class="page-subtitle mono">{{ formatAccountNumber(account.accountNumber) }}</p>
         </div>
         <div class="row">
           <AppButton variant="secondary" icon="file" @click="copyNumber">Kopiraj broj</AppButton>
           <RouterLink :to="`/racuni/${account.id}/izvod`" class="statement-link">Izvod</RouterLink>
-          <AppButton v-if="account.status === 'Aktivan'" variant="secondary" icon="arrow-up" @click="openWithdrawal">Isplata gotovine</AppButton>
-          <RouterLink :to="{ path: '/placanja/novo', query: { racun: account.id } }" class="pay-link">Plati sa ovog računa</RouterLink>
+          <AppButton v-if="account.status === 'Aktivan' && account.kind === 'Tekuci'" variant="secondary" icon="arrow-up" @click="openWithdrawal">Isplata gotovine</AppButton>
+          <RouterLink v-if="account.kind === 'Tekuci'" :to="{ path: '/placanja/novo', query: { racun: account.id } }" class="pay-link">Plati sa ovog računa</RouterLink>
+          <RouterLink v-else to="/stednja" class="pay-link">Štednja</RouterLink>
         </div>
       </header>
 

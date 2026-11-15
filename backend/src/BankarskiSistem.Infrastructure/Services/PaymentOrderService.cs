@@ -77,6 +77,9 @@ namespace BankarskiSistem.Infrastructure.Services
 
         private DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
 
+        private const string SavingsOutgoingMessage =
+            "Sa štednog računa novac se može prebaciti samo na sopstveni račun. Za plaćanje prvo prebacite novac na tekući račun.";
+
         public async Task<PaymentQuote> QuoteAsync(CreatePaymentOrderCommand command, Actor actor)
         {
             var prepared = await PrepareAsync(command, actor, includeDailyLimit: true);
@@ -254,6 +257,7 @@ namespace BankarskiSistem.Infrastructure.Services
 
             var isInternal = recipientNumber.BankCode == _bankingSettings.BankCode;
             int? recipientAccountId = null;
+            var isOwnTransfer = false;
 
             if (isInternal)
             {
@@ -264,10 +268,15 @@ namespace BankarskiSistem.Infrastructure.Services
                 if (recipient.Currency != source.Currency)
                     throw new BusinessRuleException(
                         $"Prenos između računa u različitim valutama ({source.Currency} i {recipient.Currency}) nije moguć bez konverzije.");
+                if (source.Kind == AccountKind.Stednja && recipient.UserId != source.UserId)
+                    throw new BusinessRuleException(SavingsOutgoingMessage);
                 recipientAccountId = recipient.Id;
+                isOwnTransfer = recipient.UserId == source.UserId;
             }
             else
             {
+                if (source.Kind == AccountKind.Stednja)
+                    throw new BusinessRuleException(SavingsOutgoingMessage);
                 if (!recipientNumber.HasValidControlDigits)
                     throw new BusinessRuleException("Kontrolni broj računa primaoca nije ispravan. Proverite broj računa.");
                 if (source.Currency != DomesticClearingCurrency)
@@ -303,7 +312,8 @@ namespace BankarskiSistem.Infrastructure.Services
                 command.ScheduledFor > today,
                 command.ScheduledFor,
                 requiresStrongConfirmation,
-                remainingDailyLimit);
+                remainingDailyLimit,
+                isOwnTransfer);
         }
 
         private async Task<bool> IsKnownRecipientAsync(int userId, string accountNumber) =>
@@ -346,7 +356,8 @@ namespace BankarskiSistem.Infrastructure.Services
             }
 
             var totalDebit = order.Amount + order.FeeAmount;
-            await _dailyLimitPolicy.EnsureWithinLimitsAsync(from, order.Amount);
+            if (to == null || to.UserId != from.UserId)
+                await _dailyLimitPolicy.EnsureWithinLimitsAsync(from, order.Amount);
             MoneyRules.EnsureSufficientFunds(from, totalDebit);
 
             from.Balance -= totalDebit;
@@ -479,7 +490,8 @@ namespace BankarskiSistem.Infrastructure.Services
             bool IsScheduled,
             DateOnly? ScheduledFor,
             bool RequiresStrongConfirmation,
-            decimal RemainingDailyLimit)
+            decimal RemainingDailyLimit,
+            bool IsOwnTransfer)
         {
             public PaymentQuote ToQuote()
             {
@@ -495,7 +507,7 @@ namespace BankarskiSistem.Infrastructure.Services
                     warnings.Add("Na računu trenutno nema dovoljno sredstava za ovaj iznos sa naknadom.");
                 else if (Source.Balance > 0 && total > Source.Balance * LargeShareOfBalance)
                     warnings.Add("Plaćanje iznosi više od polovine raspoloživog stanja na računu.");
-                if (!IsScheduled && Amount > RemainingDailyLimit)
+                if (!IsScheduled && !IsOwnTransfer && Amount > RemainingDailyLimit)
                     warnings.Add($"Iznos prelazi preostali dnevni limit za danas ({MoneyRules.Format(RemainingDailyLimit, Source.Currency)}). Nalog neće biti izvršen.");
                 if (IsScheduled)
                     warnings.Add($"Nalog će biti izvršen {ScheduledFor:dd.MM.yyyy} ako na računu tada bude dovoljno sredstava. Do tada ga možete otkazati.");

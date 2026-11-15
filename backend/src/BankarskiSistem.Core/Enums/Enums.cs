@@ -72,7 +72,21 @@ namespace BankarskiSistem.Core.Enums
         Privatnost,
         TrajniNalog,
         Konverzija,
-        Budzet
+        Budzet,
+        Stednja
+    }
+
+    public enum AccountKind
+    {
+        Tekuci,
+        Stednja
+    }
+
+    public enum SavingsGoalStatus
+    {
+        Aktivan,
+        Ostvaren,
+        Zatvoren
     }
 
     public enum KycStatus

@@ -74,7 +74,8 @@ namespace BankarskiSistem.API.Contracts
                 account.CreatedAt,
                 account.UpdatedAt,
                 account.User?.FullName,
-                account.User?.Email);
+                account.User?.Email,
+                account.Kind);
 
         public static TransactionResponse ToResponse(this Transaction transaction) =>
             new(
