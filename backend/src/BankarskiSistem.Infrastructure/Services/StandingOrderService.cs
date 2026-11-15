@@ -25,6 +25,7 @@ namespace BankarskiSistem.Infrastructure.Services
         private readonly IBusinessCalendar _businessCalendar;
         private readonly TimeProvider _timeProvider;
         private readonly ILogger<StandingOrderService> _logger;
+        private readonly IBudgetService _budgetService;
 
         public StandingOrderService(
             ApplicationDbContext context,
@@ -33,8 +34,10 @@ namespace BankarskiSistem.Infrastructure.Services
             IUnitOfWork unitOfWork,
             IBusinessCalendar businessCalendar,
             TimeProvider timeProvider,
-            ILogger<StandingOrderService> logger)
+            ILogger<StandingOrderService> logger,
+            IBudgetService budgetService)
         {
+            _budgetService = budgetService;
             _context = context;
             _paymentOrders = paymentOrders;
             _notificationPublisher = notificationPublisher;
@@ -311,6 +314,8 @@ namespace BankarskiSistem.Infrastructure.Services
             }
 
             await _context.SaveChangesAsync(cancellationToken);
+            if (payment != null)
+                await _budgetService.TryEvaluateAlertsAsync(order.UserId);
             return true;
         }
 

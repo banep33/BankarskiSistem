@@ -158,6 +158,7 @@ export const notificationIcons: Record<NotificationType, string> = {
   Privatnost: 'lock',
   TrajniNalog: 'repeat',
   Konverzija: 'exchange',
+  Budzet: 'chart',
 }
 
 export const securityActionLabels: Record<string, string> = {

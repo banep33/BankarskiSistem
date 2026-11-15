@@ -83,6 +83,7 @@ namespace BankarskiSistem.Infrastructure
             services.AddScoped<ICurrencyExchangeService, CurrencyExchangeService>();
             services.AddScoped<IReversalService, ReversalService>();
             services.AddScoped<IStatementService, StatementService>();
+            services.AddScoped<IBudgetService, BudgetService>();
             services.AddScoped<IPreferencesService, PreferencesService>();
             services.AddScoped<IDataRetentionService, DataRetentionService>();
 

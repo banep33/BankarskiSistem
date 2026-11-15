@@ -130,6 +130,18 @@ namespace BankarskiSistem.Core.Interfaces
         (int UserId, int TokenVersion)? ReadTwoFactorChallenge(string token);
     }
 
+    public interface IBudgetService
+    {
+        Task<IReadOnlyList<SpendingCategory>> GetCategoriesAsync();
+        Task<SpendingSummary> GetSpendingAsync(Actor actor, string? month);
+        Task AssignCategoryAsync(Actor actor, int transactionId, int categoryId, bool rememberForCounterparty);
+        Task<IReadOnlyList<Budget>> GetBudgetsAsync(Actor actor);
+        Task<Budget> SetBudgetAsync(Actor actor, int categoryId, decimal monthlyLimit);
+        Task DeleteBudgetAsync(Actor actor, int budgetId);
+        Task EvaluateAlertsAsync(int userId);
+        Task TryEvaluateAlertsAsync(int userId);
+    }
+
     public interface IStatementService
     {
         Task<AccountStatement> GetAsync(int accountId, DateOnly from, DateOnly to, Actor actor);

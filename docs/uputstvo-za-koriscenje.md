@@ -161,6 +161,20 @@ Konverzija između sopstvenih dinarskih i deviznih računa (EUR, USD), odmah i b
 
 Filteri: pretraga po opisu, primaocu ili referenci, račun, vrsta, period od i do. **Primeni** pokreće pretragu, **Poništi** briše filtere. Klik na transakciju otvara detalje i link **Nešto nije u redu? Podnesite prigovor**, koji otvara prigovor već povezan sa tom transakcijom.
 
+### Potrošnja i budžeti
+
+Pregled troškova sa dinarskih računa po kategorijama i mesečni budžeti.
+
+- Gore desno biraš **mesec** (tekući ili raniji).
+- Kartice **Prihodi**, **Rashodi** i **Razlika** za izabrani mesec. Prenosi između sopstvenih računa, konverzije i stornirane transakcije se ne računaju.
+- **Potrošnja po kategorijama**: traka za svaku kategoriju; ako postoji budžet, crta na traci pokazuje limit, a ispod piše koliki je procenat potrošen (narandžasto od 80%, crveno kad je prekoračen).
+- **Budžeti**: izaberi kategoriju i mesečni iznos i klikni **Dodaj**. Postojećem budžetu menjaš iznos i klikneš **Sačuvaj**, a ikonica korpe ga briše.
+  - Kada potrošnja dostigne 80% limita stiže obaveštenje „Budžet je skoro potrošen“, a kada ga pređe „Prekoračen budžet“. Svako upozorenje stiže jednom mesečno. Promena iznosa budžeta poništava upozorenja za tekući mesec.
+- **Rashodi u mesecu**: svako plaćanje i isplata sa kategorijom.
+  - Banka sama predlaže kategoriju (oznaka „predlog“): isplata gotovine je Gotovina, šifra plaćanja 221 Kupovina, 253 i 254 Porezi i takse, ostalo Ostalo.
+  - Promenom kategorije u padajućoj listi, za plaćanje sa računom primaoca, aplikacija pita **Samo ovo plaćanje** ili **Zapamti za primaoca**. Zapamćena kategorija važi i za sva buduća plaćanja tom primaocu.
+- Iznos plaćanja u potrošnji uključuje i naknadu banke.
+
 ### Primaoci
 
 Dodavanje, izmena i brisanje sačuvanih primalaca. Dugme **Plati** na kartici otvara nalog sa popunjenim podacima. Brisanje primaoca ne briše izvršena plaćanja.
@@ -282,6 +296,8 @@ Administrator ima sve što i bankar, plus sledeće.
 |---|---|
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
+| Plaćanje je u pogrešnoj kategoriji | promeni kategoriju u Potrošnja i budžeti i izaberi Zapamti za primaoca |
+| Ne vidim potrošnju sa deviznog računa | budžeti i potrošnja se vode za dinarske račune |
 | CSV se u Excel-u otvara u jednoj koloni | otvori ga preko Podaci, Iz teksta i izaberi tačka-zarez kao razdvajač, ili proveri da je Windows podešen na srpski format |
 | U istoriji vidim „Storno“ | banka je ispravila pogrešnu transakciju; original ima oznaku Stornirana, a razlog je u obaveštenju |
 | Konverzija javlja da je kurs promenjen | banka je objavila novu kursnu listu; proveri novi obračun i potvrdi ponovo |
@@ -437,6 +453,19 @@ Priprema: dva administratora (drugog napravi u **Korisnici**), bankar i dva klij
 - [ ] **Preuzmi CSV** i otvori fajl u Excel-u: kolone su razdvojene, iznosi imaju zapetu, srpska slova su ispravna.
 - [ ] **Štampaj ili sačuvaj PDF**: u pregledu štampe nema menija ni dugmadi, samo izvod; sačuvaj kao PDF.
 - [ ] Kao bankar na detalju klijenta klikni **Izvod** kod računa; kao klijent u **Privatnost**, **Ko je video moje podatke** vidi „Izvod“.
+
+### C1e. Potrošnja i budžeti
+
+Priprema: klijent sa bar 40.000 RSD i drugi klijent kao primalac.
+
+- [ ] **Potrošnja i budžeti**: izaberi Gotovina i 5.000 RSD, **Dodaj**.
+- [ ] Isplati 4.500 RSD gotovine: u obaveštenjima je „Budžet je skoro potrošen: Gotovina“; traka Gotovine je narandžasta, 90%.
+- [ ] Plati drugom klijentu 15.000 RSD: plaćanje je u kategoriji Ostalo, sa oznakom „predlog“.
+- [ ] Promeni mu kategoriju na Stanovanje i izaberi **Zapamti za primaoca**; plati istom primaocu još 1.000: novo plaćanje je odmah u kategoriji Stanovanje.
+- [ ] Isplati još 1.000: stiže „Prekoračen budžet: Gotovina“ (samo jednom), traka je crvena.
+- [ ] Prenos na sopstveni drugi račun ne ulazi u rashode.
+- [ ] Izaberi prethodni mesec: prikazuju se podaci za taj mesec.
+- [ ] Promeni iznos budžeta i obriši ga ikonicom korpe.
 
 ### C2. Klijent: profil, pomoć i privatnost
 

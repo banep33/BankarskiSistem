@@ -12,6 +12,7 @@ namespace BankarskiSistem.API.Controllers
     public class PaymentsController(
         IPaymentOrderService paymentOrderService,
         ISessionService sessionService,
+        IBudgetService budgetService,
         IAuditLogService auditLog) : ApiControllerBase
     {
         [HttpPost("quote")]
@@ -35,6 +36,9 @@ namespace BankarskiSistem.API.Controllers
                 await auditLog.LogAsync(new AuditEntry(actor.UserId, "Kreiran platni nalog", "PaymentOrder", result.Order.Id,
                     $"{result.Order.Amount} {result.Order.Currency} za {result.Order.RecipientAccountNumber}, status {result.Order.Status}"));
             }
+
+            if (!result.IsReplay)
+                await budgetService.TryEvaluateAlertsAsync(actor.UserId);
 
             var response = result.Order.ToResponse(result.IsReplay);
             return result.IsReplay

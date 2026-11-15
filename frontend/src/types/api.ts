@@ -18,6 +18,7 @@ export type NotificationType =
   | 'Privatnost'
   | 'TrajniNalog'
   | 'Konverzija'
+  | 'Budzet'
 export type ComplaintCategory =
   | 'PlatniPromet'
   | 'Racun'
@@ -480,6 +481,54 @@ export interface AuditLogEntry {
   isSuccess: boolean
   errorMessage: string | null
   createdAt: string
+}
+
+export interface SpendingCategory {
+  id: number
+  code: string
+  name: string
+  color: string
+  sortOrder: number
+}
+
+export interface CategorizedTransaction {
+  transactionId: number
+  date: string
+  reference: string
+  description: string
+  counterparty: string
+  counterpartyAccountNumber: string | null
+  amount: number
+  categoryId: number
+  isExplicit: boolean
+}
+
+export interface CategorySpending {
+  categoryId: number
+  code: string
+  name: string
+  color: string
+  amount: number
+  count: number
+  monthlyLimit: number | null
+  budgetId: number | null
+}
+
+export interface SpendingSummary {
+  month: string
+  currency: string
+  totalIncome: number
+  totalExpense: number
+  categories: CategorySpending[]
+  transactions: CategorizedTransaction[]
+}
+
+export interface BudgetItem {
+  id: number
+  categoryId: number
+  categoryName: string
+  color: string
+  monthlyLimit: number
 }
 
 export interface StatementLine {

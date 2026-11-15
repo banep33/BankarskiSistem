@@ -16,6 +16,7 @@ namespace BankarskiSistem.API.Controllers
         IStatisticsService statisticsService,
         IBusinessCalendar businessCalendar,
         IDataAccessLogger dataAccessLogger,
+        IBudgetService budgetService,
         IAuditLogService auditLog) : ApiControllerBase
     {
         [HttpGet]
@@ -107,6 +108,8 @@ namespace BankarskiSistem.API.Controllers
                 await auditLog.LogAsync(new AuditEntry(actor.UserId, "Isplata sa racuna", "Account", id,
                     $"{result.Transaction.Amount} {result.Transaction.Currency}, ref {result.Transaction.ReferenceNumber}"));
 
+            if (!result.IsReplay)
+                await budgetService.TryEvaluateAlertsAsync(actor.UserId);
             return Ok(result.ToResponse("Isplata je uspešno izvršena."));
         }
 

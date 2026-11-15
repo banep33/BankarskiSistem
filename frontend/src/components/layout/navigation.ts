@@ -21,6 +21,7 @@ const customerNavigation: NavSection[] = [
       { to: '/trajni-nalozi', label: 'Trajni nalozi', icon: 'repeat' },
       { to: '/menjacnica', label: 'Menjačnica', icon: 'exchange' },
       { to: '/transakcije', label: 'Transakcije', icon: 'list' },
+      { to: '/potrosnja', label: 'Potrošnja i budžeti', icon: 'chart' },
       { to: '/primaoci', label: 'Primaoci', icon: 'users' },
     ],
   },

@@ -13,6 +13,7 @@ Edukativni sistem elektronskog bankarstva prilagođen platnom prometu u Republic
 - trajni nalozi (nedeljno, mesečno, kvartalno, godišnje) sa automatskim izvršenjem, istorijom izvršenja, pauzom posle uzastopnih neuspeha i izmenom uz potvrdu lozinkom;
 - menjačnica između sopstvenih dinarskih i deviznih računa po kursnoj listi banke (kupovni, srednji, prodajni kurs), sa zaštitom od promene kursa između obračuna i potvrde;
 - sačuvani primaoci, istorija transakcija sa filterima i kursor paginacijom;
+- potrošnja po kategorijama sa automatskim predlogom i pravilima po primaocu, mesečni budžeti sa upozorenjima na 80% i 100%;
 - izvod po računu za izabrani period iz glavne knjige, preuzimanje u CSV (srpski Excel format) i štampa ili PDF iz pregledača;
 - prigovori sa zakonskim rokom od 15 dana i prepiskom sa bankom;
 - centar za privatnost: saglasnosti, uvid u to ko je pristupao podacima, zahtevi po ZZPL, izvoz podataka u JSON;
@@ -52,7 +53,7 @@ backend/
   tests/BankarskiSistem.Tests          unit i integracioni testovi
   tests/BankarskiSistem.LoadTests      load test
 database/
-  migrations/                          V001 do V011
+  migrations/                          V001 do V012
   migrate.ps1, backup.ps1, restore.ps1
 docs/                                  uputstvo, bezbednosni koncepti, rezultati load testa
 frontend/                              Vue aplikacija

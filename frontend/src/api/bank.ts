@@ -2,6 +2,9 @@ import { del, download, get, post, put, REFRESH_HEADER, withIdempotency } from '
 import type {
   Account,
   AccountStatement,
+  BudgetItem,
+  SpendingCategory,
+  SpendingSummary,
   AccountStatistics,
   AccountStatus,
   AppNotification,
@@ -135,6 +138,16 @@ export const exchangeApi = {
   mine: (page = 1) => get<PagedResponse<CurrencyExchange>>('/exchange', { page }),
   publish: (rates: { currency: string; buyRate: number; middleRate: number; sellRate: number }[]) =>
     post<ExchangeRate[]>('/admin/exchange-rates', { rates }),
+}
+
+export const budgetsApi = {
+  categories: () => get<SpendingCategory[]>('/categories'),
+  spending: (month?: string) => get<SpendingSummary>('/me/spending', { month }),
+  assign: (transactionId: number, categoryId: number, rememberForCounterparty: boolean) =>
+    put<void>(`/me/transactions/${transactionId}/category`, { categoryId, rememberForCounterparty }),
+  list: () => get<BudgetItem[]>('/me/budgets'),
+  set: (categoryId: number, monthlyLimit: number) => put<BudgetItem>('/me/budgets', { categoryId, monthlyLimit }),
+  remove: (id: number) => del(`/me/budgets/${id}`),
 }
 
 export const statementsApi = {

@@ -71,7 +71,8 @@ namespace BankarskiSistem.Core.Enums
         Prigovor,
         Privatnost,
         TrajniNalog,
-        Konverzija
+        Konverzija,
+        Budzet
     }
 
     public enum KycStatus

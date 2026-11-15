@@ -81,8 +81,9 @@ namespace BankarskiSistem.Tests.Integration
         public ComplianceService Compliance => new(_context, Time);
         public ReversalService Reversals => new(_context, new AccountRepository(_context), Recorder, UnitOfWork, Publisher, Time);
         public CurrencyExchangeService CurrencyExchange => new(_context, new AccountRepository(_context), Ledger, Recorder, UnitOfWork, Publisher, Time);
+        public BudgetService Budgets => new(_context, Calendar, Publisher, Time, NullLogger<BudgetService>.Instance);
         public StandingOrderService StandingOrders => new(_context, PaymentOrders, Publisher, UnitOfWork, Calendar, Time,
-            NullLogger<StandingOrderService>.Instance);
+            NullLogger<StandingOrderService>.Instance, Budgets);
         public TwoFactorService TwoFactor => new(_context, new PlainSecretProtector(), Sessions,
             new SessionValidationCache(_protection, Time), Publisher, Time);
         public PasswordResetService PasswordResets => new(_context, new BCryptPasswordHasher(), Sessions,

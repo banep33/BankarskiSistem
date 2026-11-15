@@ -25,6 +25,11 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<UserSession> UserSessions => Set<UserSession>();
         public DbSet<RecoveryCode> RecoveryCodes => Set<RecoveryCode>();
         public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();
+        public DbSet<SpendingCategory> SpendingCategories => Set<SpendingCategory>();
+        public DbSet<TransactionCategory> TransactionCategories => Set<TransactionCategory>();
+        public DbSet<CategoryRule> CategoryRules => Set<CategoryRule>();
+        public DbSet<Budget> Budgets => Set<Budget>();
+        public DbSet<BudgetAlert> BudgetAlerts => Set<BudgetAlert>();
         public DbSet<TransactionReversal> TransactionReversals => Set<TransactionReversal>();
         public DbSet<CurrencyExchange> CurrencyExchanges => Set<CurrencyExchange>();
         public DbSet<StandingOrder> StandingOrders => Set<StandingOrder>();
@@ -245,6 +250,43 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.HasIndex(s => new { s.UserId, s.RevokedAt, s.ExpiresAt });
                 entity.HasIndex(s => s.RefreshTokenHash).IsUnique();
                 entity.HasIndex(s => s.PreviousRefreshTokenHash);
+            });
+
+            modelBuilder.Entity<SpendingCategory>(entity =>
+            {
+                entity.ToTable("spending_categories");
+                entity.Property(c => c.Code).HasMaxLength(30).IsRequired();
+                entity.Property(c => c.Name).HasMaxLength(60).IsRequired();
+                entity.Property(c => c.Color).HasColumnType("char(7)").IsRequired();
+                entity.HasIndex(c => c.Code).IsUnique();
+            });
+
+            modelBuilder.Entity<TransactionCategory>(entity =>
+            {
+                entity.ToTable("transaction_categories");
+                entity.HasIndex(c => new { c.UserId, c.TransactionId }).IsUnique();
+            });
+
+            modelBuilder.Entity<CategoryRule>(entity =>
+            {
+                entity.ToTable("category_rules");
+                entity.Property(r => r.CounterpartyAccountNumber).HasMaxLength(20).IsRequired();
+                entity.HasIndex(r => new { r.UserId, r.CounterpartyAccountNumber }).IsUnique();
+            });
+
+            modelBuilder.Entity<Budget>(entity =>
+            {
+                entity.ToTable("budgets");
+                entity.Property(b => b.MonthlyLimit).HasPrecision(18, 2);
+                entity.HasIndex(b => new { b.UserId, b.CategoryId }).IsUnique();
+                entity.HasOne(b => b.Category).WithMany().HasForeignKey(b => b.CategoryId).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<BudgetAlert>(entity =>
+            {
+                entity.ToTable("budget_alerts");
+                entity.Property(a => a.Month).HasColumnType("char(7)").IsRequired();
+                entity.HasIndex(a => new { a.BudgetId, a.Month, a.Threshold }).IsUnique();
             });
 
             modelBuilder.Entity<TransactionReversal>(entity =>
