@@ -1,0 +1,131 @@
+using BankarskiSistem.Core.Entities;
+using BankarskiSistem.Core.Enums;
+using BankarskiSistem.Core.Exceptions;
+using BankarskiSistem.Core.Settings;
+using BankarskiSistem.Infrastructure.Services;
+using BankarskiSistem.Tests.Fakes;
+using Microsoft.Extensions.Options;
+
+namespace BankarskiSistem.Tests.Unit
+{
+    public class AuthServiceTests
+    {
+        private readonly InMemoryUserRepository _users = new();
+        private readonly FakeTimeProvider _time = new();
+        private readonly FakeNotificationPublisher _notifications = new();
+        private readonly FakeSessionService _sessions = new();
+        private readonly AuthService _service;
+        private readonly User _customer;
+
+        public AuthServiceTests()
+        {
+            var settings = Options.Create(new SecuritySettings { MaxFailedLoginAttempts = 3, LockoutDurationMinutes = 15 });
+            _service = new AuthService(_users, _notifications, _sessions, new NoSessionCache(), new FakeUnitOfWork(), new FakePasswordHasher(), new FakeTokenService(), settings, _time);
+
+            _customer = new User
+            {
+                Email = "ana@test.local",
+                PasswordHash = "hashed:Ispravna123",
+                Role = UserRole.Korisnik,
+                IsActive = true
+            };
+            _users.AddAsync(_customer).Wait();
+        }
+
+        [Fact]
+        public async Task Login_WithValidCredentials_ReturnsTokenAndResetsCounter()
+        {
+            _customer.FailedLoginAttempts = 2;
+
+            var result = await _service.LoginAsync("  ANA@test.local ", "Ispravna123");
+
+            Assert.Equal(_customer.Id, result.User.Id);
+            Assert.Equal(0, _customer.FailedLoginAttempts);
+        }
+
+        [Fact]
+        public async Task Login_WithUnknownEmail_ThrowsGenericInvalidCredentials()
+        {
+            var unknown = await Assert.ThrowsAsync<InvalidCredentialsException>(
+                () => _service.LoginAsync("nepoznat@test.local", "bilo-sta"));
+            var wrongPassword = await Assert.ThrowsAsync<InvalidCredentialsException>(
+                () => _service.LoginAsync(_customer.Email, "pogresna"));
+
+            Assert.Equal(unknown.Message, wrongPassword.Message);
+            Assert.Null(unknown.UserId);
+            Assert.Equal(_customer.Id, wrongPassword.UserId);
+        }
+
+        [Fact]
+        public async Task Login_AfterMaxFailedAttempts_LocksAccountAndInvalidatesTokens()
+        {
+            var versionBefore = _customer.TokenVersion;
+
+            await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
+            await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
+            await Assert.ThrowsAsync<AccountLockedException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
+
+            Assert.True(_customer.IsLocked);
+            Assert.True(_customer.TokenVersion > versionBefore);
+            Assert.Contains(_notifications.Published, n => n.UserId == _customer.Id && n.Type == NotificationType.Bezbednost);
+            await Assert.ThrowsAsync<AccountLockedException>(() => _service.LoginAsync(_customer.Email, "Ispravna123"));
+        }
+
+        [Fact]
+        public async Task Login_AfterLockoutExpires_AllowsValidLogin()
+        {
+            _customer.IsLocked = true;
+            _customer.LockedUntil = _time.GetUtcNow().UtcDateTime.AddMinutes(5);
+            _time.Advance(TimeSpan.FromMinutes(6));
+
+            var result = await _service.LoginAsync(_customer.Email, "Ispravna123");
+
+            Assert.False(result.User.IsLocked);
+        }
+
+        [Fact]
+        public async Task Login_DeactivatedUser_IsRejectedOnlyAfterPasswordCheck()
+        {
+            _customer.IsActive = false;
+
+            await Assert.ThrowsAsync<InvalidCredentialsException>(() => _service.LoginAsync(_customer.Email, "pogresna"));
+            await Assert.ThrowsAsync<AccountDeactivatedException>(() => _service.LoginAsync(_customer.Email, "Ispravna123"));
+        }
+
+        [Fact]
+        public async Task ChangePassword_InvalidatesPreviousTokens()
+        {
+            var versionBefore = _customer.TokenVersion;
+
+            var first = await _service.LoginAsync(_customer.Email, "Ispravna123");
+            var second = await _service.LoginAsync(_customer.Email, "Ispravna123");
+
+            var result = await _service.ChangePasswordAsync(_customer.Id, first.SessionId, "Ispravna123", "NovaLozinka1");
+
+            Assert.Equal(versionBefore + 1, _customer.TokenVersion);
+            Assert.False(await _service.IsSessionValidAsync(_customer.Id, versionBefore, "Korisnik", first.SessionId));
+            Assert.False(await _service.IsSessionValidAsync(_customer.Id, result.User.TokenVersion, "Korisnik", second.SessionId));
+            Assert.True(await _service.IsSessionValidAsync(_customer.Id, result.User.TokenVersion, "Korisnik", result.SessionId));
+        }
+
+        [Fact]
+        public async Task IsSessionValid_FailsWhenRoleChanged()
+        {
+            var login = await _service.LoginAsync(_customer.Email, "Ispravna123");
+            Assert.True(await _service.IsSessionValidAsync(_customer.Id, _customer.TokenVersion, "Korisnik", login.SessionId));
+            Assert.False(await _service.IsSessionValidAsync(_customer.Id, _customer.TokenVersion, "Administrator", login.SessionId));
+        }
+
+        [Fact]
+        public async Task Logout_RevokesOnlyCurrentSession()
+        {
+            var phone = await _service.LoginAsync(_customer.Email, "Ispravna123");
+            var laptop = await _service.LoginAsync(_customer.Email, "Ispravna123");
+
+            await _service.LogoutAsync(_customer.Id, phone.SessionId);
+
+            Assert.False(await _service.IsSessionValidAsync(_customer.Id, _customer.TokenVersion, "Korisnik", phone.SessionId));
+            Assert.True(await _service.IsSessionValidAsync(_customer.Id, _customer.TokenVersion, "Korisnik", laptop.SessionId));
+        }
+    }
+}
