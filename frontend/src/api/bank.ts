@@ -51,6 +51,9 @@ import type {
   Transaction,
   TransactionStatus,
   TransactionType,
+  CurrencyExchange,
+  ExchangeQuote,
+  ExchangeRate,
   StandingOrder,
   StandingOrderDetail,
   StandingOrderRequest,
@@ -111,6 +114,24 @@ export const paymentsApi = {
     get<PagedResponse<PaymentOrder>>('/payments', { status, page, pageSize }),
   get: (id: number) => get<PaymentOrder>(`/payments/${id}`),
   cancel: (id: number) => post<PaymentOrder>(`/payments/${id}/cancel`),
+}
+
+export interface ExchangeRequest {
+  fromAccountId: number
+  toAccountId: number
+  amount: number
+  amountIsTarget: boolean
+  expectedRateId: number | null
+}
+
+export const exchangeApi = {
+  rates: () => get<ExchangeRate[]>('/exchange-rates'),
+  history: (currency: string, days = 30) => get<ExchangeRate[]>('/exchange-rates/history', { currency, days }),
+  quote: (request: ExchangeRequest) => post<ExchangeQuote>('/exchange/quote', request),
+  execute: (request: ExchangeRequest, key: string) => post<CurrencyExchange>('/exchange', request, withIdempotency(key)),
+  mine: (page = 1) => get<PagedResponse<CurrencyExchange>>('/exchange', { page }),
+  publish: (rates: { currency: string; buyRate: number; middleRate: number; sellRate: number }[]) =>
+    post<ExchangeRate[]>('/admin/exchange-rates', { rates }),
 }
 
 export const standingOrdersApi = {

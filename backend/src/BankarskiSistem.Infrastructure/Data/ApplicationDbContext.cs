@@ -24,6 +24,8 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<UserConsent> UserConsents => Set<UserConsent>();
         public DbSet<UserSession> UserSessions => Set<UserSession>();
         public DbSet<RecoveryCode> RecoveryCodes => Set<RecoveryCode>();
+        public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();
+        public DbSet<CurrencyExchange> CurrencyExchanges => Set<CurrencyExchange>();
         public DbSet<StandingOrder> StandingOrders => Set<StandingOrder>();
         public DbSet<StandingOrderExecution> StandingOrderExecutions => Set<StandingOrderExecution>();
         public DbSet<UserPreferences> UserPreferences => Set<UserPreferences>();
@@ -241,6 +243,35 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.HasIndex(s => new { s.UserId, s.RevokedAt, s.ExpiresAt });
                 entity.HasIndex(s => s.RefreshTokenHash).IsUnique();
                 entity.HasIndex(s => s.PreviousRefreshTokenHash);
+            });
+
+            modelBuilder.Entity<ExchangeRate>(entity =>
+            {
+                entity.ToTable("exchange_rates");
+                entity.Property(r => r.Currency).HasColumnType("char(3)").IsRequired();
+                entity.Property(r => r.BuyRate).HasPrecision(18, 4);
+                entity.Property(r => r.MiddleRate).HasPrecision(18, 4);
+                entity.Property(r => r.SellRate).HasPrecision(18, 4);
+                entity.HasIndex(r => new { r.Currency, r.ValidFrom });
+            });
+
+            modelBuilder.Entity<CurrencyExchange>(entity =>
+            {
+                entity.ToTable("currency_exchanges");
+                entity.Property(x => x.ReferenceNumber).HasMaxLength(20).IsRequired();
+                entity.Property(x => x.FromCurrency).HasColumnType("char(3)").IsRequired();
+                entity.Property(x => x.ToCurrency).HasColumnType("char(3)").IsRequired();
+                entity.Property(x => x.FromAmount).HasPrecision(18, 2);
+                entity.Property(x => x.ToAmount).HasPrecision(18, 2);
+                entity.Property(x => x.AppliedRate).HasPrecision(18, 4);
+                entity.Property(x => x.MiddleRate).HasPrecision(18, 4);
+                entity.Property(x => x.SpreadRsd).HasPrecision(18, 2);
+                entity.Property(x => x.RateType).HasConversion<string>();
+                entity.Property(x => x.IdempotencyKey).HasMaxLength(64);
+                entity.HasIndex(x => x.ReferenceNumber).IsUnique();
+                entity.HasIndex(x => new { x.UserId, x.IdempotencyKey }).IsUnique();
+                entity.HasOne(x => x.FromAccount).WithMany().HasForeignKey(x => x.FromAccountId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(x => x.ToAccount).WithMany().HasForeignKey(x => x.ToAccountId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<StandingOrder>(entity =>

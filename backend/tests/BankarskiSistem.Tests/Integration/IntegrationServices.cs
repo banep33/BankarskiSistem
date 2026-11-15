@@ -79,6 +79,7 @@ namespace BankarskiSistem.Tests.Integration
         public DataAccessLogger DataAccess => new(_context, _requestContext, Time);
         public SessionService Sessions => new(_context, _requestContext, new BCryptPasswordHasher(), Publisher, new SessionValidationCache(_protection, Time), _protection, Time);
         public ComplianceService Compliance => new(_context, Time);
+        public CurrencyExchangeService CurrencyExchange => new(_context, new AccountRepository(_context), Ledger, Recorder, UnitOfWork, Publisher, Time);
         public StandingOrderService StandingOrders => new(_context, PaymentOrders, Publisher, UnitOfWork, Calendar, Time,
             NullLogger<StandingOrderService>.Instance);
         public TwoFactorService TwoFactor => new(_context, new PlainSecretProtector(), Sessions,

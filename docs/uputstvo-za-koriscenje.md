@@ -130,6 +130,23 @@ Kako se izvršava:
 - Ako na računu nema dovoljno sredstava ili je račun blokiran, plaćanje se ne izvršava, u istoriji se upisuje razlog i stiže obaveštenje. Nalog se ne pokušava ponovo istog dana, nego na sledeći datum. Posle **3 neuspeha zaredom** nalog se automatski pauzira.
 - Isti datum se nikada ne plaća dva puta, čak ni ako se servis zaustavi i ponovo pokrene.
 
+### Menjačnica
+
+Konverzija između sopstvenih dinarskih i deviznih računa (EUR, USD), odmah i bez posebne naknade.
+
+- Potrebni su dinarski i bar jedan devizni račun; devizni račun otvara bankar.
+- **Sa računa** i **Na račun**: biraju se samo sopstveni aktivni računi. Jedan mora biti dinarski. Dugme sa strelicama menja smer.
+- **Iznos koji menjam** ili **Iznos koji želim da dobijem**: možeš da uneseš koliko daješ ili koliko želiš da dobiješ (na primer tačno 100 EUR za put).
+- Obračun se pojavljuje odmah dok kucaš: koliko daješ, koliko dobijaš, primenjeni kurs, srednji kurs za poređenje, razlika u odnosu na srednji kurs i stanje posle.
+  - Kada kupuješ devize, važi **prodajni** kurs banke; kada ih prodaješ, važi **kupovni**.
+  - Iznosi se zaokružuju na pare tako da nikad ne dobiješ više nego što si platio, niti platiš više nego što obračun prikazuje.
+- **Potvrdi konverziju** izvršava zamenu. Ako je banka u međuvremenu objavila novu kursnu listu, konverzija se ne izvršava po starom kursu, nego se prikazuje novi obračun da ga proveriš.
+- Konverzija ne troši dnevni limit za plaćanja, jer novac ostaje na tvojim računima.
+- EUR u USD (i obrnuto) menja se u dva koraka, preko dinarskog računa.
+- Desno je važeća **kursna lista**, a ispod **Istorija konverzija**. Svaka konverzija se vidi i u **Transakcije**, kao dve stavke „Menjačnica“ (odliv sa jednog i priliv na drugi račun).
+- Na **Početnoj**, ako imaš račune u više valuta, ispod stanja piše ukupno u dinarskoj protivvrednosti po srednjem kursu.
+- Kursna lista je javna i vidi se i na stranici **Pomoć i cenovnik**, i bez prijave.
+
 ### Transakcije
 
 Filteri: pretraga po opisu, primaocu ili referenci, račun, vrsta, period od i do. **Primeni** pokreće pretragu, **Poništi** briše filtere. Klik na transakciju otvara detalje i link **Nešto nije u redu? Podnesite prigovor**, koji otvara prigovor već povezan sa tom transakcijom.
@@ -218,6 +235,7 @@ Administrator ima sve što i bankar, plus sledeće.
 - **Korisnici**: svi korisnici; pri kreiranju se bira uloga (klijent, bankar, administrator). Korisnici sa uključenom dvostepenom prijavom imaju oznaku **2FA** i dugme **Resetuj 2FA** (za izgubljen telefon, posle provere identiteta; sve sesije korisnika se odjavljuju). U svakom redu su i **Otključaj**, **Deaktiviraj** ili **Aktiviraj** i ikonica korpe za **trajno brisanje**. Brisanje radi samo za nalog bez računa, transakcija i prijava (na primer nalog napravljen greškom); za ostale se koristi deaktivacija, jer banka mora da čuva podatke propisani broj godina.
 - **Zahtevi za lozinku**: korisnici koji su zaboravili lozinku. Za svaki zahtev vide se podnosilac, uloga, da li je nalog zaključan, IP adresa, uređaj i rok. **Odobri** traži da označiš da si proverio identitet nezavisnim kanalom, a **Odbij** traži razlog. O zahtevu za sopstvenu lozinku mora da odluči drugi administrator.
 - **Računi**: svi računi sa vlasnicima, pretraga i promena statusa.
+- **Kursna lista**: važeća lista, obrazac **Nova kursna lista** (kupovni, srednji i prodajni kurs za svaku valutu) i istorija kurseva za 90 dana. Pravila: kupovni < srednji < prodajni, razlika između kupovnog i prodajnog najviše 10% srednjeg kursa, a srednji kurs ne sme da se promeni za više od 20% od važećeg (zaštita od greške u kucanju). Nova lista važi odmah. Kursna lista u aplikaciji je simulirana i nije povezana sa kursnom listom NBS.
 - **Glavna knjiga**:
   - **Bruto bilans** po valuti mora biti uravnotežen (zbir svih knjiženja je nula);
   - **Usklađenost** poredi stanje svakog računa sa zbirom njegovih knjiženja. Ako postoji razlika, prikazuje se u tabeli;
@@ -242,6 +260,8 @@ Administrator ima sve što i bankar, plus sledeće.
 |---|---|
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
+| Konverzija javlja da je kurs promenjen | banka je objavila novu kursnu listu; proveri novi obračun i potvrdi ponovo |
+| Ne mogu da menjam EUR u USD | menjaj u dva koraka preko dinarskog računa |
 | Trajni nalog se nije izvršio | otvori nalog i pogledaj Istoriju izvršenja: razlog je upisan (najčešće nedovoljno sredstava ili dnevni limit) |
 | Trajni nalog je pauziran sam od sebe | bila su 3 neuspeha zaredom; obezbedi sredstva i klikni Nastavi |
 | Kod iz aplikacije nije prihvaćen | proveri da je vreme na telefonu podešeno automatski; sačekaj sledeći kod jer se isti kod ne može koristiti dva puta |
@@ -354,6 +374,22 @@ Priprema: klijent sa najmanje 10.000 RSD na računu i drugi klijent kao primalac
 - [ ] Kod sačuvanog primaoca klikni **Trajni nalog**: obrazac ima popunjenog primaoca.
 - [ ] Kao bankar na detalju klijenta vidi tabelu **Trajni nalozi klijenta**; kao klijent u **Privatnost**, **Ko je video moje podatke** vidi taj uvid.
 - [ ] **Otkaži** nalog: status je Otkazan, nalog prelazi u tabelu završenih i otkazanih i više nema dugmad za izmenu.
+
+### C1b. Menjačnica i kursna lista
+
+Priprema: klijent sa dinarskim računom (bar 20.000 RSD) i deviznim EUR računom (bankar ga otvara na detalju klijenta).
+
+- [ ] Odjavljen, otvori **Pomoć i cenovnik** sa ekrana za prijavu: kursna lista je vidljiva.
+- [ ] Kao klijent otvori **Menjačnica**: levo je obrazac, desno kursna lista.
+- [ ] Sa dinarskog na EUR račun, **Iznos koji želim da dobijem** 100: obračun prikazuje prodajni kurs i da daješ 100 × prodajni kurs dinara.
+- [ ] **Potvrdi konverziju**: EUR račun ima 100 EUR, dinarski je umanjen tačno za prikazani iznos; konverzija je u istoriji i u obaveštenjima.
+- [ ] Zamenom smera (strelice) prodaj 50 EUR: primenjuje se kupovni kurs.
+- [ ] U **Transakcije** filtriraj EUR račun: vide se stavke „Menjačnica“.
+- [ ] Na **Početnoj** se pojavljuje ukupno u dinarskoj protivvrednosti.
+- [ ] Pokušaj da promeniš više EUR nego što imaš: greška o nedovoljnim sredstvima.
+- [ ] Ostavi obračun otvoren, pa kao administrator u **Kursna lista** objavi novu listu sa malo izmenjenim EUR kursom. Kao klijent klikni **Potvrdi konverziju**: stiže poruka da je kurs promenjen i prikazuje se novi obračun.
+- [ ] Kao administrator pokušaj da objaviš kupovni kurs veći od srednjeg: greška. Istorija kurseva prikazuje i staru i novu listu.
+- [ ] **Glavna knjiga**: bilans je i dalje uravnotežen, a na kontima se vidi devizna pozicija banke i prihod od razlike u kursu.
 
 ### C2. Klijent: profil, pomoć i privatnost
 

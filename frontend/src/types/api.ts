@@ -1,6 +1,6 @@
 export type UserRole = 'Administrator' | 'Korisnik' | 'Bankar'
 export type AccountStatus = 'Aktivan' | 'Neaktivan' | 'Blokiran'
-export type TransactionType = 'Uplata' | 'Isplata' | 'Transfer' | 'EksterniTransfer'
+export type TransactionType = 'Uplata' | 'Isplata' | 'Transfer' | 'EksterniTransfer' | 'Konverzija'
 export type TransactionStatus = 'Uspesna' | 'Neuspesna' | 'NaCekanju'
 export type PaymentOrderStatus = 'Zakazan' | 'UObradi' | 'Izvrsen' | 'Odbijen' | 'Otkazan'
 export type KycStatus = 'NijePrimenljivo' | 'NijeVerifikovan' | 'Verifikovan' | 'Odbijen'
@@ -16,6 +16,7 @@ export type NotificationType =
   | 'Prigovor'
   | 'Privatnost'
   | 'TrajniNalog'
+  | 'Konverzija'
 export type ComplaintCategory =
   | 'PlatniPromet'
   | 'Racun'
@@ -455,6 +456,49 @@ export interface AuditLogEntry {
   isSuccess: boolean
   errorMessage: string | null
   createdAt: string
+}
+
+export interface ExchangeRate {
+  id: number
+  currency: string
+  buyRate: number
+  middleRate: number
+  sellRate: number
+  validFrom: string
+}
+
+export interface ExchangeQuote {
+  fromAccountId: number
+  toAccountId: number
+  fromCurrency: string
+  toCurrency: string
+  fromAmount: number
+  toAmount: number
+  appliedRate: number
+  rateType: 'Kupovni' | 'Prodajni'
+  middleRate: number
+  spreadRsd: number
+  rateId: number
+  rateValidFrom: string
+  fromBalanceAfter: number
+}
+
+export interface CurrencyExchange {
+  id: number
+  referenceNumber: string
+  fromAccountId: number
+  fromAccountNumber: string | null
+  toAccountId: number
+  toAccountNumber: string | null
+  fromCurrency: string
+  toCurrency: string
+  fromAmount: number
+  toAmount: number
+  appliedRate: number
+  rateType: 'Kupovni' | 'Prodajni'
+  middleRate: number
+  createdAt: string
+  isReplay: boolean
 }
 
 export interface StandingOrder {

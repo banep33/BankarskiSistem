@@ -19,6 +19,7 @@ const customerNavigation: NavSection[] = [
       { to: '/placanja/novo', label: 'Novo plaćanje', icon: 'send' },
       { to: '/placanja', label: 'Nalozi', icon: 'file' },
       { to: '/trajni-nalozi', label: 'Trajni nalozi', icon: 'repeat' },
+      { to: '/menjacnica', label: 'Menjačnica', icon: 'exchange' },
       { to: '/transakcije', label: 'Transakcije', icon: 'list' },
       { to: '/primaoci', label: 'Primaoci', icon: 'users' },
     ],
@@ -69,6 +70,7 @@ const administratorNavigation: NavSection[] = [
       { to: '/admin/racuni', label: 'Računi', icon: 'wallet' },
       { to: '/bankar/transakcije', label: 'Transakcije', icon: 'list' },
       { to: '/admin/knjiga', label: 'Glavna knjiga', icon: 'book' },
+      { to: '/admin/kursna-lista', label: 'Kursna lista', icon: 'exchange' },
     ],
   },
   {

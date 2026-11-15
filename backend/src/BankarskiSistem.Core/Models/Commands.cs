@@ -35,6 +35,10 @@ namespace BankarskiSistem.Core.Models
         string? IdempotencyKey,
         bool StrongConfirmationProvided = false);
 
+    public record CurrencyExchangeCommand(int FromAccountId, int ToAccountId, decimal Amount, bool AmountIsTarget, int? ExpectedRateId, string? IdempotencyKey);
+
+    public record ExchangeRateInput(string Currency, decimal BuyRate, decimal MiddleRate, decimal SellRate);
+
     public record CreateStandingOrderCommand(
         int FromAccountId,
         string RecipientName,

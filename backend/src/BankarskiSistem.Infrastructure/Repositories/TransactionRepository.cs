@@ -125,6 +125,7 @@ namespace BankarskiSistem.Infrastructure.Repositories
         {
             var summary = await _context.Transactions
                 .Where(t => t.FromAccountId == accountId
+                            && t.Type != TransactionType.Konverzija
                             && t.Status == TransactionStatus.Uspesna
                             && t.CreatedAt >= sinceUtc)
                 .GroupBy(_ => 1)

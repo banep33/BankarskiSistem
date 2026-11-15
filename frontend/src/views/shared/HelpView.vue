@@ -5,14 +5,16 @@ import AppCard from '@/components/ui/AppCard.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import AppField from '@/components/ui/AppField.vue'
 import StatusViews from '@/components/ui/StatusViews.vue'
-import { helpApi } from '@/api/bank'
+import ExchangeRatesTable from '@/components/banking/ExchangeRatesTable.vue'
+import { exchangeApi, helpApi } from '@/api/bank'
 import { useAuthStore } from '@/stores/auth'
-import type { FaqArticle, Fee, SupportContact } from '@/types/api'
+import type { ExchangeRate, FaqArticle, Fee, SupportContact } from '@/types/api'
 
 const auth = useAuthStore()
 const faq = ref<FaqArticle[]>([])
 const fees = ref<Fee[]>([])
 const contact = ref<SupportContact | null>(null)
+const rates = ref<ExchangeRate[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 const query = ref('')
@@ -31,7 +33,7 @@ async function load(): Promise<void> {
   isLoading.value = true
   error.value = null
   try {
-    ;[faq.value, fees.value, contact.value] = await Promise.all([helpApi.faq(), helpApi.fees(), helpApi.contact()])
+    ;[faq.value, fees.value, contact.value, rates.value] = await Promise.all([helpApi.faq(), helpApi.fees(), helpApi.contact(), exchangeApi.rates()])
   } catch {
     error.value = 'Centar za pomoć trenutno nije dostupan.'
   } finally {
@@ -79,6 +81,9 @@ onMounted(load)
               <li><span class="subtle-inverse">Radno vreme</span><span>{{ contact.workingHours }}</span></li>
             </ul>
             <RouterLink v-if="auth.isCustomer" to="/prigovori" class="contact-cta">Podnesite prigovor</RouterLink>
+          </AppCard>
+          <AppCard v-if="rates.length" title="Kursna lista">
+            <ExchangeRatesTable :rates="rates" />
           </AppCard>
           <AppCard v-if="contact" tone="cream">
             <div class="row" style="align-items: flex-start">

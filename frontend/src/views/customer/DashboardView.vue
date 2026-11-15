@@ -9,20 +9,30 @@ import AccountCard from '@/components/banking/AccountCard.vue'
 import TransactionList from '@/components/banking/TransactionList.vue'
 import TransactionDetailModal from '@/components/banking/TransactionDetailModal.vue'
 import FeedbackPrompt from '@/components/banking/FeedbackPrompt.vue'
-import { meApi } from '@/api/bank'
+import { exchangeApi, meApi } from '@/api/bank'
 import { useUiStore } from '@/stores/ui'
 import { errorMessage } from '@/composables/useAsync'
-import type { Account, CustomerDashboard, Transaction } from '@/types/api'
+import type { Account, CustomerDashboard, ExchangeRate, Transaction } from '@/types/api'
 
 const ui = useUiStore()
 const dashboard = ref<CustomerDashboard | null>(null)
 const accounts = ref<Account[]>([])
+const rates = ref<ExchangeRate[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 const selected = ref<Transaction | null>(null)
 
 const primaryBalance = computed(() => dashboard.value?.balancesByCurrency.find((item) => item.currency === 'RSD') ?? dashboard.value?.balancesByCurrency[0])
 const otherBalances = computed(() => dashboard.value?.balancesByCurrency.filter((item) => item !== primaryBalance.value) ?? [])
+const totalInDinars = computed(() => {
+  const balances = dashboard.value?.balancesByCurrency ?? []
+  if (balances.length < 2 || !rates.value.length) return null
+  return balances.reduce((sum, item) => {
+    if (item.currency === 'RSD') return sum + item.amount
+    const rate = rates.value.find((entry) => entry.currency === item.currency)
+    return rate ? sum + item.amount * rate.middleRate : sum
+  }, 0)
+})
 const ownIds = computed(() => accounts.value.map((account) => account.id))
 const variants = ['forest', 'coral', 'cream'] as const
 
@@ -37,7 +47,7 @@ async function load(): Promise<void> {
   isLoading.value = true
   error.value = null
   try {
-    ;[dashboard.value, accounts.value] = await Promise.all([meApi.dashboard(), meApi.accounts()])
+    ;[dashboard.value, accounts.value, rates.value] = await Promise.all([meApi.dashboard(), meApi.accounts(), exchangeApi.rates().catch(() => [])])
   } catch (caught) {
     error.value = errorMessage(caught)
   } finally {
@@ -71,6 +81,9 @@ onMounted(load)
             <span v-for="balance in otherBalances" :key="balance.currency" class="chip">
               <MoneyAmount :amount="balance.amount" :currency="balance.currency" />
             </span>
+          </p>
+          <p v-if="totalInDinars !== null" class="hero-equivalent">
+            Ukupno u dinarskoj protivvrednosti: <MoneyAmount :amount="totalInDinars" currency="RSD" /> <span>(po srednjem kursu)</span>
           </p>
           <p class="hero-meta">{{ dashboard.activeAccounts }} aktivnih od {{ dashboard.totalAccounts }} računa</p>
         </div>
@@ -195,6 +208,16 @@ onMounted(load)
   border-radius: var(--radius-pill);
   background: rgb(255 255 255 / 0.1);
   font-size: var(--font-size-sm);
+}
+
+.hero-equivalent {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: rgb(255 255 255 / 0.85);
+}
+
+.hero-equivalent span {
+  color: rgb(255 255 255 / 0.55);
 }
 
 .hero-meta {

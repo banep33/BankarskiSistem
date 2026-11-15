@@ -11,6 +11,7 @@ Edukativni sistem elektronskog bankarstva prilagođen platnom prometu u Republic
 - platni nalog u tri koraka: unos, provera sa naknadom i dnevnim limitom, potvrda sa priznanicom;
 - interna plaćanja (odmah, besplatno), plaćanja drugoj banci (kliring, naknada iz cenovnika), zakazana plaćanja i otkazivanje;
 - trajni nalozi (nedeljno, mesečno, kvartalno, godišnje) sa automatskim izvršenjem, istorijom izvršenja, pauzom posle uzastopnih neuspeha i izmenom uz potvrdu lozinkom;
+- menjačnica između sopstvenih dinarskih i deviznih računa po kursnoj listi banke (kupovni, srednji, prodajni kurs), sa zaštitom od promene kursa između obračuna i potvrde;
 - sačuvani primaoci, istorija transakcija sa filterima i kursor paginacijom;
 - prigovori sa zakonskim rokom od 15 dana i prepiskom sa bankom;
 - centar za privatnost: saglasnosti, uvid u to ko je pristupao podacima, zahtevi po ZZPL, izvoz podataka u JSON;
@@ -25,6 +26,7 @@ Edukativni sistem elektronskog bankarstva prilagođen platnom prometu u Republic
 - korisnici svih uloga (kreiranje, izmena, aktivacija i deaktivacija, otključavanje, brisanje naloga bez istorije), svi računi, audit log;
 - zahtevi za zaboravljenu lozinku: korisnik predlaže novu lozinku, a administrator je aktivira posle provere identiteta;
 - glavna knjiga: bruto bilans, usklađenost stanja računa sa knjiženjima, konta;
+- objava kursne liste sa istorijom i proverama ispravnosti;
 - AML upozorenja, zahtevi po ZZPL, centar za pomoć (FAQ), brisanje po rokovima čuvanja.
 
 Detaljno uputstvo za svaki ekran: [docs/uputstvo-za-koriscenje.md](docs/uputstvo-za-koriscenje.md).
@@ -48,7 +50,7 @@ backend/
   tests/BankarskiSistem.Tests          unit i integracioni testovi
   tests/BankarskiSistem.LoadTests      load test
 database/
-  migrations/                          V001 do V009
+  migrations/                          V001 do V010
   migrate.ps1, backup.ps1, restore.ps1
 docs/                                  uputstvo, bezbednosni koncepti, rezultati load testa
 frontend/                              Vue aplikacija

@@ -12,7 +12,14 @@ namespace BankarskiSistem.Core.Enums
         Uplata,
         Isplata,
         Transfer,
-        EksterniTransfer
+        EksterniTransfer,
+        Konverzija
+    }
+
+    public enum ExchangeRateType
+    {
+        Kupovni,
+        Prodajni
     }
 
     public enum PaymentOrderStatus
@@ -55,7 +62,8 @@ namespace BankarskiSistem.Core.Enums
         Bezbednost,
         Prigovor,
         Privatnost,
-        TrajniNalog
+        TrajniNalog,
+        Konverzija
     }
 
     public enum KycStatus

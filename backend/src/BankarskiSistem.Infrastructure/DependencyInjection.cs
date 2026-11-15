@@ -80,6 +80,7 @@ namespace BankarskiSistem.Infrastructure
             services.AddScoped<IPasswordResetService, PasswordResetService>();
             services.AddScoped<ITwoFactorService, TwoFactorService>();
             services.AddScoped<IStandingOrderService, StandingOrderService>();
+            services.AddScoped<ICurrencyExchangeService, CurrencyExchangeService>();
             services.AddScoped<IPreferencesService, PreferencesService>();
             services.AddScoped<IDataRetentionService, DataRetentionService>();
 

@@ -130,6 +130,16 @@ namespace BankarskiSistem.Core.Interfaces
         (int UserId, int TokenVersion)? ReadTwoFactorChallenge(string token);
     }
 
+    public interface ICurrencyExchangeService
+    {
+        Task<IReadOnlyList<ExchangeRate>> GetCurrentRatesAsync();
+        Task<IReadOnlyList<ExchangeRate>> GetHistoryAsync(string currency, int days);
+        Task<IReadOnlyList<ExchangeRate>> PublishRatesAsync(IReadOnlyList<ExchangeRateInput> rates, Actor actor);
+        Task<ExchangeQuote> QuoteAsync(CurrencyExchangeCommand command, Actor actor);
+        Task<CurrencyExchangeResult> ExecuteAsync(CurrencyExchangeCommand command, Actor actor);
+        Task<PagedResult<CurrencyExchange>> GetMineAsync(Actor actor, PageRequest page);
+    }
+
     public interface IStandingOrderService
     {
         Task<IReadOnlyList<StandingOrder>> GetMineAsync(Actor actor);

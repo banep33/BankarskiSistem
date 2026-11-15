@@ -45,7 +45,7 @@ namespace BankarskiSistem.Core.Entities
         public bool Allows(NotificationType type) => type switch
         {
             NotificationType.PrimljenTransfer or NotificationType.Uplata => NotifyIncomingPayments,
-            NotificationType.PoslatTransfer or NotificationType.Isplata => NotifyOutgoingPayments,
+            NotificationType.PoslatTransfer or NotificationType.Isplata or NotificationType.Konverzija => NotifyOutgoingPayments,
             NotificationType.StatusRacuna or NotificationType.NoviRacun => NotifyAccountChanges,
             NotificationType.Prigovor => NotifyComplaintUpdates,
             _ => true

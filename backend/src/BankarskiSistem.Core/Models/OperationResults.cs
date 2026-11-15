@@ -5,6 +5,23 @@ namespace BankarskiSistem.Core.Models
 {
     public record AuthResult(User User, string Token, DateTime ExpiresAt, Guid SessionId, string? RefreshToken, DateTime RefreshExpiresAt);
 
+    public record ExchangeQuote(
+        int FromAccountId,
+        int ToAccountId,
+        string FromCurrency,
+        string ToCurrency,
+        decimal FromAmount,
+        decimal ToAmount,
+        decimal AppliedRate,
+        ExchangeRateType RateType,
+        decimal MiddleRate,
+        decimal SpreadRsd,
+        int RateId,
+        DateTime RateValidFrom,
+        decimal FromBalanceAfter);
+
+    public record CurrencyExchangeResult(CurrencyExchange Exchange, bool IsReplay);
+
     public record TwoFactorChallenge(string Token, DateTime ExpiresAt);
 
     public record LoginOutcome(AuthResult? Session, TwoFactorChallenge? Challenge);

@@ -37,6 +37,7 @@ export const transactionTypeLabels: Record<TransactionType, string> = {
   Isplata: 'Isplata',
   Transfer: 'Plaćanje u banci',
   EksterniTransfer: 'Plaćanje drugoj banci',
+  Konverzija: 'Menjačnica',
 }
 
 export const paymentStatusLabels: Record<PaymentOrderStatus, { label: string; tone: Tone }> = {
@@ -148,6 +149,7 @@ export const notificationIcons: Record<NotificationType, string> = {
   Prigovor: 'chat',
   Privatnost: 'lock',
   TrajniNalog: 'repeat',
+  Konverzija: 'exchange',
 }
 
 export const securityActionLabels: Record<string, string> = {
@@ -171,6 +173,7 @@ export function isIncoming(transaction: Transaction, ownAccountIds: Set<number>)
 export function counterpartyLabel(transaction: Transaction, incoming: boolean): string {
   if (transaction.type === 'Uplata') return 'Uplata na šalteru'
   if (transaction.type === 'Isplata') return 'Isplata sa računa'
+  if (transaction.type === 'Konverzija') return incoming ? 'Menjačnica, priliv' : 'Menjačnica, odliv'
   if (!incoming && transaction.counterpartyName) return transaction.counterpartyName
   if (incoming) return transaction.fromAccountNumber ? `Sa računa ${transaction.fromAccountNumber}` : 'Primljena uplata'
   return transaction.counterpartyAccountNumber ?? 'Plaćanje'
