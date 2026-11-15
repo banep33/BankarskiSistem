@@ -10,6 +10,9 @@ namespace BankarskiSistem.Core.Entities
         public DateTime LastSeenAt { get; set; }
         public DateTime ExpiresAt { get; set; }
         public DateTime? ReauthenticatedAt { get; set; }
+        public string? RefreshTokenHash { get; set; }
+        public string? PreviousRefreshTokenHash { get; set; }
+        public DateTime? RefreshRotatedAt { get; set; }
         public DateTime? RevokedAt { get; set; }
         public string? RevokedReason { get; set; }
         public string? IpAddress { get; set; }
@@ -196,6 +199,15 @@ namespace BankarskiSistem.Core.Entities
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public User? User { get; set; }
+    }
+
+    public class RecoveryCode
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public string CodeHash { get; set; } = string.Empty;
+        public DateTime? UsedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 
     public class PasswordResetRequest

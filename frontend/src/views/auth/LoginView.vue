@@ -6,6 +6,7 @@ import AppButton from '@/components/ui/AppButton.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useAuthStore } from '@/stores/auth'
 import { errorMessage } from '@/composables/useAsync'
+import { ApiError } from '@/api/http'
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -15,6 +16,9 @@ const email = ref('')
 const password = ref('')
 const error = ref<string | null>(null)
 const isSubmitting = ref(false)
+const challengeToken = ref<string | null>(null)
+const code = ref('')
+const useRecoveryCode = ref(false)
 
 const reasonMessage = computed(() => {
   if (route.query.razlog === 'neaktivnost') return 'Odjavljeni ste zbog neaktivnosti. Prijavite se ponovo.'
@@ -22,19 +26,52 @@ const reasonMessage = computed(() => {
   return null
 })
 
+async function goToTarget(): Promise<void> {
+  const target = typeof route.query.povratak === 'string' && route.query.povratak.startsWith('/') ? route.query.povratak : auth.homeRoute
+  await router.replace(target)
+}
+
 async function submit(): Promise<void> {
   error.value = null
   isSubmitting.value = true
   try {
-    await auth.login(email.value.trim(), password.value)
-    const target = typeof route.query.povratak === 'string' && route.query.povratak.startsWith('/') ? route.query.povratak : auth.homeRoute
-    await router.replace(target)
+    const step = await auth.login(email.value.trim(), password.value)
+    password.value = ''
+    if (step.kind === 'two-factor') {
+      challengeToken.value = step.challengeToken
+      code.value = ''
+      return
+    }
+    await goToTarget()
   } catch (caught) {
     error.value = errorMessage(caught)
     password.value = ''
   } finally {
     isSubmitting.value = false
   }
+}
+
+async function submitCode(): Promise<void> {
+  if (!challengeToken.value) return
+  error.value = null
+  isSubmitting.value = true
+  try {
+    await auth.completeTwoFactor(challengeToken.value, code.value.trim())
+    challengeToken.value = null
+    await goToTarget()
+  } catch (caught) {
+    error.value = errorMessage(caught)
+    code.value = ''
+    if (caught instanceof ApiError && (caught.message.includes('zaključan') || caught.message.includes('deaktiviran'))) challengeToken.value = null
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+function backToPassword(): void {
+  challengeToken.value = null
+  code.value = ''
+  error.value = null
 }
 </script>
 
@@ -72,15 +109,46 @@ async function submit(): Promise<void> {
             <circle cx="23.5" cy="21" r="2" fill="#C8F169" />
           </svg>
         </div>
-        <h2>Prijava</h2>
-        <p class="muted">Dobro došli nazad. Unesite podatke za pristup.</p>
+        <h2>{{ challengeToken ? 'Potvrda prijave' : 'Prijava' }}</h2>
+        <p class="muted">
+          {{
+            challengeToken
+              ? useRecoveryCode
+                ? 'Unesite jedan od rezervnih kodova koje ste sačuvali pri uključivanju dvostepene prijave.'
+                : 'Unesite šestocifreni kod iz aplikacije za autentifikaciju na telefonu.'
+              : 'Dobro došli nazad. Unesite podatke za pristup.'
+          }}
+        </p>
 
         <div v-if="reasonMessage" class="info-banner" role="status">
           <AppIcon name="info" :size="18" />
           <span>{{ reasonMessage }}</span>
         </div>
 
-        <form class="stack form" novalidate @submit.prevent="submit">
+        <form v-if="challengeToken" class="stack form" novalidate @submit.prevent="submitCode">
+          <AppField
+            v-model="code"
+            :label="useRecoveryCode ? 'Rezervni kod' : 'Kod iz aplikacije'"
+            :placeholder="useRecoveryCode ? 'XXXXX-XXXXX' : '000000'"
+            :inputmode="useRecoveryCode ? 'text' : 'numeric'"
+            autocomplete="one-time-code"
+            :maxlength="useRecoveryCode ? 11 : 7"
+            required
+          />
+          <div v-if="error" class="error-banner" role="alert">
+            <AppIcon name="alert" :size="18" />
+            <span>{{ error }}</span>
+          </div>
+          <AppButton type="submit" size="lg" block :loading="isSubmitting" :disabled="!code.trim()">Potvrdi</AppButton>
+          <div class="row-between code-links">
+            <button type="button" class="text-button" @click="useRecoveryCode = !useRecoveryCode; code = ''">
+              {{ useRecoveryCode ? 'Koristi kod iz aplikacije' : 'Nemam telefon, koristiću rezervni kod' }}
+            </button>
+            <button type="button" class="text-button" @click="backToPassword">Nazad</button>
+          </div>
+        </form>
+
+        <form v-else class="stack form" novalidate @submit.prevent="submit">
           <AppField v-model="email" label="Email adresa" type="email" autocomplete="username" required inputmode="email" />
           <AppField v-model="password" label="Lozinka" type="password" autocomplete="current-password" required />
           <RouterLink to="/javno/zaboravljena-lozinka" class="forgot">Zaboravili ste lozinku?</RouterLink>
@@ -255,6 +323,21 @@ async function submit(): Promise<void> {
   margin-top: 0;
   background: var(--color-danger-soft);
   color: var(--color-danger);
+}
+
+.code-links {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.text-button {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary-hover);
+  cursor: pointer;
 }
 
 .forgot {

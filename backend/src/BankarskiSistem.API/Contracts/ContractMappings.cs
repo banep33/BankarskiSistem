@@ -60,7 +60,8 @@ namespace BankarskiSistem.API.Contracts
                 user.RiskRating,
                 user.KycVerifiedAt,
                 user.CreatedAt,
-                user.UpdatedAt);
+                user.UpdatedAt,
+                user.TwoFactorEnabled);
 
         public static AccountResponse ToResponse(this Account account) =>
             new(

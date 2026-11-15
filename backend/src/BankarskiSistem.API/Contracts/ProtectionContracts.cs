@@ -5,6 +5,16 @@ namespace BankarskiSistem.API.Contracts
 {
     public record ReauthenticateRequest(string Password);
 
+    public record TwoFactorLoginRequest(string ChallengeToken, string Code);
+
+    public record TwoFactorCodeRequest(string Code);
+
+    public record TwoFactorChallengeResponse(bool RequiresTwoFactor, string ChallengeToken, DateTime ExpiresAt);
+
+    public record TwoFactorSetupResponse(string Secret, string OtpAuthUri);
+
+    public record RecoveryCodesResponse(IReadOnlyList<string> Codes);
+
     public record UpdatePreferencesRequest(
         bool NotifyIncomingPayments,
         bool NotifyOutgoingPayments,

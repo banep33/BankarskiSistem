@@ -2,6 +2,7 @@ using BankarskiSistem.Core.Entities;
 using BankarskiSistem.Core.Enums;
 using BankarskiSistem.Core.Exceptions;
 using BankarskiSistem.Core.Interfaces;
+using BankarskiSistem.Core.Models;
 using BankarskiSistem.Core.Settings;
 using BankarskiSistem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace BankarskiSistem.Infrastructure.Services
     public class SessionService : ISessionService
     {
         private const int KnownDeviceLookbackDays = 90;
+        private const int RefreshGraceSeconds = 20;
 
         private readonly ApplicationDbContext _context;
         private readonly IRequestContext _requestContext;
@@ -41,7 +43,7 @@ namespace BankarskiSistem.Infrastructure.Services
 
         private DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
 
-        public async Task<UserSession> StartAsync(int userId, DateTime expiresAt)
+        public async Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash)
         {
             var userAgent = Truncate(_requestContext.UserAgent, 255);
             var deviceLabel = DeviceLabelParser.Describe(userAgent);
@@ -58,6 +60,8 @@ namespace BankarskiSistem.Infrastructure.Services
                 CreatedAt = UtcNow,
                 LastSeenAt = UtcNow,
                 ExpiresAt = expiresAt,
+                RefreshTokenHash = refreshTokenHash,
+                RefreshRotatedAt = UtcNow,
                 IpAddress = _requestContext.IpAddress,
                 UserAgent = userAgent,
                 DeviceLabel = deviceLabel
@@ -79,6 +83,44 @@ namespace BankarskiSistem.Infrastructure.Services
 
             await _context.SaveChangesAsync();
             return session;
+        }
+
+        public async Task<RefreshRotation> RotateRefreshTokenAsync(string presentedHash, string newHash)
+        {
+            var session = await _context.UserSessions.FirstOrDefaultAsync(s => s.RefreshTokenHash == presentedHash);
+            if (session != null)
+            {
+                if (!session.IsActiveAt(UtcNow))
+                    return new RefreshRotation(RefreshRotationOutcome.Invalid, null);
+
+                session.PreviousRefreshTokenHash = session.RefreshTokenHash;
+                session.RefreshTokenHash = newHash;
+                session.RefreshRotatedAt = UtcNow;
+                session.LastSeenAt = UtcNow;
+                await _context.SaveChangesAsync();
+                return new RefreshRotation(RefreshRotationOutcome.Rotated, session);
+            }
+
+            var previous = await _context.UserSessions.FirstOrDefaultAsync(s => s.PreviousRefreshTokenHash == presentedHash);
+            if (previous == null || !previous.IsActiveAt(UtcNow))
+                return new RefreshRotation(RefreshRotationOutcome.Invalid, null);
+
+            if (previous.RefreshRotatedAt.HasValue && (UtcNow - previous.RefreshRotatedAt.Value).TotalSeconds <= RefreshGraceSeconds)
+                return new RefreshRotation(RefreshRotationOutcome.Grace, previous);
+
+            previous.Revoke("Ponovljena upotreba refresh tokena", UtcNow);
+            await _notificationPublisher.PublishAsync(new Notification
+            {
+                UserId = previous.UserId,
+                Type = NotificationType.Bezbednost,
+                Title = "Sesija je prekinuta iz bezbednosnih razloga",
+                Message = $"Na uređaju \"{previous.DeviceLabel}\" je pokušana ponovna upotreba starog ključa sesije. " +
+                          "Sesija je odjavljena. Ako to niste bili vi, promenite lozinku.",
+                CreatedAt = UtcNow
+            });
+            await _context.SaveChangesAsync();
+            _sessionCache.InvalidateSession(previous.Id);
+            return new RefreshRotation(RefreshRotationOutcome.Reused, previous);
         }
 
         public async Task<bool> ValidateAndTouchAsync(Guid sessionId, int userId)

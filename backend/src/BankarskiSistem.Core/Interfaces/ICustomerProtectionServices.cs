@@ -6,7 +6,8 @@ namespace BankarskiSistem.Core.Interfaces
 {
     public interface ISessionService
     {
-        Task<UserSession> StartAsync(int userId, DateTime expiresAt);
+        Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash);
+        Task<RefreshRotation> RotateRefreshTokenAsync(string presentedHash, string newHash);
         Task<bool> ValidateAndTouchAsync(Guid sessionId, int userId);
         Task<IReadOnlyList<UserSession>> GetActiveAsync(int userId);
         Task RevokeAsync(int userId, Guid sessionId, string reason);

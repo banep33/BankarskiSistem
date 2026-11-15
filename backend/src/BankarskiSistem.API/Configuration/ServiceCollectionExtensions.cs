@@ -11,6 +11,7 @@ using BankarskiSistem.Infrastructure.Security;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -70,6 +71,8 @@ namespace BankarskiSistem.API.Configuration
             services.AddProblemDetails();
             services.AddHttpContextAccessor();
             services.AddScoped<IRequestContext, HttpRequestContext>();
+            services.AddDataProtection().SetApplicationName("BankarskiSistem");
+            services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
             services.AddHealthChecks()
                 .AddCheck<DatabaseHealthCheck>("mysql", tags: [DatabaseHealthCheck.ReadyTag]);
 
@@ -206,8 +209,9 @@ namespace BankarskiSistem.API.Configuration
             services.AddCors(options =>
                 options.AddPolicy(FrontendCorsPolicy, policy =>
                     policy.WithOrigins(allowedOrigins)
-                          .WithHeaders("Authorization", "Content-Type", "Idempotency-Key")
-                          .WithMethods("GET", "POST", "PUT", "DELETE")));
+                          .WithHeaders("Authorization", "Content-Type", "Idempotency-Key", RefreshTokenCookie.CsrfHeader)
+                          .WithMethods("GET", "POST", "PUT", "DELETE")
+                          .AllowCredentials()));
 
             return services;
         }

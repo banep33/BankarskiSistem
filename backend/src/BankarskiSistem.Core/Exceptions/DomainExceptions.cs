@@ -62,4 +62,14 @@ namespace BankarskiSistem.Core.Exceptions
             RemainingMinutes = remainingMinutes;
         }
     }
+
+    public class InvalidTwoFactorCodeException : AuthenticationFailedException
+    {
+        public InvalidTwoFactorCodeException() : base("Kod za potvrdu nije ispravan ili je istekao.") { }
+    }
+
+    public class InvalidRefreshTokenException : AuthenticationFailedException
+    {
+        public InvalidRefreshTokenException() : base("Sesija je istekla. Prijavite se ponovo.") { }
+    }
 }

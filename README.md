@@ -13,7 +13,7 @@ Edukativni sistem elektronskog bankarstva prilagođen platnom prometu u Republic
 - sačuvani primaoci, istorija transakcija sa filterima i kursor paginacijom;
 - prigovori sa zakonskim rokom od 15 dana i prepiskom sa bankom;
 - centar za privatnost: saglasnosti, uvid u to ko je pristupao podacima, zahtevi po ZZPL, izvoz podataka u JSON;
-- bezbednost: aktivne sesije i odjava uređaja, istorija prijava, automatska odjava zbog neaktivnosti, sakrivanje stanja.
+- bezbednost: dvostepena prijava (TOTP) sa rezervnim kodovima, aktivne sesije i odjava uređaja, istorija prijava, automatska odjava zbog neaktivnosti, sakrivanje stanja.
 
 **Bankar**
 - klijenti, provera identiteta (KYC) i procena rizika, otvaranje računa, uplata na šalteru, blokada računa;
@@ -47,7 +47,7 @@ backend/
   tests/BankarskiSistem.Tests          unit i integracioni testovi
   tests/BankarskiSistem.LoadTests      load test
 database/
-  migrations/                          V001 do V007
+  migrations/                          V001 do V008
   migrate.ps1, backup.ps1, restore.ps1
 docs/                                  uputstvo, bezbednosni koncepti, rezultati load testa
 frontend/                              Vue aplikacija
@@ -121,7 +121,9 @@ npm run lint
 
 - lozinke su heširane BCrypt-om, nalog se zaključava posle 5 neuspešnih pokušaja;
 - zaboravljena lozinka bez otkrivanja postojanja naloga: nova lozinka se odmah hešira, aktivira je administrator po principu četiri oka, a zahtev ističe za 72 sata;
-- JWT sa verzijom tokena i identifikatorom sesije; sesije se čuvaju na serveru i mogu se opozvati;
+- kratkotrajni JWT (15 minuta) samo u memoriji pregledača i refresh token u HttpOnly, SameSite=Strict kolačiću koji se menja pri svakoj upotrebi; ponovna upotreba starog tokena gasi sesiju;
+- dvostepena prijava po RFC 6238 (TOTP): tajna šifrovana preko ASP.NET Data Protection, zaštita od ponovne upotrebe koda, jednokratni rezervni kodovi čuvani kao heš;
+- sesije se čuvaju na serveru i mogu se opozvati, uz apsolutni rok od 8 sati;
 - ponovna potvrda lozinkom za rizične radnje (veliko plaćanje novom primaocu, lični prag, izvoz podataka);
 - RBAC i provera vlasništva nad svakim resursom na backendu;
 - pesimističko zaključavanje redova i idempotentni ključevi za sve finansijske operacije;

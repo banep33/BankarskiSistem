@@ -18,6 +18,7 @@
     "@fontsource/instrument-sans": "^5.3.0",
     "axios": "^1.21.1",
     "pinia": "^4.1.0",
+    "qrcode-generator": "2.0.4",
     "vue": "^3.5.45",
     "vue-router": "^5.5.1"
   },

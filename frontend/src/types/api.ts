@@ -81,6 +81,18 @@ export interface LoginResponse {
   pendingDocuments: LegalDocumentSummary[]
 }
 
+export interface TwoFactorChallengeResponse {
+  requiresTwoFactor: true
+  challengeToken: string
+  expiresAt: string
+}
+
+export interface TwoFactorStatus {
+  enabled: boolean
+  enabledAt: string | null
+  recoveryCodesRemaining: number
+}
+
 export interface User {
   id: number
   firstName: string
@@ -96,6 +108,7 @@ export interface User {
   kycVerifiedAt: string | null
   createdAt: string
   updatedAt: string
+  twoFactorEnabled: boolean
 }
 
 export interface Profile {

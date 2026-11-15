@@ -43,6 +43,8 @@ namespace BankarskiSistem.API.Controllers
             var userId = CurrentActor.UserId;
             var sessionId = User.FindSessionId() ?? throw new UnauthorizedAccessException();
             var result = await authService.ChangePasswordAsync(userId, sessionId, request.CurrentPassword, request.NewPassword);
+            if (result.RefreshToken != null)
+                RefreshTokenCookie.Append(HttpContext, result.RefreshToken);
             await auditLog.LogAsync(new AuditEntry(userId, "Promena lozinke", "User", userId));
             var pending = await legalService.GetPendingDocumentsAsync(userId);
             return Ok(result.ToResponse(pending));

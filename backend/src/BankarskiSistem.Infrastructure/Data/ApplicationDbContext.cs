@@ -23,6 +23,7 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<LegalDocument> LegalDocuments => Set<LegalDocument>();
         public DbSet<UserConsent> UserConsents => Set<UserConsent>();
         public DbSet<UserSession> UserSessions => Set<UserSession>();
+        public DbSet<RecoveryCode> RecoveryCodes => Set<RecoveryCode>();
         public DbSet<UserPreferences> UserPreferences => Set<UserPreferences>();
         public DbSet<ConsentEvent> ConsentEvents => Set<ConsentEvent>();
         public DbSet<FeeScheduleEntry> FeeSchedule => Set<FeeScheduleEntry>();
@@ -51,7 +52,9 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.Property(u => u.KycStatus).HasConversion<string>();
                 entity.Property(u => u.RiskRating).HasConversion<string>();
                 entity.HasIndex(u => u.Email).IsUnique();
+                entity.Property(u => u.TotpSecretProtected).HasMaxLength(1024);
                 entity.Ignore(u => u.FullName);
+                entity.Ignore(u => u.TwoFactorEnabled);
             });
 
             modelBuilder.Entity<Account>(entity =>
@@ -231,7 +234,19 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.Property(s => s.IpAddress).HasMaxLength(45);
                 entity.Property(s => s.UserAgent).HasMaxLength(255);
                 entity.Property(s => s.DeviceLabel).HasMaxLength(100);
+                entity.Property(s => s.RefreshTokenHash).HasColumnType("char(64)");
+                entity.Property(s => s.PreviousRefreshTokenHash).HasColumnType("char(64)");
                 entity.HasIndex(s => new { s.UserId, s.RevokedAt, s.ExpiresAt });
+                entity.HasIndex(s => s.RefreshTokenHash).IsUnique();
+                entity.HasIndex(s => s.PreviousRefreshTokenHash);
+            });
+
+            modelBuilder.Entity<RecoveryCode>(entity =>
+            {
+                entity.ToTable("user_recovery_codes");
+                entity.Property(c => c.CodeHash).HasColumnType("char(64)").IsRequired();
+                entity.HasIndex(c => new { c.UserId, c.CodeHash }).IsUnique();
+                entity.HasOne<User>().WithMany().HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<UserPreferences>(entity =>

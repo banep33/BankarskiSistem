@@ -6,7 +6,9 @@ namespace BankarskiSistem.Core.Interfaces
 {
     public interface IAuthService
     {
-        Task<AuthResult> LoginAsync(string email, string password);
+        Task<LoginOutcome> LoginAsync(string email, string password);
+        Task<AuthResult> CompleteTwoFactorAsync(string challengeToken, string code);
+        Task<AuthResult> RefreshAsync(string refreshToken);
         Task<AuthResult> ChangePasswordAsync(int userId, Guid currentSessionId, string currentPassword, string newPassword);
         Task<bool> IsSessionValidAsync(int userId, int tokenVersion, string role, Guid sessionId);
         Task LogoutAsync(int userId, Guid sessionId);
@@ -122,7 +124,27 @@ namespace BankarskiSistem.Core.Interfaces
     public interface ITokenService
     {
         DateTime NextExpiry();
+        DateTime NextSessionExpiry();
         string CreateToken(User user, Guid sessionId, DateTime expiresAt);
+        string CreateTwoFactorChallenge(User user, DateTime expiresAt);
+        (int UserId, int TokenVersion)? ReadTwoFactorChallenge(string token);
+    }
+
+    public interface ISecretProtector
+    {
+        string Protect(string plaintext);
+        string Unprotect(string protectedValue);
+    }
+
+    public interface ITwoFactorService
+    {
+        Task<TwoFactorStatus> GetStatusAsync(int userId);
+        Task<TwoFactorSetup> BeginSetupAsync(int userId);
+        Task<IReadOnlyList<string>> EnableAsync(int userId, string code);
+        Task DisableAsync(int userId, string code);
+        Task<IReadOnlyList<string>> RegenerateRecoveryCodesAsync(int userId, string code);
+        Task<bool> VerifyLoginCodeAsync(User user, string code);
+        Task ResetByAdministratorAsync(int userId, Actor actor);
     }
 
     public interface IAccountNumberGenerator

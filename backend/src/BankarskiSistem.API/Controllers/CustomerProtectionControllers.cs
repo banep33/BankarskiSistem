@@ -15,8 +15,54 @@ namespace BankarskiSistem.API.Controllers
     public class MeSecurityController(
         ISessionService sessionService,
         IPrivacyService privacyService,
+        ITwoFactorService twoFactorService,
         IAuditLogService auditLog) : ApiControllerBase
     {
+        [HttpGet("two-factor")]
+        public async Task<ActionResult<TwoFactorStatus>> GetTwoFactorStatus() =>
+            Ok(await twoFactorService.GetStatusAsync(CurrentActor.UserId));
+
+        [HttpPost("two-factor/setup")]
+        [RequireRecentAuthentication]
+        [EnableRateLimiting(RateLimitPolicies.Sensitive)]
+        public async Task<ActionResult<TwoFactorSetupResponse>> BeginTwoFactorSetup()
+        {
+            var setup = await twoFactorService.BeginSetupAsync(CurrentActor.UserId);
+            return Ok(new TwoFactorSetupResponse(setup.Secret, setup.OtpAuthUri));
+        }
+
+        [HttpPost("two-factor/enable")]
+        [EnableRateLimiting(RateLimitPolicies.Sensitive)]
+        public async Task<ActionResult<RecoveryCodesResponse>> EnableTwoFactor(TwoFactorCodeRequest request)
+        {
+            var userId = CurrentActor.UserId;
+            var codes = await twoFactorService.EnableAsync(userId, request.Code);
+            await auditLog.LogAsync(new AuditEntry(userId, "Ukljucena dvostepena prijava", "User", userId));
+            return Ok(new RecoveryCodesResponse(codes));
+        }
+
+        [HttpPost("two-factor/disable")]
+        [RequireRecentAuthentication]
+        [EnableRateLimiting(RateLimitPolicies.Sensitive)]
+        public async Task<IActionResult> DisableTwoFactor(TwoFactorCodeRequest request)
+        {
+            var userId = CurrentActor.UserId;
+            await twoFactorService.DisableAsync(userId, request.Code);
+            await auditLog.LogAsync(new AuditEntry(userId, "Iskljucena dvostepena prijava", "User", userId));
+            return NoContent();
+        }
+
+        [HttpPost("two-factor/recovery-codes")]
+        [RequireRecentAuthentication]
+        [EnableRateLimiting(RateLimitPolicies.Sensitive)]
+        public async Task<ActionResult<RecoveryCodesResponse>> RegenerateRecoveryCodes(TwoFactorCodeRequest request)
+        {
+            var userId = CurrentActor.UserId;
+            var codes = await twoFactorService.RegenerateRecoveryCodesAsync(userId, request.Code);
+            await auditLog.LogAsync(new AuditEntry(userId, "Novi rezervni kodovi", "User", userId));
+            return Ok(new RecoveryCodesResponse(codes));
+        }
+
         [HttpGet("sessions")]
         public async Task<ActionResult<IEnumerable<SessionResponse>>> GetSessions()
         {

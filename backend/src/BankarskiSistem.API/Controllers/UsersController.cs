@@ -13,6 +13,7 @@ namespace BankarskiSistem.API.Controllers
         IUserService userService,
         IAccountService accountService,
         IDataAccessLogger dataAccessLogger,
+        ITwoFactorService twoFactorService,
         IAuditLogService auditLog) : ApiControllerBase
     {
         [HttpGet]
@@ -88,6 +89,16 @@ namespace BankarskiSistem.API.Controllers
         [HttpPost("{id:int}/unlock")]
         public Task<ActionResult<UserResponse>> Unlock(int id) =>
             ExecuteLifecycleAsync(id, "Otkljucan nalog", userService.UnlockAsync);
+
+        [HttpPost("{id:int}/two-factor/reset")]
+        [Authorize(Policy = Policies.Administrator)]
+        public async Task<IActionResult> ResetTwoFactor(int id)
+        {
+            var actor = CurrentActor;
+            await twoFactorService.ResetByAdministratorAsync(id, actor);
+            await auditLog.LogAsync(new AuditEntry(actor.UserId, "Resetovana dvostepena prijava", "User", id));
+            return NoContent();
+        }
 
         [HttpDelete("{id:int}")]
         [Authorize(Policy = Policies.Administrator)]

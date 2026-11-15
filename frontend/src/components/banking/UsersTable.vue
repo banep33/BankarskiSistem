@@ -29,7 +29,7 @@ const isLoading = ref(true)
 const error = ref<string | null>(null)
 const isFormOpen = ref(false)
 const editing = ref<User | null>(null)
-const pendingAction = ref<{ user: User; action: 'deactivate' | 'remove' } | null>(null)
+const pendingAction = ref<{ user: User; action: 'deactivate' | 'remove' | 'reset2fa' } | null>(null)
 const isActing = ref(false)
 
 const roleOptions = [{ value: '', label: 'Sve uloge' }, ...Object.entries(roleLabels).map(([value, label]) => ({ value, label }))]
@@ -89,6 +89,28 @@ async function lifecycle(user: User, action: 'activate' | 'deactivate' | 'unlock
   } finally {
     isActing.value = false
   }
+}
+
+async function resetTwoFactor(user: User): Promise<void> {
+  isActing.value = true
+  try {
+    await usersApi.resetTwoFactor(user.id)
+    ui.notify('Dvostepena prijava je isključena, a sve sesije korisnika su odjavljene.')
+    pendingAction.value = null
+    await load()
+  } catch (caught) {
+    ui.notify(errorMessage(caught), 'danger')
+  } finally {
+    isActing.value = false
+  }
+}
+
+function confirmPending(): void {
+  const pending = pendingAction.value
+  if (!pending) return
+  if (pending.action === 'remove') remove(pending.user)
+  else if (pending.action === 'reset2fa') resetTwoFactor(pending.user)
+  else lifecycle(pending.user, 'deactivate')
 }
 
 async function remove(user: User): Promise<void> {
@@ -151,6 +173,7 @@ onMounted(load)
                 <td v-if="!fixedRole">{{ roleLabels[user.role] }}</td>
                 <td><AppBadge :tone="kycLabels[user.kycStatus].tone">{{ kycLabels[user.kycStatus].label }}</AppBadge></td>
                 <td>
+                  <AppBadge v-if="user.twoFactorEnabled" tone="info" class="two-factor-badge">2FA</AppBadge>
                   <AppBadge v-if="user.isLocked" tone="danger">Zaključan</AppBadge>
                   <AppBadge v-else :tone="user.isActive ? 'success' : 'neutral'">{{ user.isActive ? 'Aktivan' : 'Neaktivan' }}</AppBadge>
                 </td>
@@ -162,6 +185,7 @@ onMounted(load)
                   <template v-if="!isSelf(user)">
                     <AppButton v-if="user.isActive" variant="ghost" size="sm" @click="pendingAction = { user, action: 'deactivate' }">Deaktiviraj</AppButton>
                     <AppButton v-else variant="ghost" size="sm" :disabled="isActing" @click="lifecycle(user, 'activate')">Aktiviraj</AppButton>
+                    <AppButton v-if="auth.isAdministrator && user.twoFactorEnabled" variant="ghost" size="sm" icon="key" @click="pendingAction = { user, action: 'reset2fa' }">Resetuj 2FA</AppButton>
                     <AppButton v-if="auth.isAdministrator" variant="ghost" size="sm" icon="trash" :aria-label="`Obriši ${user.email}`" @click="pendingAction = { user, action: 'remove' }" />
                   </template>
                 </td>
@@ -175,7 +199,7 @@ onMounted(load)
 
     <AppModal
       :open="pendingAction !== null"
-      :title="pendingAction?.action === 'remove' ? 'Trajno brisanje korisnika' : 'Deaktivacija naloga'"
+      :title="pendingAction?.action === 'remove' ? 'Trajno brisanje korisnika' : pendingAction?.action === 'reset2fa' ? 'Reset dvostepene prijave' : 'Deaktivacija naloga'"
       width="480px"
       @close="pendingAction = null"
     >
@@ -183,6 +207,10 @@ onMounted(load)
         <p v-if="pendingAction.action === 'deactivate'" class="muted">
           {{ pendingAction.user.firstName }} {{ pendingAction.user.lastName }} neće moći da se prijavi, a sve aktivne sesije se odmah prekidaju. Računi,
           transakcije i istorija ostaju sačuvani, a nalog se može ponovo aktivirati.
+        </p>
+        <p v-else-if="pendingAction.action === 'reset2fa'" class="muted">
+          Koristite samo kada je korisnik izgubio telefon i rezervne kodove, posle provere identiteta nezavisnim kanalom. Dvostepena prijava za
+          {{ pendingAction.user.email }} biće isključena, a sve sesije odjavljene. Korisnik dobija bezbednosno obaveštenje.
         </p>
         <div v-else class="stack">
           <p class="muted">
@@ -197,9 +225,9 @@ onMounted(load)
         <AppButton
           variant="danger"
           :loading="isActing"
-          @click="pendingAction && (pendingAction.action === 'remove' ? remove(pendingAction.user) : lifecycle(pendingAction.user, 'deactivate'))"
+          @click="confirmPending"
         >
-          {{ pendingAction?.action === 'remove' ? 'Obriši trajno' : 'Deaktiviraj' }}
+          {{ pendingAction?.action === 'remove' ? 'Obriši trajno' : pendingAction?.action === 'reset2fa' ? 'Isključi 2FA' : 'Deaktiviraj' }}
         </AppButton>
       </template>
     </AppModal>
@@ -219,6 +247,10 @@ onMounted(load)
   gap: 2px;
   justify-content: flex-end;
   flex-wrap: wrap;
+}
+
+.two-factor-badge {
+  margin-right: 4px;
 }
 
 .detail-link {

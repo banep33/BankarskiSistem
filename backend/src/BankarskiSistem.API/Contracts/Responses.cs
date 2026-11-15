@@ -44,7 +44,8 @@ namespace BankarskiSistem.API.Contracts
         RiskLevel RiskRating,
         DateTime? KycVerifiedAt,
         DateTime CreatedAt,
-        DateTime UpdatedAt);
+        DateTime UpdatedAt,
+        bool TwoFactorEnabled);
 
     public record ProfileResponse(UserResponse User, IReadOnlyList<LegalDocumentSummary> PendingDocuments);
 

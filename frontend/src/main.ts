@@ -8,13 +8,14 @@ import './assets/styles/tokens.css'
 import './assets/styles/base.css'
 import App from './App.vue'
 import router from './router'
-import { onUnauthorized } from './api/http'
+import { onRefreshNeeded, onUnauthorized } from './api/http'
 import { useAuthStore } from './stores/auth'
 import { useUiStore } from './stores/ui'
 
 const app = createApp(App)
 app.use(createPinia())
-app.use(router)
+
+onRefreshNeeded(() => useAuthStore().refresh())
 
 onUnauthorized(() => {
   const auth = useAuthStore()
@@ -24,4 +25,5 @@ onUnauthorized(() => {
   router.push({ path: '/prijava', query: { razlog: 'sesija' } })
 })
 
+app.use(router)
 app.mount('#app')

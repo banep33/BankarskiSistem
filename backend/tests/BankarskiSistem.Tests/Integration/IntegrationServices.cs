@@ -5,6 +5,7 @@ using BankarskiSistem.Infrastructure.Repositories;
 using BankarskiSistem.Infrastructure.Security;
 using BankarskiSistem.Infrastructure.Services;
 using BankarskiSistem.Infrastructure.Services.Payments;
+using BankarskiSistem.Tests.Fakes;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -78,6 +79,8 @@ namespace BankarskiSistem.Tests.Integration
         public DataAccessLogger DataAccess => new(_context, _requestContext, Time);
         public SessionService Sessions => new(_context, _requestContext, new BCryptPasswordHasher(), Publisher, new SessionValidationCache(_protection, Time), _protection, Time);
         public ComplianceService Compliance => new(_context, Time);
+        public TwoFactorService TwoFactor => new(_context, new PlainSecretProtector(), Sessions,
+            new SessionValidationCache(_protection, Time), Publisher, Time);
         public PasswordResetService PasswordResets => new(_context, new BCryptPasswordHasher(), Sessions,
             new SessionValidationCache(_protection, Time), Publisher, _requestContext, Time);
     }

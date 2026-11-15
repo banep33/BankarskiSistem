@@ -52,7 +52,7 @@ namespace BankarskiSistem.Tests.Integration
         {
             var customer = await CreateUserAsync(UserRole.Korisnik, locked: true);
             var admin = await CreateUserAsync(UserRole.Administrator);
-            var session = await Services().Sessions.StartAsync(customer.Id, DateTime.UtcNow.AddMinutes(30));
+            var session = await Services().Sessions.StartAsync(customer.Id, DateTime.UtcNow.AddMinutes(30), Guid.NewGuid().ToString("N"));
 
             var request = await Services().PasswordResets.SubmitAsync(customer.Email.ToUpperInvariant(), NewPassword);
             Assert.NotNull(request);

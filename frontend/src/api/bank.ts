@@ -1,4 +1,4 @@
-import { del, get, post, put, withIdempotency } from './http'
+import { del, get, post, put, REFRESH_HEADER, withIdempotency } from './http'
 import type {
   Account,
   AccountStatistics,
@@ -52,6 +52,8 @@ import type {
   TransactionStatus,
   TransactionType,
   TrialBalanceLine,
+  TwoFactorChallengeResponse,
+  TwoFactorStatus,
   User,
   UserRole,
 } from '@/types/api'
@@ -66,7 +68,9 @@ export type TransactionFilters = {
 }
 
 export const authApi = {
-  login: (email: string, password: string) => post<LoginResponse>('/auth/login', { email, password }),
+  login: (email: string, password: string) => post<LoginResponse | TwoFactorChallengeResponse>('/auth/login', { email, password }),
+  completeTwoFactor: (challengeToken: string, code: string) => post<LoginResponse>('/auth/login/two-factor', { challengeToken, code }),
+  refresh: () => post<LoginResponse>('/auth/refresh', undefined, { headers: { [REFRESH_HEADER]: '1' } }),
   logout: () => post<void>('/auth/logout'),
   requestPasswordReset: (email: string, newPassword: string, confirmNewPassword: string) =>
     post<{ message: string }>('/auth/password-reset', { email, newPassword, confirmNewPassword }),
@@ -127,6 +131,11 @@ export const securityApi = {
   revokeOthers: () => post<{ revoked: number }>('/me/security/sessions/revoke-others'),
   reauthenticate: (password: string) => post<void>('/me/security/reauthenticate', { password }),
   events: (page = 1, pageSize = 20) => get<PagedResponse<SecurityEvent>>('/me/security/events', { page, pageSize }),
+  twoFactorStatus: () => get<TwoFactorStatus>('/me/security/two-factor'),
+  beginTwoFactorSetup: () => post<{ secret: string; otpAuthUri: string }>('/me/security/two-factor/setup'),
+  enableTwoFactor: (code: string) => post<{ codes: string[] }>('/me/security/two-factor/enable', { code }),
+  disableTwoFactor: (code: string) => post<void>('/me/security/two-factor/disable', { code }),
+  regenerateRecoveryCodes: (code: string) => post<{ codes: string[] }>('/me/security/two-factor/recovery-codes', { code }),
 }
 
 export const privacyApi = {
@@ -194,6 +203,7 @@ export const usersApi = {
   unlock: (id: number) => post<User>(`/users/${id}/unlock`),
   remove: (id: number) => del(`/users/${id}`),
   updateKyc: (id: number, status: KycStatus, riskRating: RiskLevel) => post<User>(`/users/${id}/kyc`, { status, riskRating }),
+  resetTwoFactor: (id: number) => post<void>(`/users/${id}/two-factor/reset`),
 }
 
 export const transactionsApi = {

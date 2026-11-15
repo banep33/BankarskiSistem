@@ -264,13 +264,13 @@ namespace BankarskiSistem.Tests.Integration
 
             Guid laptop;
             await using (var context = _database.CreateContext())
-                laptop = (await new IntegrationServices(context).Sessions.StartAsync(owner.Id, expiry)).Id;
+                laptop = (await new IntegrationServices(context).Sessions.StartAsync(owner.Id, expiry, Guid.NewGuid().ToString("N"))).Id;
 
             Guid phone;
             await using (var context = _database.CreateContext())
             {
                 var phoneContext = new TestRequestContext { IpAddress = "10.0.0.9", UserAgent = "Mozilla/5.0 (iPhone) Safari/604.1" };
-                phone = (await new IntegrationServices(context, requestContext: phoneContext).Sessions.StartAsync(owner.Id, expiry)).Id;
+                phone = (await new IntegrationServices(context, requestContext: phoneContext).Sessions.StartAsync(owner.Id, expiry, Guid.NewGuid().ToString("N"))).Id;
             }
 
             await using (var context = _database.CreateContext())

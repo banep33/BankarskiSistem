@@ -40,9 +40,38 @@ namespace BankarskiSistem.Tests.Fakes
 
     public class FakeTokenService : ITokenService
     {
-        public DateTime NextExpiry() => DateTime.UtcNow.AddMinutes(30);
+        public DateTime NextExpiry() => DateTime.UtcNow.AddMinutes(15);
+
+        public DateTime NextSessionExpiry() => DateTime.UtcNow.AddHours(8);
 
         public string CreateToken(User user, Guid sessionId, DateTime expiresAt) => $"token-{user.Id}-v{user.TokenVersion}-{sessionId}";
+
+        public string CreateTwoFactorChallenge(User user, DateTime expiresAt) => $"challenge:{user.Id}:{user.TokenVersion}";
+
+        public (int UserId, int TokenVersion)? ReadTwoFactorChallenge(string token)
+        {
+            var parts = token.Split(':');
+            return parts.Length == 3 && parts[0] == "challenge" ? (int.Parse(parts[1]), int.Parse(parts[2])) : null;
+        }
+    }
+
+    public class FakeTwoFactorService : ITwoFactorService
+    {
+        public string ValidCode { get; set; } = "123456";
+
+        public Task<TwoFactorStatus> GetStatusAsync(int userId) => Task.FromResult(new TwoFactorStatus(false, null, 0));
+        public Task<TwoFactorSetup> BeginSetupAsync(int userId) => throw new NotSupportedException();
+        public Task<IReadOnlyList<string>> EnableAsync(int userId, string code) => throw new NotSupportedException();
+        public Task DisableAsync(int userId, string code) => throw new NotSupportedException();
+        public Task<IReadOnlyList<string>> RegenerateRecoveryCodesAsync(int userId, string code) => throw new NotSupportedException();
+        public Task<bool> VerifyLoginCodeAsync(User user, string code) => Task.FromResult(user.TwoFactorEnabled && code == ValidCode);
+        public Task ResetByAdministratorAsync(int userId, Actor actor) => throw new NotSupportedException();
+    }
+
+    public class PlainSecretProtector : ISecretProtector
+    {
+        public string Protect(string plaintext) => $"zasticeno:{plaintext}";
+        public string Unprotect(string protectedValue) => protectedValue["zasticeno:".Length..];
     }
 
     public class NoSessionCache : ISessionValidationCache
@@ -68,11 +97,21 @@ namespace BankarskiSistem.Tests.Fakes
     {
         public List<UserSession> Sessions { get; } = [];
 
-        public Task<UserSession> StartAsync(int userId, DateTime expiresAt)
+        public Task<UserSession> StartAsync(int userId, DateTime expiresAt, string refreshTokenHash)
         {
-            var session = new UserSession { Id = Guid.NewGuid(), UserId = userId, CreatedAt = DateTime.UtcNow, LastSeenAt = DateTime.UtcNow, ExpiresAt = expiresAt };
+            var session = new UserSession { Id = Guid.NewGuid(), UserId = userId, CreatedAt = DateTime.UtcNow, LastSeenAt = DateTime.UtcNow, ExpiresAt = expiresAt, RefreshTokenHash = refreshTokenHash };
             Sessions.Add(session);
             return Task.FromResult(session);
+        }
+
+        public Task<RefreshRotation> RotateRefreshTokenAsync(string presentedHash, string newHash)
+        {
+            var session = Sessions.SingleOrDefault(s => s.RefreshTokenHash == presentedHash && s.RevokedAt == null);
+            if (session == null)
+                return Task.FromResult(new RefreshRotation(RefreshRotationOutcome.Invalid, null));
+            session.PreviousRefreshTokenHash = presentedHash;
+            session.RefreshTokenHash = newHash;
+            return Task.FromResult(new RefreshRotation(RefreshRotationOutcome.Rotated, session));
         }
 
         public Task<bool> ValidateAndTouchAsync(Guid sessionId, int userId) =>

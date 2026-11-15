@@ -7,6 +7,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import AppModal from '@/components/ui/AppModal.vue'
 import AppPagination from '@/components/ui/AppPagination.vue'
 import StatusViews from '@/components/ui/StatusViews.vue'
+import TwoFactorCard from '@/components/security/TwoFactorCard.vue'
 import { securityApi } from '@/api/bank'
 import { useUiStore } from '@/stores/ui'
 import { errorMessage } from '@/composables/useAsync'
@@ -100,6 +101,8 @@ onMounted(load)
           <p class="muted">Posle 5 pogrešnih lozinki nalog se privremeno zaključava.</p>
         </AppCard>
       </div>
+
+      <TwoFactorCard />
 
       <AppCard title="Aktivne sesije" :subtitle="`Ukupno ${sessions.length}`">
         <ul class="sessions">

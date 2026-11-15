@@ -3,7 +3,25 @@ using BankarskiSistem.Core.Enums;
 
 namespace BankarskiSistem.Core.Models
 {
-    public record AuthResult(User User, string Token, DateTime ExpiresAt, Guid SessionId);
+    public record AuthResult(User User, string Token, DateTime ExpiresAt, Guid SessionId, string? RefreshToken, DateTime RefreshExpiresAt);
+
+    public record TwoFactorChallenge(string Token, DateTime ExpiresAt);
+
+    public record LoginOutcome(AuthResult? Session, TwoFactorChallenge? Challenge);
+
+    public enum RefreshRotationOutcome
+    {
+        Rotated,
+        Grace,
+        Reused,
+        Invalid
+    }
+
+    public record RefreshRotation(RefreshRotationOutcome Outcome, UserSession? Session);
+
+    public record TwoFactorStatus(bool Enabled, DateTime? EnabledAt, int RecoveryCodesRemaining);
+
+    public record TwoFactorSetup(string Secret, string OtpAuthUri);
 
     public record FinancialOperationResult(
         Transaction Transaction,

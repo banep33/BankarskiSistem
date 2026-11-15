@@ -1,7 +1,5 @@
-import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
+import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios'
 import type { ApiProblem } from '@/types/api'
-
-export const TOKEN_STORAGE_KEY = 'bs.session'
 
 export class ApiError extends Error {
   readonly status: number
@@ -23,8 +21,11 @@ export class ApiError extends Error {
 }
 
 type UnauthorizedHandler = () => void
+type RefreshHandler = () => Promise<boolean>
 
 let unauthorizedHandler: UnauthorizedHandler | null = null
+let refreshHandler: RefreshHandler | null = null
+let refreshInFlight: Promise<boolean> | null = null
 let currentToken: string | null = null
 
 export function setAuthToken(token: string | null): void {
@@ -35,9 +36,24 @@ export function onUnauthorized(handler: UnauthorizedHandler): void {
   unauthorizedHandler = handler
 }
 
+export function onRefreshNeeded(handler: RefreshHandler): void {
+  refreshHandler = handler
+}
+
+export function refreshSession(): Promise<boolean> {
+  if (!refreshHandler) return Promise.resolve(false)
+  refreshInFlight ??= refreshHandler().finally(() => {
+    refreshInFlight = null
+  })
+  return refreshInFlight
+}
+
+export const REFRESH_HEADER = 'X-BS-Refresh'
+
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
   timeout: 30_000,
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -50,13 +66,19 @@ client.interceptors.request.use((config) => {
 
 client.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<ApiProblem>) => {
+  async (error: AxiosError<ApiProblem>) => {
     const status = error.response?.status ?? 0
     const problem = error.response?.data
-    const isLogin = error.config?.url?.includes('/auth/login') ?? false
+    const config = error.config as (InternalAxiosRequestConfig & { retried?: boolean }) | undefined
+    const isAuthEndpoint = config?.url?.startsWith('/auth/') ?? false
 
-    if (status === 401 && !isLogin && unauthorizedHandler) {
-      unauthorizedHandler()
+    if (status === 401 && config && !isAuthEndpoint) {
+      if (!config.retried && (await refreshSession())) {
+        config.retried = true
+        config.headers.Authorization = `Bearer ${currentToken}`
+        return client(config)
+      }
+      unauthorizedHandler?.()
     }
 
     if (status === 0) {

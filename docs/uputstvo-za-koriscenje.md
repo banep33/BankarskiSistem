@@ -30,7 +30,16 @@ Klijent ne može sam da se registruje. Nalog mu pravi bankar, kao kada se u stva
 2. Unesi email i lozinku i klikni **Prijavi se**.
 3. Pri prvoj prijavi, a i kada banka objavi novu verziju dokumenta, pojaviće se prozor **Pre nastavka** sa Politikom privatnosti i Uslovima korišćenja. Otvori svaki dokument, označi da ga prihvataš i klikni **Prihvatam i nastavljam**. Bez prihvatanja aplikacija ne može da se koristi; jedina druga opcija je odjava.
 
-Posle 5 pogrešnih lozinki nalog se zaključava na 30 minuta. Otključati ga može bankar ili administrator.
+Ako je uključena **dvostepena prijava**, posle lozinke se pojavljuje ekran **Potvrda prijave**. Unesi šestocifreni kod iz aplikacije za autentifikaciju na telefonu. Ako telefon nije pri ruci, klikni **Nemam telefon, koristiću rezervni kod** i unesi jedan od rezervnih kodova.
+
+Posle 5 pogrešnih lozinki ili kodova nalog se zaključava na 30 minuta. Otključati ga može bankar ili administrator.
+
+### Koliko traje prijava
+
+- Osvežavanje stranice (F5) ne odjavljuje.
+- Zatvaranje pregledača odjavljuje.
+- Posle 5 minuta bez aktivnosti aplikacija odjavljuje sama, uz upozorenje minut ranije.
+- Prijava najduže traje 8 sati, posle toga se traži nova prijava čak i uz aktivno korišćenje.
 
 ### Zaboravljena lozinka
 
@@ -180,7 +189,7 @@ Ispod su poslednji odgovori sa komentarima.
 Administrator ima sve što i bankar, plus sledeće.
 
 - **Pregled sistema**: zdravlje glavne knjige, broj otvorenih AML upozorenja i ZZPL zahteva, statistike, dugme **Pokreni čišćenje sada** (briše pročitana obaveštenja i istekle sesije po rokovima čuvanja i prikazuje koliko je obrisano).
-- **Korisnici**: svi korisnici; pri kreiranju se bira uloga (klijent, bankar, administrator). U svakom redu su i **Otključaj**, **Deaktiviraj** ili **Aktiviraj** i ikonica korpe za **trajno brisanje**. Brisanje radi samo za nalog bez računa, transakcija i prijava (na primer nalog napravljen greškom); za ostale se koristi deaktivacija, jer banka mora da čuva podatke propisani broj godina.
+- **Korisnici**: svi korisnici; pri kreiranju se bira uloga (klijent, bankar, administrator). Korisnici sa uključenom dvostepenom prijavom imaju oznaku **2FA** i dugme **Resetuj 2FA** (za izgubljen telefon, posle provere identiteta; sve sesije korisnika se odjavljuju). U svakom redu su i **Otključaj**, **Deaktiviraj** ili **Aktiviraj** i ikonica korpe za **trajno brisanje**. Brisanje radi samo za nalog bez računa, transakcija i prijava (na primer nalog napravljen greškom); za ostale se koristi deaktivacija, jer banka mora da čuva podatke propisani broj godina.
 - **Zahtevi za lozinku**: korisnici koji su zaboravili lozinku. Za svaki zahtev vide se podnosilac, uloga, da li je nalog zaključan, IP adresa, uređaj i rok. **Odobri** traži da označiš da si proverio identitet nezavisnim kanalom, a **Odbij** traži razlog. O zahtevu za sopstvenu lozinku mora da odluči drugi administrator.
 - **Računi**: svi računi sa vlasnicima, pretraga i promena statusa.
 - **Glavna knjiga**:
@@ -195,7 +204,8 @@ Administrator ima sve što i bankar, plus sledeće.
 ## 5. Bezbednost i privatnost za sve uloge
 
 - **Automatska odjava**: posle 5 minuta bez aktivnosti. Minut ranije pojavljuje se prozor sa odbrojavanjem i dugmetom **Ostajem prijavljen/a**.
-- **Bezbednost**: aktivne sesije sa uređajem, IP adresom i vremenom aktivnosti; **Odjavi** za jedan uređaj ili **Odjavi sve druge uređaje**; istorija prijava i bezbednosnih događaja.
+- **Bezbednost**: dvostepena prijava, aktivne sesije sa uređajem, IP adresom i vremenom aktivnosti; **Odjavi** za jedan uređaj ili **Odjavi sve druge uređaje**; istorija prijava i bezbednosnih događaja.
+- **Dvostepena prijava (2FA)**: u odeljku Bezbednost klikni **Uključi** i potvrdi lozinku. Na telefonu otvori aplikaciju za autentifikaciju (Google Authenticator, Microsoft Authenticator, Authy), skeniraj QR kod ili ručno unesi ključ, pa upiši kod koji aplikacija prikazuje. Dobićeš 10 rezervnih kodova: preuzmi ih ili prepiši, jer se prikazuju samo jednom i svaki važi jednom. Isti kod iz aplikacije ne može se iskoristiti dva puta. **Novi rezervni kodovi** poništava stare, a **Isključi** traži lozinku i kod. Ako izgubiš i telefon i rezervne kodove, administrator može da isključi dvostepenu prijavu posle provere identiteta.
 - **Profil**: izmena imena i prezimena, promena lozinke (odjavljuje sve druge uređaje), izbor teme, odjava.
 - **Sakrivanje iznosa**: ikonica oka u gornjoj traci. Iznosi u obračunu plaćanja se ne sakrivaju, jer moraš da vidiš šta potvrđuješ.
 - Banka nikada ne traži lozinku telefonom, porukom ili emailom.
@@ -206,6 +216,8 @@ Administrator ima sve što i bankar, plus sledeće.
 |---|---|
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
+| Kod iz aplikacije nije prihvaćen | proveri da je vreme na telefonu podešeno automatski; sačekaj sledeći kod jer se isti kod ne može koristiti dva puta |
+| Izgubio sam telefon | prijavi se rezervnim kodom i isključi pa ponovo uključi dvostepenu prijavu; bez rezervnih kodova obrati se banci |
 | Zaboravio sam lozinku | **Zaboravili ste lozinku?** na ekranu za prijavu; nova lozinka važi posle odobrenja banke |
 | Administrator je zaboravio lozinku | zahtev mora da odobri drugi administrator; ako postoji samo jedan, lozinku resetuje tehnička podrška direktno u bazi |
 | Ne mogu da otvorim račun klijentu | identitet klijenta mora biti verifikovan, a nalog aktivan |
@@ -233,6 +245,17 @@ Pokreni backend i frontend kako piše u README-u i prolazi redom. Svaka stavka n
 - [ ] Klijent se sada prijavljuje novom lozinkom, a stara više ne važi.
 - [ ] Pošalji zahtev za lozinku administratora: u redu piše „Odlučuje drugi administrator“.
 - [ ] Na **Pregledu sistema** kartica „zahteva za lozinku“ prikazuje broj zahteva koji čekaju.
+
+### A3a. Dvostepena prijava i trajanje prijave
+
+- [ ] Kao klijent osveži stranicu (F5): ostaješ prijavljen. Zatvori pregledač i otvori ponovo: traži se prijava.
+- [ ] **Bezbednost**, **Uključi**: traži lozinku, zatim prikazuje QR kod i ključ.
+- [ ] Skeniraj QR kod aplikacijom na telefonu, upiši pogrešan kod (greška), pa ispravan: prikazuje se 10 rezervnih kodova; preuzmi ih.
+- [ ] Odjavi se i prijavi ponovo: posle lozinke traži se kod. Pogrešan kod daje grešku, ispravan otvara aplikaciju.
+- [ ] Prijava rezervnim kodom radi; isti rezervni kod drugi put ne radi; u Bezbednosti broj preostalih kodova je 9.
+- [ ] U obaveštenjima su bezbednosna obaveštenja o uključivanju i o iskorišćenom rezervnom kodu.
+- [ ] Kao administrator u **Korisnici** klijent ima oznaku 2FA; **Resetuj 2FA**: klijent je odjavljen i sledeća prijava ne traži kod.
+- [ ] **Isključi** u Bezbednosti traži lozinku i kod.
 
 ### A3. Upravljanje korisnicima
 

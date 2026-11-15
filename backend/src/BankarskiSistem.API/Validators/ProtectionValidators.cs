@@ -96,6 +96,23 @@ namespace BankarskiSistem.API.Validators
         }
     }
 
+    public class TwoFactorLoginRequestValidator : AbstractValidator<TwoFactorLoginRequest>
+    {
+        public TwoFactorLoginRequestValidator()
+        {
+            RuleFor(x => x.ChallengeToken).NotEmpty().MaximumLength(2000);
+            RuleFor(x => x.Code).NotEmpty().WithMessage("Unesite kod.").MaximumLength(20);
+        }
+    }
+
+    public class TwoFactorCodeRequestValidator : AbstractValidator<TwoFactorCodeRequest>
+    {
+        public TwoFactorCodeRequestValidator()
+        {
+            RuleFor(x => x.Code).NotEmpty().WithMessage("Unesite kod.").MaximumLength(20);
+        }
+    }
+
     public class ForgotPasswordRequestValidator : AbstractValidator<ForgotPasswordRequest>
     {
         public ForgotPasswordRequestValidator()

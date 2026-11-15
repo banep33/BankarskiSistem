@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { authApi } from '@/api/bank'
-import { setAuthToken, TOKEN_STORAGE_KEY } from '@/api/http'
-import type { LegalDocumentSummary, LoginResponse, UserRole } from '@/types/api'
+import { setAuthToken } from '@/api/http'
+import type { LegalDocumentSummary, LoginResponse, TwoFactorChallengeResponse, UserRole } from '@/types/api'
 
-interface StoredSession {
+interface ActiveSession {
   token: string
   expiresAt: string
   userId: number
@@ -14,21 +14,24 @@ interface StoredSession {
   role: UserRole
 }
 
-function readStoredSession(): StoredSession | null {
-  try {
-    const raw = sessionStorage.getItem(TOKEN_STORAGE_KEY)
-    if (!raw) return null
-    const session = JSON.parse(raw) as StoredSession
-    return new Date(session.expiresAt) > new Date() ? session : null
-  } catch {
-    return null
-  }
+export type LoginStep = { kind: 'done' } | { kind: 'two-factor'; challengeToken: string; expiresAt: string }
+
+const LEGACY_STORAGE_KEY = 'bs.session'
+
+function isChallenge(response: LoginResponse | TwoFactorChallengeResponse): response is TwoFactorChallengeResponse {
+  return 'requiresTwoFactor' in response && response.requiresTwoFactor === true
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const session = ref<StoredSession | null>(readStoredSession())
+  const session = ref<ActiveSession | null>(null)
   const pendingDocuments = ref<LegalDocumentSummary[]>([])
-  setAuthToken(session.value?.token ?? null)
+  let initialization: Promise<void> | null = null
+
+  try {
+    sessionStorage.removeItem(LEGACY_STORAGE_KEY)
+  } catch {
+    session.value = null
+  }
 
   const isAuthenticated = computed(() => session.value !== null)
   const role = computed(() => session.value?.role ?? null)
@@ -50,17 +53,36 @@ export const useAuthStore = defineStore('auth', () => {
       role: response.role,
     }
     pendingDocuments.value = response.pendingDocuments
-    persist()
+    setAuthToken(response.token)
   }
 
-  async function login(email: string, password: string): Promise<void> {
-    applyLogin(await authApi.login(email, password))
+  async function login(email: string, password: string): Promise<LoginStep> {
+    const response = await authApi.login(email, password)
+    if (isChallenge(response)) return { kind: 'two-factor', challengeToken: response.challengeToken, expiresAt: response.expiresAt }
+    applyLogin(response)
+    return { kind: 'done' }
+  }
+
+  async function completeTwoFactor(challengeToken: string, code: string): Promise<void> {
+    applyLogin(await authApi.completeTwoFactor(challengeToken, code))
+  }
+
+  async function refresh(): Promise<boolean> {
+    try {
+      applyLogin(await authApi.refresh())
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  function initialize(): Promise<void> {
+    initialization ??= refresh().then(() => undefined)
+    return initialization
   }
 
   function updateName(firstName: string, lastName: string): void {
-    if (!session.value) return
-    session.value = { ...session.value, firstName, lastName }
-    persist()
+    if (session.value) session.value = { ...session.value, firstName, lastName }
   }
 
   async function logout(callServer = true): Promise<void> {
@@ -78,20 +100,6 @@ export const useAuthStore = defineStore('auth', () => {
     session.value = null
     pendingDocuments.value = []
     setAuthToken(null)
-    try {
-      sessionStorage.removeItem(TOKEN_STORAGE_KEY)
-    } catch {
-      session.value = null
-    }
-  }
-
-  function persist(): void {
-    setAuthToken(session.value?.token ?? null)
-    try {
-      if (session.value) sessionStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(session.value))
-    } catch {
-      return
-    }
   }
 
   return {
@@ -106,6 +114,9 @@ export const useAuthStore = defineStore('auth', () => {
     fullName,
     homeRoute,
     login,
+    completeTwoFactor,
+    refresh,
+    initialize,
     applyLogin,
     updateName,
     logout,

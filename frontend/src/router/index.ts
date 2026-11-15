@@ -76,8 +76,9 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const auth = useAuthStore()
+  await auth.initialize()
 
   if (to.path === '/prijava' && auth.isAuthenticated) return auth.homeRoute
   if (to.meta.public) return true

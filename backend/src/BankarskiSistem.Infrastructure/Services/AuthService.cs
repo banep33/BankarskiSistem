@@ -3,12 +3,15 @@ using BankarskiSistem.Core.Exceptions;
 using BankarskiSistem.Core.Interfaces;
 using BankarskiSistem.Core.Models;
 using BankarskiSistem.Core.Settings;
+using BankarskiSistem.Infrastructure.Security;
 using Microsoft.Extensions.Options;
 
 namespace BankarskiSistem.Infrastructure.Services
 {
     public class AuthService : IAuthService
     {
+        public static readonly TimeSpan TwoFactorChallengeLifetime = TimeSpan.FromMinutes(5);
+
         private static readonly Lazy<string> TimingEqualizationHash =
             new(() => BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString(), 12));
 
@@ -19,6 +22,7 @@ namespace BankarskiSistem.Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
+        private readonly ITwoFactorService _twoFactorService;
         private readonly SecuritySettings _securitySettings;
         private readonly TimeProvider _timeProvider;
 
@@ -30,6 +34,7 @@ namespace BankarskiSistem.Infrastructure.Services
             IUnitOfWork unitOfWork,
             IPasswordHasher passwordHasher,
             ITokenService tokenService,
+            ITwoFactorService twoFactorService,
             IOptions<SecuritySettings> securitySettings,
             TimeProvider timeProvider)
         {
@@ -40,13 +45,14 @@ namespace BankarskiSistem.Infrastructure.Services
             _unitOfWork = unitOfWork;
             _passwordHasher = passwordHasher;
             _tokenService = tokenService;
+            _twoFactorService = twoFactorService;
             _securitySettings = securitySettings.Value;
             _timeProvider = timeProvider;
         }
 
         private DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
 
-        public async Task<AuthResult> LoginAsync(string email, string password)
+        public async Task<LoginOutcome> LoginAsync(string email, string password)
         {
             var user = await _userRepository.GetByEmailAsync(EmailNormalizer.Normalize(email));
 
@@ -73,10 +79,68 @@ namespace BankarskiSistem.Infrastructure.Services
             if (!user.IsActive)
                 throw new AccountDeactivatedException { UserId = user.Id };
 
+            if (user.TwoFactorEnabled)
+            {
+                var expiresAt = UtcNow.Add(TwoFactorChallengeLifetime);
+                return new LoginOutcome(null, new TwoFactorChallenge(_tokenService.CreateTwoFactorChallenge(user, expiresAt), expiresAt));
+            }
+
             ResetLockout(user);
             await _unitOfWork.SaveChangesAsync();
 
+            return new LoginOutcome(await IssueAsync(user), null);
+        }
+
+        public async Task<AuthResult> CompleteTwoFactorAsync(string challengeToken, string code)
+        {
+            var challenge = _tokenService.ReadTwoFactorChallenge(challengeToken)
+                ?? throw new InvalidTwoFactorCodeException();
+
+            var user = await _userRepository.GetByIdAsync(challenge.UserId)
+                ?? throw new InvalidTwoFactorCodeException();
+
+            if (user.TokenVersion != challenge.TokenVersion || !user.TwoFactorEnabled)
+                throw new InvalidTwoFactorCodeException { UserId = user.Id };
+            if (user.IsLocked && user.LockedUntil > UtcNow)
+                throw new AccountLockedException(RemainingLockMinutes(user)) { UserId = user.Id };
+            if (!user.IsActive)
+                throw new AccountDeactivatedException { UserId = user.Id };
+
+            if (!await _twoFactorService.VerifyLoginCodeAsync(user, code))
+            {
+                await RegisterFailedAttemptAsync(user);
+                if (user.IsLocked)
+                    throw new AccountLockedException(RemainingLockMinutes(user)) { UserId = user.Id };
+                throw new InvalidTwoFactorCodeException { UserId = user.Id };
+            }
+
+            ResetLockout(user);
+            await _unitOfWork.SaveChangesAsync();
             return await IssueAsync(user);
+        }
+
+        public async Task<AuthResult> RefreshAsync(string refreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                throw new InvalidRefreshTokenException();
+
+            var newRefreshToken = OpaqueTokens.Generate();
+            var rotation = await _sessionService.RotateRefreshTokenAsync(OpaqueTokens.Hash(refreshToken), OpaqueTokens.Hash(newRefreshToken));
+            if (rotation.Outcome is RefreshRotationOutcome.Invalid or RefreshRotationOutcome.Reused || rotation.Session == null)
+                throw new InvalidRefreshTokenException();
+
+            var session = rotation.Session;
+            var user = await _userRepository.GetByIdAsync(session.UserId);
+            if (user == null || !user.IsActive || (user.IsLocked && user.LockedUntil > UtcNow))
+            {
+                await _sessionService.RevokeAsync(session.UserId, session.Id, "Nalog nije aktivan");
+                throw new InvalidRefreshTokenException();
+            }
+
+            var accessExpiresAt = Earliest(_tokenService.NextExpiry(), session.ExpiresAt);
+            var token = _tokenService.CreateToken(user, session.Id, accessExpiresAt);
+            var issuedRefresh = rotation.Outcome == RefreshRotationOutcome.Rotated ? newRefreshToken : null;
+            return new AuthResult(user, token, accessExpiresAt, session.Id, issuedRefresh, session.ExpiresAt);
         }
 
         public async Task<AuthResult> ChangePasswordAsync(int userId, Guid currentSessionId, string currentPassword, string newPassword)
@@ -122,11 +186,15 @@ namespace BankarskiSistem.Infrastructure.Services
 
         private async Task<AuthResult> IssueAsync(User user)
         {
-            var expiresAt = _tokenService.NextExpiry();
-            var session = await _sessionService.StartAsync(user.Id, expiresAt);
-            var token = _tokenService.CreateToken(user, session.Id, expiresAt);
-            return new AuthResult(user, token, expiresAt, session.Id);
+            var sessionExpiresAt = _tokenService.NextSessionExpiry();
+            var refreshToken = OpaqueTokens.Generate();
+            var session = await _sessionService.StartAsync(user.Id, sessionExpiresAt, OpaqueTokens.Hash(refreshToken));
+            var accessExpiresAt = Earliest(_tokenService.NextExpiry(), sessionExpiresAt);
+            var token = _tokenService.CreateToken(user, session.Id, accessExpiresAt);
+            return new AuthResult(user, token, accessExpiresAt, session.Id, refreshToken, sessionExpiresAt);
         }
+
+        private static DateTime Earliest(DateTime first, DateTime second) => first <= second ? first : second;
 
         private async Task RegisterFailedAttemptAsync(User user)
         {

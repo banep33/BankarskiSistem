@@ -15,6 +15,9 @@ namespace BankarskiSistem.Core.Entities
         public int FailedLoginAttempts { get; set; }
         public DateTime? LockedUntil { get; set; }
         public int TokenVersion { get; set; }
+        public string? TotpSecretProtected { get; set; }
+        public DateTime? TotpEnabledAt { get; set; }
+        public long? TotpLastUsedStep { get; set; }
         public KycStatus KycStatus { get; set; } = KycStatus.NijeVerifikovan;
         public DateTime? KycVerifiedAt { get; set; }
         public int? KycVerifiedByUserId { get; set; }
@@ -25,6 +28,8 @@ namespace BankarskiSistem.Core.Entities
         public ICollection<Account> Accounts { get; set; } = new List<Account>();
 
         public string FullName => $"{FirstName} {LastName}";
+
+        public bool TwoFactorEnabled => TotpEnabledAt != null;
 
         public void InvalidateTokens() => TokenVersion++;
     }
