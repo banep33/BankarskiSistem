@@ -131,6 +131,7 @@ namespace BankarskiSistem.Infrastructure.Services
                 TransactionType.Uplata => "Uplata na šalteru",
                 TransactionType.Isplata => "Isplata gotovine",
                 TransactionType.Konverzija => "Menjačnica",
+                TransactionType.Kartica => transaction.Description ?? "Plaćanje karticom",
                 TransactionType.Storno => transaction.ReversalOfTransactionId.HasValue && originals.TryGetValue(transaction.ReversalOfTransactionId.Value, out var reference)
                     ? $"Storno {reference}"
                     : "Storno",

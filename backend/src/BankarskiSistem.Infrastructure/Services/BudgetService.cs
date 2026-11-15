@@ -190,13 +190,16 @@ namespace BankarskiSistem.Infrastructure.Services
 
             var expenses = transactions.Where(t =>
                 t.FromAccountId != null && rsdOwn.Contains(t.FromAccountId.Value)
-                && (t.Type is TransactionType.Isplata or TransactionType.EksterniTransfer
+                && (t.Type is TransactionType.Isplata or TransactionType.EksterniTransfer or TransactionType.Kartica
                     || (t.Type == TransactionType.Transfer && !(t.ToAccountId.HasValue && allOwn.Contains(t.ToAccountId.Value))))).ToList();
             var income = transactions.Where(t =>
                 t.ToAccountId != null && rsdOwn.Contains(t.ToAccountId.Value)
                 && (t.Type == TransactionType.Uplata || (t.Type == TransactionType.Transfer && !(t.FromAccountId.HasValue && allOwn.Contains(t.FromAccountId.Value))))).ToList();
 
             var expenseIds = expenses.Select(t => t.Id).ToList();
+            var cardDetails = await _context.CardAuthorizations.AsNoTracking()
+                .Where(a => a.TransactionId != null && expenseIds.Contains(a.TransactionId.Value))
+                .ToDictionaryAsync(a => a.TransactionId!.Value);
             var explicitCategories = await _context.TransactionCategories.AsNoTracking()
                 .Where(c => c.UserId == userId && expenseIds.Contains(c.TransactionId))
                 .ToDictionaryAsync(c => c.TransactionId, c => c.CategoryId);
@@ -213,10 +216,12 @@ namespace BankarskiSistem.Infrastructure.Services
                     var counterparty = CounterpartyAccount(t);
                     var isExplicit = explicitCategories.TryGetValue(t.Id, out var categoryId);
                     if (!isExplicit)
-                        categoryId = counterparty != null && rules.TryGetValue(counterparty, out var ruled) ? ruled : byCode[DefaultCategoryCode(t)];
+                        categoryId = counterparty != null && rules.TryGetValue(counterparty, out var ruled)
+                            ? ruled
+                            : byCode[CardCategoryCode(cardDetails.GetValueOrDefault(t.Id), byCode) ?? DefaultCategoryCode(t)];
                     return new CategorizedTransaction(t.Id, _businessCalendar.ToBusinessTime(t.CreatedAt), t.ReferenceNumber,
                         t.PaymentOrder?.Purpose ?? t.Description ?? string.Empty,
-                        t.Type == TransactionType.Isplata ? "Isplata gotovine" : t.PaymentOrder?.RecipientName ?? counterparty ?? "Plaćanje",
+                        t.Type == TransactionType.Isplata ? "Isplata gotovine" : cardDetails.GetValueOrDefault(t.Id)?.MerchantName ?? t.PaymentOrder?.RecipientName ?? counterparty ?? "Plaćanje",
                         counterparty, t.Amount + t.FeeAmount, categoryId, isExplicit);
                 })
                 .ToList();
@@ -234,6 +239,15 @@ namespace BankarskiSistem.Infrastructure.Services
 
             return new SpendingSummary(monthStart.ToString("yyyy-MM", CultureInfo.InvariantCulture), BudgetCurrency,
                 income.Sum(t => t.Amount), categorized.Sum(t => t.Amount), spending, categorized);
+        }
+
+        private static string? CardCategoryCode(CardAuthorization? authorization, IReadOnlyDictionary<string, int> byCode)
+        {
+            if (authorization == null)
+                return null;
+            if (authorization.Channel == CardChannel.Bankomat)
+                return "GOTOVINA";
+            return authorization.CategoryCode != null && byCode.ContainsKey(authorization.CategoryCode) ? authorization.CategoryCode : "KUPOVINA";
         }
 
         private static string DefaultCategoryCode(Transaction transaction) => transaction.Type switch

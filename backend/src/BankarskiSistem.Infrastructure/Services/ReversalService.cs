@@ -14,7 +14,7 @@ namespace BankarskiSistem.Infrastructure.Services
     public class ReversalService : IReversalService
     {
         public const int MaxAgeDays = 90;
-        private static readonly TransactionType[] ReversibleTypes = [TransactionType.Uplata, TransactionType.Isplata, TransactionType.Transfer];
+        private static readonly TransactionType[] ReversibleTypes = [TransactionType.Uplata, TransactionType.Isplata, TransactionType.Transfer, TransactionType.Kartica];
 
         private readonly ApplicationDbContext _context;
         private readonly IAccountRepository _accountRepository;
@@ -128,7 +128,7 @@ namespace BankarskiSistem.Infrastructure.Services
                 (storno.FromAccountId, storno.ToAccountId) = original.Type switch
                 {
                     TransactionType.Uplata => (original.ToAccountId, (int?)null),
-                    TransactionType.Isplata => ((int?)null, original.FromAccountId),
+                    TransactionType.Isplata or TransactionType.Kartica => ((int?)null, original.FromAccountId),
                     _ => (original.ToAccountId, original.FromAccountId)
                 };
                 if (storno.FromAccountId.HasValue)

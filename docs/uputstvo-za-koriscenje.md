@@ -173,6 +173,18 @@ Ciljevi štednje, na primer letovanje ili novi telefon. Svaki cilj ima sopstveni
 - **Izmeni** menja naziv, iznos i datum, a **Zatvori** vraća sav ušteđeni novac na izabrani tekući račun i zatvara štedni račun.
 - Sa štednog računa nije moguće plaćati drugima ni podizati gotovinu; novac se prvo vraća na tekući račun. Prenosi na sopstvene račune ne ulaze u potrošnju.
 
+### Kartice
+
+Debitne kartice vezane za tekući račun. Karticu izdaje bankar; klijent njome upravlja ovde.
+
+- Gore su prikazane sve kartice (Dina, Visa, Mastercard) sa poslednje četiri cifre, imenom vlasnika i datumom važenja. Klik na karticu je bira. **Pun broj kartice se nigde ne čuva** (čuva se samo njegov otisak), pa se ni ne prikazuje.
+- **Podešavanja**: plaćanje na internetu, beskontaktno plaćanje i plaćanje u inostranstvu uključuješ i isključuješ pojedinačno; dnevni limit za plaćanje i dnevni limit na bankomatu menjaš do najvišeg dozvoljenog iznosa (RSD: 500.000 i 100.000; devizni račun: 5.000 i 1.000). Promena važi odmah. Nova kartica ima plaćanje u inostranstvu isključeno.
+- **Privremeno blokiraj**: sve transakcije se odbijaju dok karticu ne odblokiraš istim dugmetom. Ako je karticu blokirala banka, odblokirati je može samo banka.
+- **Prijavi gubitak ili krađu** (traži lozinku): kartica se trajno ukida. Ako ostaviš uključeno **Izdaj zamensku karticu**, odmah dobijaš novu karticu sa novim brojem i istim podešavanjima. Ukinuta kartica ostaje u listi zbog istorije.
+- **Simulator plaćanja karticom**: aplikacija nije povezana sa pravom kartičarskom mrežom, pa transakciju sa terminala zadaješ ovde: gde se plaća (prodavnica, internet, bankomat), trgovac, iznos, kategorija trgovca, inostranstvo i beskontaktno. Provere su stvarne: status kartice, rok važenja, dozvole, dnevni limit kartice i stanje računa. Odobrena transakcija skida novac sa računa, vidi se u transakcijama, izvodu i potrošnji (podizanje na bankomatu kao Gotovina), a odbijena samo u istoriji kartice, sa razlogom.
+- **Istorija transakcija kartice** prikazuje sve odobrene i odbijene pokušaje. Za svaku transakciju stiže obaveštenje.
+- Limiti kartice su odvojeni od dnevnog limita za plaćanja nalogom.
+
 ### Potrošnja i budžeti
 
 Pregled troškova sa dinarskih računa po kategorijama i mesečni budžeti.
@@ -235,6 +247,7 @@ Svako otvaranje ove stranice beleži se i klijent to vidi u svom odeljku Privatn
 - **Zaglavlje**: status KYC, procena rizika, status naloga; dugmad **Otključaj**, **Deaktiviraj** i **Aktiviraj**. Deaktivacija prekida sve sesije klijenta.
 - **Provera identiteta (KYC)**: izaberi status (Verifikovan, Nije verifikovan, Odbijen) i rizik (nizak, srednji, visok) i sačuvaj.
 - **Otvaranje računa**: moguće je tek kada je identitet verifikovan i nalog aktivan. Izaberi valutu i klikni **Otvori račun**.
+- **Kartice klijenta**: **Izdaj karticu** uz aktivan tekući račun (identitet mora biti verifikovan, najviše 3 važeće kartice po računu); kartica važi 3 godine. Bankar vidi status, limite i razlog blokade, i može **Blokiraj** (uz razlog, klijent tada ne može sam da odblokira) i **Odblokiraj**.
 - **Trajni nalozi klijenta**: pregled svih trajnih naloga sa statusom, sledećim datumom i razlogom poslednjeg neuspeha, da bi bankar mogao da pomogne klijentu. Izmene vrši samo klijent. Uvid se evidentira u klijentovom odeljku Privatnost.
 - **Izvod** u redu računa otvara izvod klijenta za izabrani period, sa preuzimanjem CSV i štampom. Izrada izvoda se evidentira u klijentovom odeljku Privatnost.
 - **Računi klijenta**:
@@ -251,7 +264,7 @@ Sve transakcije u sistemu, sa pretragom i filterima po vrsti, statusu i periodu.
 Storniranje ispravlja pogrešnu transakciju, na primer uplatu proknjiženu na pogrešan račun ili interno plaćanje pogrešnom primaocu.
 
 - U **Transakcije** otvori transakciju i klikni **Zatraži storniranje**, upiši razlog (najmanje 10 karaktera) i pošalji.
-- Stornirati se mogu uplata, isplata i plaćanje u okviru banke, iz poslednjih 90 dana. Plaćanje drugoj banci ne može, jer je novac otišao u kliring.
+- Stornirati se mogu uplata, isplata, plaćanje u okviru banke i plaćanje karticom (na primer dupla naplata kod trgovca), iz poslednjih 90 dana. Plaćanje drugoj banci ne može, jer je novac otišao u kliring.
 - Zahtev odobrava **administrator koji ga nije podneo** (princip četiri oka). Bankar vidi svoje i tuđe zahteve u **Storniranja**, ali ne može da ih odobri.
 - Posle odobrenja pravi se transakcija **Storno** koja tačno poništava sva knjiženja originala; stanja računa se vraćaju, a original dobija oznaku Stornirana. Vlasnici računa dobijaju obaveštenje.
 - Storniranje nije moguće ako na računu više nema dovoljno sredstava (na primer klijent je već podigao pogrešno uplaćen novac); tada administrator odbija zahtev uz obrazloženje, a slučaj se rešava dogovorom sa klijentom.
@@ -309,6 +322,9 @@ Administrator ima sve što i bankar, plus sledeće.
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
 | Ne mogu da platim sa štednog računa | štedni račun služi samo za štednju; prebaci novac na tekući račun (Štednja, Povuci) |
+| Kartica je odbijena | otvori Kartice, Istorija transakcija kartice: razlog je upisan (blokada, isključen internet ili inostranstvo, dnevni limit kartice, nedovoljno sredstava) |
+| Ne mogu da odblokiram karticu | ako je karticu blokirala banka, obrati se banci; ukinuta kartica se ne može vratiti, potrebna je zamenska |
+| Ne vidim pun broj kartice | banka ne čuva pun broj, prikazuju se samo poslednje četiri cifre |
 | Plaćanje je u pogrešnoj kategoriji | promeni kategoriju u Potrošnja i budžeti i izaberi Zapamti za primaoca |
 | Ne vidim potrošnju sa deviznog računa | budžeti i potrošnja se vode za dinarske račune |
 | CSV se u Excel-u otvara u jednoj koloni | otvori ga preko Podaci, Iz teksta i izaberi tačka-zarez kao razdvajač, ili proveri da je Windows podešen na srpski format |
@@ -492,6 +508,23 @@ Priprema: klijent sa bar 200.000 RSD na tekućem računu.
 - [ ] **Automatska štednja**: obrazac trajnog naloga ima upisan štedni račun; napravi nalog za danas na 5.000 i posle oko minut proveri da je iznos na cilju uvećan.
 - [ ] **Potrošnja i budžeti**: prenosi na štednju se ne vide kao rashod.
 - [ ] **Zatvori** cilj: sav novac je vraćen na tekući račun, štedni račun je neaktivan, a cilj je u listi zatvorenih.
+
+### C1g. Kartice
+
+Priprema: klijent sa verifikovanim identitetom i bar 50.000 RSD na tekućem računu.
+
+- [ ] Kao **bankar**, u detalju klijenta, **Kartice klijenta**, **Izdaj karticu** (Dina). Kartica je Aktivna; klijentu stiže obaveštenje.
+- [ ] Kao **klijent**, **Kartice**: vidi se kartica sa poslednje 4 cifre i datumom važenja; plaćanje u inostranstvu je isključeno.
+- [ ] **Simulator**: prodavnica, „Restoran“, 2.500, kategorija Hrana: **Odobreno**. Stanje računa je manje za 2.500, transakcija je u **Transakcije** i u **Potrošnja i budžeti** pod Hrana.
+- [ ] Bankomat, 5.000: odobreno, u potrošnji kao Gotovina.
+- [ ] Internet, inostranstvo uključeno u simulatoru: **Odbijeno**, razlog „Plaćanje u inostranstvu je isključeno“. Stanje se nije promenilo.
+- [ ] Iznos veći od stanja: odbijeno zbog nedovoljno sredstava.
+- [ ] **Podešavanja**: isključi internet, uključi inostranstvo, limit za plaćanje 3.000, sačuvaj. Internet kupovina se odbija; kupovina od 600 se odbija zbog limita (2.500 je već potrošeno danas). Limit 900.000 se ne može sačuvati.
+- [ ] **Privremeno blokiraj**: simulacija se odbija sa „Kartica je blokirana“; **Odblokiraj karticu** je vraća.
+- [ ] Kao **bankar** blokiraj karticu sa razlogom; kao klijent nema dugmeta za odblokiranje i piše da se treba obratiti banci. Bankar je odblokira.
+- [ ] **Prijavi gubitak ili krađu** sa uključenom zamenom (traži lozinku): stara kartica je Ukinuta, nova ima nove poslednje cifre i isti limit od 3.000.
+- [ ] **Istorija transakcija kartice** stare kartice prikazuje sve pokušaje, odobrene i odbijene, sa razlozima.
+- [ ] Kao **bankar** zatraži storniranje plaćanja karticom, a kao drugi **administrator** ga odobri: novac je vraćen na račun.
 
 ### C2. Klijent: profil, pomoć i privatnost
 

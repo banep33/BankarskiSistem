@@ -82,6 +82,7 @@ namespace BankarskiSistem.Tests.Integration
         public ReversalService Reversals => new(_context, new AccountRepository(_context), Recorder, UnitOfWork, Publisher, Time);
         public CurrencyExchangeService CurrencyExchange => new(_context, new AccountRepository(_context), Ledger, Recorder, UnitOfWork, Publisher, Time);
         public SavingsGoalService Savings => new(_context, PaymentOrders, MySqlDatabaseFixture.CreateAccountNumberGenerator(), Ledger, UnitOfWork, Publisher, Calendar, Time);
+        public CardService Cards => new(_context, new AccountRepository(_context), Ledger, Recorder, UnitOfWork, Publisher, Calendar, Time);
         public BudgetService Budgets => new(_context, Calendar, Publisher, Time, NullLogger<BudgetService>.Instance);
         public StandingOrderService StandingOrders => new(_context, PaymentOrders, Publisher, UnitOfWork, Calendar, Time,
             NullLogger<StandingOrderService>.Instance, Budgets);

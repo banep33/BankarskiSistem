@@ -14,7 +14,35 @@ namespace BankarskiSistem.Core.Enums
         Transfer,
         EksterniTransfer,
         Konverzija,
-        Storno
+        Storno,
+        Kartica
+    }
+
+    public enum CardBrand
+    {
+        Dina,
+        Visa,
+        Mastercard
+    }
+
+    public enum CardStatus
+    {
+        Aktivna,
+        Blokirana,
+        Ukinuta
+    }
+
+    public enum CardChannel
+    {
+        Prodavnica,
+        Internet,
+        Bankomat
+    }
+
+    public enum CardAuthorizationStatus
+    {
+        Odobrena,
+        Odbijena
     }
 
     public enum ReversalStatus
@@ -73,7 +101,8 @@ namespace BankarskiSistem.Core.Enums
         TrajniNalog,
         Konverzija,
         Budzet,
-        Stednja
+        Stednja,
+        Kartica
     }
 
     public enum AccountKind

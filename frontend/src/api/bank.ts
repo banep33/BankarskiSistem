@@ -3,6 +3,11 @@ import type {
   Account,
   AccountStatement,
   SavingsGoal,
+  PaymentCard,
+  CardBrand,
+  CardSettings,
+  CardPaymentSimulation,
+  CardAuthorization,
   BudgetItem,
   SpendingCategory,
   SpendingSummary,
@@ -139,6 +144,19 @@ export const exchangeApi = {
   mine: (page = 1) => get<PagedResponse<CurrencyExchange>>('/exchange', { page }),
   publish: (rates: { currency: string; buyRate: number; middleRate: number; sellRate: number }[]) =>
     post<ExchangeRate[]>('/admin/exchange-rates', { rates }),
+}
+
+export const cardsApi = {
+  mine: () => get<PaymentCard[]>('/me/cards'),
+  forUser: (userId: number) => get<PaymentCard[]>(`/users/${userId}/cards`),
+  issue: (accountId: number, brand: CardBrand) => post<PaymentCard>(`/accounts/${accountId}/cards`, { brand }),
+  updateSettings: (id: number, settings: CardSettings) => put<PaymentCard>(`/cards/${id}/settings`, settings),
+  block: (id: number, reason: string | null = null) => post<PaymentCard>(`/cards/${id}/block`, { reason }),
+  unblock: (id: number) => post<PaymentCard>(`/cards/${id}/unblock`),
+  reportLost: (id: number, reissue: boolean) => post<PaymentCard | undefined>(`/cards/${id}/report-lost`, { reissue }),
+  simulate: (id: number, payment: CardPaymentSimulation) => post<CardAuthorization>(`/cards/${id}/simulate`, payment),
+  authorizations: (id: number, page = 1, pageSize = 10) =>
+    get<PagedResponse<CardAuthorization>>(`/cards/${id}/authorizations`, { page, pageSize }),
 }
 
 export const savingsApi = {

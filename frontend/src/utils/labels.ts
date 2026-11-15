@@ -1,4 +1,6 @@
 import type {
+  CardChannel,
+  CardStatus,
   AccountStatus,
   ComplaintCategory,
   ComplaintStatus,
@@ -40,6 +42,19 @@ export const transactionTypeLabels: Record<TransactionType, string> = {
   EksterniTransfer: 'Plaćanje drugoj banci',
   Konverzija: 'Menjačnica',
   Storno: 'Storno',
+  Kartica: 'Plaćanje karticom',
+}
+
+export const cardStatusLabels: Record<CardStatus, { label: string; tone: Tone }> = {
+  Aktivna: { label: 'Aktivna', tone: 'success' },
+  Blokirana: { label: 'Blokirana', tone: 'warning' },
+  Ukinuta: { label: 'Ukinuta', tone: 'neutral' },
+}
+
+export const cardChannelLabels: Record<CardChannel, string> = {
+  Prodavnica: 'Prodavnica (POS)',
+  Internet: 'Internet',
+  Bankomat: 'Bankomat',
 }
 
 export const paymentStatusLabels: Record<PaymentOrderStatus, { label: string; tone: Tone }> = {
@@ -160,6 +175,7 @@ export const notificationIcons: Record<NotificationType, string> = {
   Konverzija: 'exchange',
   Budzet: 'chart',
   Stednja: 'star',
+  Kartica: 'card',
 }
 
 export const securityActionLabels: Record<string, string> = {
@@ -185,6 +201,7 @@ export function counterpartyLabel(transaction: Transaction, incoming: boolean): 
   if (transaction.type === 'Isplata') return 'Isplata sa računa'
   if (transaction.type === 'Storno') return incoming ? 'Storno, povraćaj na račun' : 'Storno, povlačenje sa računa'
   if (transaction.type === 'Konverzija') return incoming ? 'Menjačnica, priliv' : 'Menjačnica, odliv'
+  if (transaction.type === 'Kartica') return transaction.description ?? 'Plaćanje karticom'
   if (!incoming && transaction.counterpartyName) return transaction.counterpartyName
   if (incoming) return transaction.fromAccountNumber ? `Sa računa ${transaction.fromAccountNumber}` : 'Primljena uplata'
   return transaction.counterpartyAccountNumber ?? 'Plaćanje'

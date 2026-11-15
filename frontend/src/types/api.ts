@@ -1,6 +1,6 @@
 export type UserRole = 'Administrator' | 'Korisnik' | 'Bankar'
 export type AccountStatus = 'Aktivan' | 'Neaktivan' | 'Blokiran'
-export type TransactionType = 'Uplata' | 'Isplata' | 'Transfer' | 'EksterniTransfer' | 'Konverzija' | 'Storno'
+export type TransactionType = 'Uplata' | 'Isplata' | 'Transfer' | 'EksterniTransfer' | 'Konverzija' | 'Storno' | 'Kartica'
 export type ReversalStatus = 'Podnet' | 'Izvrsen' | 'Odbijen'
 export type TransactionStatus = 'Uspesna' | 'Neuspesna' | 'NaCekanju'
 export type PaymentOrderStatus = 'Zakazan' | 'UObradi' | 'Izvrsen' | 'Odbijen' | 'Otkazan'
@@ -20,6 +20,7 @@ export type NotificationType =
   | 'Konverzija'
   | 'Budzet'
   | 'Stednja'
+  | 'Kartica'
 export type ComplaintCategory =
   | 'PlatniPromet'
   | 'Racun'
@@ -136,6 +137,68 @@ export interface Account {
   ownerFullName: string | null
   ownerEmail: string | null
   kind: 'Tekuci' | 'Stednja'
+}
+
+export type CardBrand = 'Dina' | 'Visa' | 'Mastercard'
+export type CardStatus = 'Aktivna' | 'Blokirana' | 'Ukinuta'
+export type CardChannel = 'Prodavnica' | 'Internet' | 'Bankomat'
+
+export interface PaymentCard {
+  id: number
+  accountId: number
+  accountNumber: string | null
+  currency: string
+  brand: CardBrand
+  maskedNumber: string
+  last4: string
+  cardholderName: string
+  expiry: string
+  isExpired: boolean
+  status: CardStatus
+  statusReason: string | null
+  blockedByBank: boolean
+  onlineEnabled: boolean
+  contactlessEnabled: boolean
+  abroadEnabled: boolean
+  dailyPurchaseLimit: number
+  dailyAtmLimit: number
+  maxPurchaseLimit: number
+  maxAtmLimit: number
+  replacesCardId: number | null
+  createdAt: string
+  cancelledAt: string | null
+}
+
+export interface CardSettings {
+  onlineEnabled: boolean
+  contactlessEnabled: boolean
+  abroadEnabled: boolean
+  dailyPurchaseLimit: number
+  dailyAtmLimit: number
+}
+
+export interface CardPaymentSimulation {
+  channel: CardChannel
+  merchantName: string
+  amount: number
+  isAbroad: boolean
+  contactless: boolean
+  categoryCode: string | null
+}
+
+export interface CardAuthorization {
+  id: number
+  cardId: number
+  channel: CardChannel
+  merchantName: string
+  categoryCode: string | null
+  amount: number
+  currency: string
+  isAbroad: boolean
+  status: 'Odobrena' | 'Odbijena'
+  declineReason: string | null
+  transactionId: number | null
+  createdAt: string
 }
 
 export interface SavingsGoal {

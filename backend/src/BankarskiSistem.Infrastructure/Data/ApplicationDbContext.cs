@@ -30,6 +30,8 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<CategoryRule> CategoryRules => Set<CategoryRule>();
         public DbSet<Budget> Budgets => Set<Budget>();
         public DbSet<SavingsGoal> SavingsGoals => Set<SavingsGoal>();
+        public DbSet<Card> Cards => Set<Card>();
+        public DbSet<CardAuthorization> CardAuthorizations => Set<CardAuthorization>();
         public DbSet<BudgetAlert> BudgetAlerts => Set<BudgetAlert>();
         public DbSet<TransactionReversal> TransactionReversals => Set<TransactionReversal>();
         public DbSet<CurrencyExchange> CurrencyExchanges => Set<CurrencyExchange>();
@@ -252,6 +254,35 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.HasIndex(s => new { s.UserId, s.RevokedAt, s.ExpiresAt });
                 entity.HasIndex(s => s.RefreshTokenHash).IsUnique();
                 entity.HasIndex(s => s.PreviousRefreshTokenHash);
+            });
+
+            modelBuilder.Entity<Card>(entity =>
+            {
+                entity.ToTable("cards");
+                entity.Property(c => c.Brand).HasConversion<string>();
+                entity.Property(c => c.Status).HasConversion<string>();
+                entity.Property(c => c.PanHash).HasColumnType("char(64)").IsRequired();
+                entity.Property(c => c.Last4).HasColumnType("char(4)").IsRequired();
+                entity.Property(c => c.CardholderName).HasMaxLength(60).IsRequired();
+                entity.Property(c => c.StatusReason).HasMaxLength(200);
+                entity.Property(c => c.DailyPurchaseLimit).HasPrecision(18, 2);
+                entity.Property(c => c.DailyAtmLimit).HasPrecision(18, 2);
+                entity.HasIndex(c => c.PanHash).IsUnique();
+                entity.HasOne(c => c.Account).WithMany().HasForeignKey(c => c.AccountId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne<User>().WithMany().HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<CardAuthorization>(entity =>
+            {
+                entity.ToTable("card_authorizations");
+                entity.Property(a => a.Channel).HasConversion<string>();
+                entity.Property(a => a.Status).HasConversion<string>();
+                entity.Property(a => a.MerchantName).HasMaxLength(80).IsRequired();
+                entity.Property(a => a.CategoryCode).HasMaxLength(30);
+                entity.Property(a => a.Amount).HasPrecision(18, 2);
+                entity.Property(a => a.Currency).HasColumnType("char(3)").IsRequired();
+                entity.Property(a => a.DeclineReason).HasMaxLength(200);
+                entity.HasOne<Card>().WithMany().HasForeignKey(a => a.CardId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<SavingsGoal>(entity =>

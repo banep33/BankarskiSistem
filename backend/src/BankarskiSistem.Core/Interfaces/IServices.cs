@@ -130,6 +130,19 @@ namespace BankarskiSistem.Core.Interfaces
         (int UserId, int TokenVersion)? ReadTwoFactorChallenge(string token);
     }
 
+    public interface ICardService
+    {
+        Task<Card> IssueAsync(int accountId, CardBrand brand, Actor actor);
+        Task<IReadOnlyList<Card>> GetMineAsync(Actor actor);
+        Task<IReadOnlyList<Card>> GetForUserAsync(int userId, Actor actor);
+        Task<Card> UpdateSettingsAsync(Actor actor, int cardId, CardSettings settings);
+        Task<Card> BlockAsync(Actor actor, int cardId, string? reason);
+        Task<Card> UnblockAsync(Actor actor, int cardId);
+        Task<Card?> ReportLostAsync(Actor actor, int cardId, bool reissue);
+        Task<CardAuthorization> AuthorizeAsync(Actor actor, int cardId, CardAuthorizationRequest request);
+        Task<PagedResult<CardAuthorization>> GetAuthorizationsAsync(Actor actor, int cardId, PageRequest page);
+    }
+
     public interface ISavingsGoalService
     {
         Task<IReadOnlyList<SavingsGoal>> GetMineAsync(Actor actor);

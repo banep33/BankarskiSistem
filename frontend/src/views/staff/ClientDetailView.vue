@@ -10,6 +10,7 @@ import MoneyAmount from '@/components/ui/MoneyAmount.vue'
 import StatusViews from '@/components/ui/StatusViews.vue'
 import TransactionList from '@/components/banking/TransactionList.vue'
 import TransactionDetailModal from '@/components/banking/TransactionDetailModal.vue'
+import StaffCardsPanel from '@/components/banking/StaffCardsPanel.vue'
 import { accountsApi, helpApi, usersApi } from '@/api/bank'
 import { newIdempotencyKey } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
@@ -230,6 +231,8 @@ onMounted(load)
           </div>
         </div>
       </AppCard>
+
+      <StaffCardsPanel v-if="user.role === 'Korisnik'" :user-id="user.id" :accounts="accounts" :can-issue="canOpenAccount" />
 
       <AppCard v-if="standingOrders.length" title="Trajni nalozi klijenta" subtitle="Samo pregled. Izmene vrši klijent u aplikaciji." :padded="false">
         <div class="card-body">
