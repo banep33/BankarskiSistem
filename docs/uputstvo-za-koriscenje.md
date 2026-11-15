@@ -248,14 +248,25 @@ Pokreni backend i frontend kako piše u README-u i prolazi redom. Svaka stavka n
 
 ### A3a. Dvostepena prijava i trajanje prijave
 
+Priprema:
+
+- Potrebna je aplikacija koja pravi šestocifrene kodove: Google Authenticator, Microsoft Authenticator ili Authy na telefonu. Bez telefona radi i KeePassXC ili proširenje za pregledač „Authenticator“; tada se umesto skeniranja QR koda ručno unosi ključ prikazan ispod njega.
+- Sat na uređaju mora biti podešen automatski, inače kodovi ne prolaze.
+- Testiraj na klijentu, a ne na jedinom administratoru. Administrator ne može sam sebi da resetuje dvostepenu prijavu, pa bi izgubljen telefon bez rezervnih kodova značio da nalogu više niko ne može da pristupi.
+
+Provere:
+
 - [ ] Kao klijent osveži stranicu (F5): ostaješ prijavljen. Zatvori pregledač i otvori ponovo: traži se prijava.
 - [ ] **Bezbednost**, **Uključi**: traži lozinku, zatim prikazuje QR kod i ključ.
-- [ ] Skeniraj QR kod aplikacijom na telefonu, upiši pogrešan kod (greška), pa ispravan: prikazuje se 10 rezervnih kodova; preuzmi ih.
+- [ ] Skeniraj QR kod aplikacijom, upiši pogrešan kod (greška), pa ispravan: prikazuje se 10 rezervnih kodova; preuzmi ih.
 - [ ] Odjavi se i prijavi ponovo: posle lozinke traži se kod. Pogrešan kod daje grešku, ispravan otvara aplikaciju.
-- [ ] Prijava rezervnim kodom radi; isti rezervni kod drugi put ne radi; u Bezbednosti broj preostalih kodova je 9.
+- [ ] Odmah se odjavi i pokušaj ponovo sa istim kodom pre nego što se promeni: ne prolazi. Sledeći kod iz aplikacije prolazi.
+- [ ] Prijava rezervnim kodom radi (može malim slovima i bez crtice); isti rezervni kod drugi put ne radi; u Bezbednosti broj preostalih kodova je 9.
 - [ ] U obaveštenjima su bezbednosna obaveštenja o uključivanju i o iskorišćenom rezervnom kodu.
+- [ ] Pet pogrešnih kodova zaredom zaključava nalog; bankar ga otključava u **Klijenti**, dugme **Otključaj**.
 - [ ] Kao administrator u **Korisnici** klijent ima oznaku 2FA; **Resetuj 2FA**: klijent je odjavljen i sledeća prijava ne traži kod.
-- [ ] **Isključi** u Bezbednosti traži lozinku i kod.
+- [ ] Ponovo uključi dvostepenu prijavu (u aplikaciji prvo obriši stari nalog, jer je ključ nov). **Novi rezervni kodovi** uz kod iz aplikacije daje novih 10, a stari više ne važe.
+- [ ] **Isključi** u Bezbednosti traži lozinku i kod iz aplikacije ili rezervni kod.
 
 ### A3. Upravljanje korisnicima
 
