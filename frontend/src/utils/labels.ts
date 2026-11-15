@@ -6,6 +6,9 @@ import type {
   KycStatus,
   NotificationType,
   PasswordResetStatus,
+  StandingOrderExecutionStatus,
+  StandingOrderFrequency,
+  StandingOrderStatus,
   PaymentOrderStatus,
   PrivacyRequestStatus,
   PrivacyRequestType,
@@ -92,6 +95,26 @@ export const privacyRequestStatusLabels: Record<PrivacyRequestStatus, { label: s
   Odbijen: { label: 'Odbijen', tone: 'danger' },
 }
 
+export const frequencyLabels: Record<StandingOrderFrequency, { label: string; adverb: string }> = {
+  Nedeljno: { label: 'Nedeljno', adverb: 'svake nedelje' },
+  Mesecno: { label: 'Mesečno', adverb: 'svakog meseca' },
+  Kvartalno: { label: 'Kvartalno', adverb: 'svaka tri meseca' },
+  Godisnje: { label: 'Godišnje', adverb: 'svake godine' },
+}
+
+export const standingOrderStatusLabels: Record<StandingOrderStatus, { label: string; tone: Tone }> = {
+  Aktivan: { label: 'Aktivan', tone: 'success' },
+  Pauziran: { label: 'Pauziran', tone: 'warning' },
+  Zavrsen: { label: 'Završen', tone: 'neutral' },
+  Otkazan: { label: 'Otkazan', tone: 'neutral' },
+}
+
+export const executionStatusLabels: Record<StandingOrderExecutionStatus, { label: string; tone: Tone }> = {
+  Pokrenut: { label: 'U obradi', tone: 'info' },
+  Izvrsen: { label: 'Izvršen', tone: 'success' },
+  Odbijen: { label: 'Nije izvršen', tone: 'danger' },
+}
+
 export const passwordResetStatusLabels: Record<PasswordResetStatus, { label: string; tone: Tone }> = {
   Podnet: { label: 'Čeka odobrenje', tone: 'warning' },
   Odobren: { label: 'Odobren', tone: 'success' },
@@ -124,6 +147,7 @@ export const notificationIcons: Record<NotificationType, string> = {
   Bezbednost: 'shield',
   Prigovor: 'chat',
   Privatnost: 'lock',
+  TrajniNalog: 'repeat',
 }
 
 export const securityActionLabels: Record<string, string> = {

@@ -35,6 +35,29 @@ namespace BankarskiSistem.Core.Models
         string? IdempotencyKey,
         bool StrongConfirmationProvided = false);
 
+    public record CreateStandingOrderCommand(
+        int FromAccountId,
+        string RecipientName,
+        string RecipientAccountNumber,
+        string? RecipientAddress,
+        decimal Amount,
+        string PaymentCode,
+        string Purpose,
+        string? ReferenceModel,
+        string? ReferenceNumber,
+        StandingOrderFrequency Frequency,
+        DateOnly StartDate,
+        DateOnly? EndDate,
+        int? MaxExecutions);
+
+    public record UpdateStandingOrderCommand(
+        decimal Amount,
+        string Purpose,
+        string? ReferenceModel,
+        string? ReferenceNumber,
+        DateOnly? EndDate,
+        int? MaxExecutions);
+
     public record BeneficiaryCommand(
         string Nickname,
         string RecipientName,

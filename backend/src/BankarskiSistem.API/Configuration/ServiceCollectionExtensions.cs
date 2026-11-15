@@ -78,6 +78,8 @@ namespace BankarskiSistem.API.Configuration
 
             services.AddOptions<ScheduledPaymentsOptions>().BindConfiguration(ScheduledPaymentsOptions.SectionName);
             services.AddHostedService<ScheduledPaymentsWorker>();
+            services.AddOptions<StandingOrdersOptions>().BindConfiguration(StandingOrdersOptions.SectionName);
+            services.AddHostedService<StandingOrdersWorker>();
             services.AddOptions<DataRetentionOptions>().BindConfiguration(DataRetentionOptions.SectionName);
             services.AddHostedService<DataRetentionWorker>();
             services.AddOptions<SupportContactOptions>().BindConfiguration(SupportContactOptions.SectionName);

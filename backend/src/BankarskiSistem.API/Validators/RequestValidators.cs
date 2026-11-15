@@ -163,6 +163,55 @@ namespace BankarskiSistem.API.Validators
         private static string? Blank(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
+    public class CreateStandingOrderRequestValidator : AbstractValidator<CreateStandingOrderRequest>
+    {
+        public CreateStandingOrderRequestValidator()
+        {
+            RuleFor(x => x.FromAccountId).GreaterThan(0).WithMessage("Izaberite račun sa kog se plaća.");
+            RuleFor(x => x.RecipientName).ValidRecipientName();
+            RuleFor(x => x.RecipientAccountNumber).ValidAccountNumber();
+            RuleFor(x => x.RecipientAddress).MaximumLength(ValidationRules.AddressMaxLength);
+            RuleFor(x => x.Amount).ValidMoneyAmount();
+            RuleFor(x => x.PaymentCode).Must(PaymentCodes.IsValidFormat)
+                .WithMessage("Šifra plaćanja mora biti trocifren broj koji počinje sa 1 ili 2 (npr. 289).");
+            RuleFor(x => x.Purpose).NotEmpty().WithMessage("Svrha plaćanja je obavezna.")
+                .MaximumLength(ValidationRules.PurposeMaxLength);
+            RuleFor(x => x)
+                .Must(x => PaymentReference.Validate(Blank(x.ReferenceModel), Blank(x.ReferenceNumber)) == null)
+                .WithMessage(x => PaymentReference.Validate(Blank(x.ReferenceModel), Blank(x.ReferenceNumber)) ?? string.Empty)
+                .WithName("Poziv na broj");
+            RuleFor(x => x.Frequency).IsInEnum().WithMessage("Izaberite učestalost plaćanja.");
+            RuleFor(x => x.EndDate).GreaterThanOrEqualTo(x => x.StartDate).When(x => x.EndDate.HasValue)
+                .WithMessage("Datum završetka ne može biti pre datuma početka.");
+            RuleFor(x => x.MaxExecutions).InclusiveBetween(1, 600).When(x => x.MaxExecutions.HasValue)
+                .WithMessage("Broj izvršenja mora biti između 1 i 600.");
+            RuleFor(x => x).Must(x => !(x.EndDate.HasValue && x.MaxExecutions.HasValue))
+                .WithMessage("Izaberite ili datum završetka ili broj izvršenja, ne oba.").WithName("Kraj");
+        }
+
+        private static string? Blank(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    public class UpdateStandingOrderRequestValidator : AbstractValidator<UpdateStandingOrderRequest>
+    {
+        public UpdateStandingOrderRequestValidator()
+        {
+            RuleFor(x => x.Amount).ValidMoneyAmount();
+            RuleFor(x => x.Purpose).NotEmpty().WithMessage("Svrha plaćanja je obavezna.")
+                .MaximumLength(ValidationRules.PurposeMaxLength);
+            RuleFor(x => x)
+                .Must(x => PaymentReference.Validate(Blank(x.ReferenceModel), Blank(x.ReferenceNumber)) == null)
+                .WithMessage(x => PaymentReference.Validate(Blank(x.ReferenceModel), Blank(x.ReferenceNumber)) ?? string.Empty)
+                .WithName("Poziv na broj");
+            RuleFor(x => x.MaxExecutions).InclusiveBetween(1, 600).When(x => x.MaxExecutions.HasValue)
+                .WithMessage("Broj izvršenja mora biti između 1 i 600.");
+            RuleFor(x => x).Must(x => !(x.EndDate.HasValue && x.MaxExecutions.HasValue))
+                .WithMessage("Izaberite ili datum završetka ili broj izvršenja, ne oba.").WithName("Kraj");
+        }
+
+        private static string? Blank(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
     public class BeneficiaryRequestValidator : AbstractValidator<BeneficiaryRequest>
     {
         public BeneficiaryRequestValidator()

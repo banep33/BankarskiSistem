@@ -54,7 +54,8 @@ namespace BankarskiSistem.Core.Enums
         NoviRacun,
         Bezbednost,
         Prigovor,
-        Privatnost
+        Privatnost,
+        TrajniNalog
     }
 
     public enum KycStatus
@@ -135,6 +136,29 @@ namespace BankarskiSistem.Core.Enums
         UObradi,
         Usvojen,
         DelimicnoUsvojen,
+        Odbijen
+    }
+
+    public enum StandingOrderFrequency
+    {
+        Nedeljno,
+        Mesecno,
+        Kvartalno,
+        Godisnje
+    }
+
+    public enum StandingOrderStatus
+    {
+        Aktivan,
+        Pauziran,
+        Zavrsen,
+        Otkazan
+    }
+
+    public enum StandingOrderExecutionStatus
+    {
+        Pokrenut,
+        Izvrsen,
         Odbijen
     }
 

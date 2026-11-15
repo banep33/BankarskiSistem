@@ -130,6 +130,19 @@ namespace BankarskiSistem.Core.Interfaces
         (int UserId, int TokenVersion)? ReadTwoFactorChallenge(string token);
     }
 
+    public interface IStandingOrderService
+    {
+        Task<IReadOnlyList<StandingOrder>> GetMineAsync(Actor actor);
+        Task<IReadOnlyList<StandingOrder>> GetForUserAsync(int userId, Actor actor);
+        Task<StandingOrder> GetAsync(int id, Actor actor);
+        Task<StandingOrder> CreateAsync(CreateStandingOrderCommand command, Actor actor);
+        Task<StandingOrder> UpdateAsync(int id, UpdateStandingOrderCommand command, Actor actor);
+        Task<StandingOrder> PauseAsync(int id, Actor actor);
+        Task<StandingOrder> ResumeAsync(int id, Actor actor);
+        Task<StandingOrder> CancelAsync(int id, Actor actor);
+        Task<int> ExecuteDueAsync(int batchSize, CancellationToken cancellationToken);
+    }
+
     public interface ISecretProtector
     {
         string Protect(string plaintext);

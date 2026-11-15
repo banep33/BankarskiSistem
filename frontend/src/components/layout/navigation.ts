@@ -18,6 +18,7 @@ const customerNavigation: NavSection[] = [
       { to: '/racuni', label: 'Računi', icon: 'wallet' },
       { to: '/placanja/novo', label: 'Novo plaćanje', icon: 'send' },
       { to: '/placanja', label: 'Nalozi', icon: 'file' },
+      { to: '/trajni-nalozi', label: 'Trajni nalozi', icon: 'repeat' },
       { to: '/transakcije', label: 'Transakcije', icon: 'list' },
       { to: '/primaoci', label: 'Primaoci', icon: 'users' },
     ],

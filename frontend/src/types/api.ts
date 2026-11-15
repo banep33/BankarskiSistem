@@ -15,6 +15,7 @@ export type NotificationType =
   | 'Bezbednost'
   | 'Prigovor'
   | 'Privatnost'
+  | 'TrajniNalog'
 export type ComplaintCategory =
   | 'PlatniPromet'
   | 'Racun'
@@ -29,6 +30,9 @@ export type PrivacyRequestType = 'Ispravka' | 'Brisanje' | 'Ogranicenje' | 'Prig
 export type PrivacyRequestStatus = 'Podnet' | 'UObradi' | 'Usvojen' | 'DelimicnoUsvojen' | 'Odbijen'
 export type ComplianceAlertStatus = 'Otvoren' | 'UProveri' | 'ZatvorenBezNalaza' | 'EskaliranSimulacija'
 export type PasswordResetStatus = 'Podnet' | 'Odobren' | 'Odbijen' | 'Istekao'
+export type StandingOrderFrequency = 'Nedeljno' | 'Mesecno' | 'Kvartalno' | 'Godisnje'
+export type StandingOrderStatus = 'Aktivan' | 'Pauziran' | 'Zavrsen' | 'Otkazan'
+export type StandingOrderExecutionStatus = 'Pokrenut' | 'Izvrsen' | 'Odbijen'
 export type StatisticsPeriod = 'Week' | 'Month' | 'Year'
 export type LegalDocumentType = 'PolitikaPrivatnosti' | 'UsloviKoriscenja'
 
@@ -451,6 +455,66 @@ export interface AuditLogEntry {
   isSuccess: boolean
   errorMessage: string | null
   createdAt: string
+}
+
+export interface StandingOrder {
+  id: number
+  referenceNumber: string
+  fromAccountId: number
+  fromAccountNumber: string | null
+  recipientName: string
+  recipientAccountNumber: string
+  recipientAddress: string | null
+  amount: number
+  currency: string
+  paymentCode: string
+  purpose: string
+  referenceModel: string | null
+  paymentReferenceNumber: string | null
+  frequency: StandingOrderFrequency
+  startDate: string
+  endDate: string | null
+  maxExecutions: number | null
+  nextExecutionDate: string | null
+  upcomingDates: string[]
+  status: StandingOrderStatus
+  executionsCount: number
+  consecutiveFailures: number
+  lastExecutedAt: string | null
+  lastFailureReason: string | null
+  createdAt: string
+}
+
+export interface StandingOrderExecution {
+  id: number
+  scheduledFor: string
+  status: StandingOrderExecutionStatus
+  paymentOrderId: number | null
+  transactionReference: string | null
+  feeAmount: number | null
+  failureReason: string | null
+  completedAt: string | null
+}
+
+export interface StandingOrderDetail {
+  order: StandingOrder
+  executions: StandingOrderExecution[]
+}
+
+export interface StandingOrderRequest {
+  fromAccountId: number
+  recipientName: string
+  recipientAccountNumber: string
+  recipientAddress: string | null
+  amount: number
+  paymentCode: string
+  purpose: string
+  referenceModel: string | null
+  referenceNumber: string | null
+  frequency: StandingOrderFrequency
+  startDate: string
+  endDate: string | null
+  maxExecutions: number | null
 }
 
 export interface PasswordResetRequest {

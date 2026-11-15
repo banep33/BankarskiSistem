@@ -14,6 +14,7 @@ namespace BankarskiSistem.API.Controllers
         IAccountService accountService,
         IDataAccessLogger dataAccessLogger,
         ITwoFactorService twoFactorService,
+        IStandingOrderService standingOrderService,
         IAuditLogService auditLog) : ApiControllerBase
     {
         [HttpGet]
@@ -89,6 +90,15 @@ namespace BankarskiSistem.API.Controllers
         [HttpPost("{id:int}/unlock")]
         public Task<ActionResult<UserResponse>> Unlock(int id) =>
             ExecuteLifecycleAsync(id, "Otkljucan nalog", userService.UnlockAsync);
+
+        [HttpGet("{id:int}/standing-orders")]
+        public async Task<ActionResult<IEnumerable<StandingOrderResponse>>> GetStandingOrders(int id)
+        {
+            var actor = CurrentActor;
+            var orders = await standingOrderService.GetForUserAsync(id, actor);
+            await dataAccessLogger.LogAsync(actor, id, "TrajniNalozi", null, "Pregled trajnih naloga klijenta");
+            return Ok(orders.Select(o => o.ToResponse()));
+        }
 
         [HttpPost("{id:int}/two-factor/reset")]
         [Authorize(Policy = Policies.Administrator)]

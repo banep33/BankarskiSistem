@@ -15,9 +15,9 @@ import { newIdempotencyKey } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { errorMessage } from '@/composables/useAsync'
-import { accountStatusLabels, kycLabels, riskLabels } from '@/utils/labels'
+import { accountStatusLabels, frequencyLabels, kycLabels, riskLabels, standingOrderStatusLabels } from '@/utils/labels'
 import { formatAccountNumber, formatDate, formatDateTime, initials } from '@/utils/format'
-import type { Account, AccountStatus, KycStatus, RiskLevel, Transaction, User } from '@/types/api'
+import type { Account, AccountStatus, KycStatus, RiskLevel, StandingOrder, Transaction, User } from '@/types/api'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -26,6 +26,7 @@ const userId = computed(() => Number(route.params.id))
 
 const user = ref<User | null>(null)
 const accounts = ref<Account[]>([])
+const standingOrders = ref<StandingOrder[]>([])
 const currencies = ref<string[]>(['RSD', 'EUR', 'USD'])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
@@ -50,6 +51,7 @@ async function load(): Promise<void> {
     const [loadedUser, loadedAccounts, reference] = await Promise.all([usersApi.get(userId.value), usersApi.accounts(userId.value), helpApi.referenceData()])
     user.value = loadedUser
     accounts.value = loadedAccounts
+    standingOrders.value = loadedUser.role === 'Korisnik' ? await usersApi.standingOrders(userId.value) : []
     currencies.value = reference.currencies
     kyc.status = loadedUser.kycStatus === 'NijePrimenljivo' ? 'NijeVerifikovan' : loadedUser.kycStatus
     kyc.risk = loadedUser.riskRating
@@ -228,6 +230,37 @@ onMounted(load)
         </div>
       </AppCard>
 
+      <AppCard v-if="standingOrders.length" title="Trajni nalozi klijenta" subtitle="Samo pregled. Izmene vrši klijent u aplikaciji." :padded="false">
+        <div class="card-body">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Primalac</th>
+                  <th scope="col">Učestalost</th>
+                  <th scope="col">Sledeće plaćanje</th>
+                  <th scope="col">Status</th>
+                  <th scope="col" class="numeric">Iznos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="order in standingOrders" :key="order.id">
+                  <td>
+                    <strong>{{ order.recipientName }}</strong>
+                    <div class="subtle">{{ order.purpose }}</div>
+                    <div v-if="order.consecutiveFailures > 0" class="failure">{{ order.lastFailureReason }}</div>
+                  </td>
+                  <td>{{ frequencyLabels[order.frequency].label }}</td>
+                  <td>{{ order.nextExecutionDate ? formatDate(order.nextExecutionDate) : '' }}</td>
+                  <td><AppBadge :tone="standingOrderStatusLabels[order.status].tone">{{ standingOrderStatusLabels[order.status].label }}</AppBadge></td>
+                  <td class="numeric"><MoneyAmount :amount="order.amount" :currency="order.currency" :sensitive="false" /></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </AppCard>
+
       <AppCard v-if="selectedAccount" :title="`Poslednje transakcije, ${formatAccountNumber(selectedAccount.accountNumber)}`">
         <TransactionList v-if="accountTransactions.length" :transactions="accountTransactions" :own-account-ids="[selectedAccount.id]" @select="selectedTransaction = $event" />
         <StatusViews v-else state="empty" icon="list" title="Nema transakcija" />
@@ -340,6 +373,11 @@ onMounted(load)
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.failure {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
 }
 
 .form-error {

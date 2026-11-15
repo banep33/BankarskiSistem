@@ -24,6 +24,8 @@ namespace BankarskiSistem.Infrastructure.Data
         public DbSet<UserConsent> UserConsents => Set<UserConsent>();
         public DbSet<UserSession> UserSessions => Set<UserSession>();
         public DbSet<RecoveryCode> RecoveryCodes => Set<RecoveryCode>();
+        public DbSet<StandingOrder> StandingOrders => Set<StandingOrder>();
+        public DbSet<StandingOrderExecution> StandingOrderExecutions => Set<StandingOrderExecution>();
         public DbSet<UserPreferences> UserPreferences => Set<UserPreferences>();
         public DbSet<ConsentEvent> ConsentEvents => Set<ConsentEvent>();
         public DbSet<FeeScheduleEntry> FeeSchedule => Set<FeeScheduleEntry>();
@@ -239,6 +241,38 @@ namespace BankarskiSistem.Infrastructure.Data
                 entity.HasIndex(s => new { s.UserId, s.RevokedAt, s.ExpiresAt });
                 entity.HasIndex(s => s.RefreshTokenHash).IsUnique();
                 entity.HasIndex(s => s.PreviousRefreshTokenHash);
+            });
+
+            modelBuilder.Entity<StandingOrder>(entity =>
+            {
+                entity.ToTable("standing_orders");
+                entity.Property(o => o.ReferenceNumber).HasMaxLength(20).IsRequired();
+                entity.Property(o => o.RecipientName).HasMaxLength(150).IsRequired();
+                entity.Property(o => o.RecipientAccountNumber).HasMaxLength(20).IsRequired();
+                entity.Property(o => o.RecipientAddress).HasMaxLength(200);
+                entity.Property(o => o.Amount).HasPrecision(18, 2);
+                entity.Property(o => o.Currency).HasColumnType("char(3)").IsRequired();
+                entity.Property(o => o.PaymentCode).HasColumnType("char(3)").IsRequired();
+                entity.Property(o => o.Purpose).HasMaxLength(140).IsRequired();
+                entity.Property(o => o.ReferenceModel).HasMaxLength(2);
+                entity.Property(o => o.ReferenceNumberOnSlip).HasMaxLength(23);
+                entity.Property(o => o.Frequency).HasConversion<string>();
+                entity.Property(o => o.Status).HasConversion<string>();
+                entity.Property(o => o.LastFailureReason).HasMaxLength(300);
+                entity.HasIndex(o => o.ReferenceNumber).IsUnique();
+                entity.HasIndex(o => new { o.Status, o.NextExecutionDate });
+                entity.HasOne(o => o.FromAccount).WithMany().HasForeignKey(o => o.FromAccountId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne<User>().WithMany().HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(o => o.Executions).WithOne().HasForeignKey(e => e.StandingOrderId).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<StandingOrderExecution>(entity =>
+            {
+                entity.ToTable("standing_order_executions");
+                entity.Property(e => e.Status).HasConversion<string>();
+                entity.Property(e => e.FailureReason).HasMaxLength(300);
+                entity.HasIndex(e => new { e.StandingOrderId, e.ScheduledFor }).IsUnique();
+                entity.HasOne(e => e.PaymentOrder).WithMany().HasForeignKey(e => e.PaymentOrderId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<RecoveryCode>(entity =>

@@ -105,6 +105,31 @@ Plaćanje u okviru banke izvršava se odmah i besplatno je. Plaćanje drugoj ban
 
 Lista svih naloga sa filterima: Svi, Zakazani, U kliringu, Izvršeni, Odbijeni, Otkazani. Odbijeni nalog prikazuje razlog. Zakazani nalog se otkazuje dugmetom **Otkaži**, uz potvrdu.
 
+### Trajni nalozi
+
+Trajni nalog je plaćanje koje banka sama izvršava u zadato vreme, na primer stanarina svakog 1. u mesecu.
+
+- **Trajni nalozi** u meniju prikazuje aktivne i pauzirane naloge kao kartice (primalac, iznos, učestalost, datum sledećeg plaćanja), prosečan mesečni iznos svih aktivnih dinarskih naloga i, ispod, tabelu završenih i otkazanih.
+- **Novi trajni nalog**:
+  - račun platioca, primalac (može jednim klikom iz sačuvanih primalaca), iznos, šifra plaćanja, svrha, model i poziv na broj;
+  - **Učestalost**: nedeljno, mesečno, kvartalno ili godišnje;
+  - **Prvo plaćanje**: danas ili datum u narednih godinu dana;
+  - **Kraj**: bez kraja, do određenog datuma ili određen broj plaćanja;
+  - desno je **Pregled** sa prva četiri datuma plaćanja i ukupnim brojem plaćanja;
+  - **Aktiviraj trajni nalog** traži ponovni unos lozinke, jer je trajni nalog trajno ovlašćenje banci.
+- Kod sačuvanog primaoca dugme **Trajni nalog** otvara obrazac sa već popunjenim podacima primaoca.
+- **Detalj trajnog naloga**: iznos i raspored, tri sledeća datuma (današnji je označen), podaci naloga i **Istorija izvršenja** sa referencom transakcije ili razlogom neuspeha.
+  - **Izmeni** menja iznos, svrhu, poziv na broj i kraj (uz potvrdu lozinkom). Primalac, račun i učestalost se ne menjaju; za to otkaži nalog i napravi novi.
+  - **Pauziraj** privremeno zaustavlja plaćanja, a **Nastavi** ih vraća. Datumi propušteni tokom pauze se ne plaćaju naknadno.
+  - **Otkaži** trajno gasi nalog; izvršena plaćanja ostaju u istoriji.
+
+Kako se izvršava:
+
+- Banka proverava dospele naloge svakog minuta i plaća ih na dan dospeća. Svako plaćanje je običan platni nalog (vidi se u **Nalozi** i **Transakcije**) sa istim naknadama i dnevnim limitom kao ručno plaćanje.
+- Ako je datum 29, 30. ili 31. a mesec je kraći, plaćanje ide poslednjeg dana tog meseca, a sledećeg meseca se vraća na izabrani dan.
+- Ako na računu nema dovoljno sredstava ili je račun blokiran, plaćanje se ne izvršava, u istoriji se upisuje razlog i stiže obaveštenje. Nalog se ne pokušava ponovo istog dana, nego na sledeći datum. Posle **3 neuspeha zaredom** nalog se automatski pauzira.
+- Isti datum se nikada ne plaća dva puta, čak ni ako se servis zaustavi i ponovo pokrene.
+
 ### Transakcije
 
 Filteri: pretraga po opisu, primaocu ili referenci, račun, vrsta, period od i do. **Primeni** pokreće pretragu, **Poništi** briše filtere. Klik na transakciju otvara detalje i link **Nešto nije u redu? Podnesite prigovor**, koji otvara prigovor već povezan sa tom transakcijom.
@@ -157,6 +182,7 @@ Svako otvaranje ove stranice beleži se i klijent to vidi u svom odeljku Privatn
 - **Zaglavlje**: status KYC, procena rizika, status naloga; dugmad **Otključaj**, **Deaktiviraj** i **Aktiviraj**. Deaktivacija prekida sve sesije klijenta.
 - **Provera identiteta (KYC)**: izaberi status (Verifikovan, Nije verifikovan, Odbijen) i rizik (nizak, srednji, visok) i sačuvaj.
 - **Otvaranje računa**: moguće je tek kada je identitet verifikovan i nalog aktivan. Izaberi valutu i klikni **Otvori račun**.
+- **Trajni nalozi klijenta**: pregled svih trajnih naloga sa statusom, sledećim datumom i razlogom poslednjeg neuspeha, da bi bankar mogao da pomogne klijentu. Izmene vrši samo klijent. Uvid se evidentira u klijentovom odeljku Privatnost.
 - **Računi klijenta**:
   - **Uplata** proknjižava gotovinsku uplatu na šalteru. Uplate iznad praga automatski se prijavljuju AML proveri;
   - **Blokiraj** i **Aktiviraj** menjaju status računa;
@@ -216,6 +242,8 @@ Administrator ima sve što i bankar, plus sledeće.
 |---|---|
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
+| Trajni nalog se nije izvršio | otvori nalog i pogledaj Istoriju izvršenja: razlog je upisan (najčešće nedovoljno sredstava ili dnevni limit) |
+| Trajni nalog je pauziran sam od sebe | bila su 3 neuspeha zaredom; obezbedi sredstva i klikni Nastavi |
 | Kod iz aplikacije nije prihvaćen | proveri da je vreme na telefonu podešeno automatski; sačekaj sledeći kod jer se isti kod ne može koristiti dva puta |
 | Izgubio sam telefon | prijavi se rezervnim kodom i isključi pa ponovo uključi dvostepenu prijavu; bez rezervnih kodova obrati se banci |
 | Zaboravio sam lozinku | **Zaboravili ste lozinku?** na ekranu za prijavu; nova lozinka važi posle odobrenja banke |
@@ -246,7 +274,7 @@ Pokreni backend i frontend kako piše u README-u i prolazi redom. Svaka stavka n
 - [ ] Pošalji zahtev za lozinku administratora: u redu piše „Odlučuje drugi administrator“.
 - [ ] Na **Pregledu sistema** kartica „zahteva za lozinku“ prikazuje broj zahteva koji čekaju.
 
-### A3a. Dvostepena prijava i trajanje prijave
+### A3. Dvostepena prijava i trajanje prijave
 
 Priprema:
 
@@ -268,7 +296,7 @@ Provere:
 - [ ] Ponovo uključi dvostepenu prijavu (u aplikaciji prvo obriši stari nalog, jer je ključ nov). **Novi rezervni kodovi** uz kod iz aplikacije daje novih 10, a stari više ne važe.
 - [ ] **Isključi** u Bezbednosti traži lozinku i kod iz aplikacije ili rezervni kod.
 
-### A3. Upravljanje korisnicima
+### A4. Upravljanje korisnicima
 
 - [ ] **Korisnici**: napravi probnog korisnika i obriši ga ikonicom korpe.
 - [ ] Pokušaj brisanja klijenta koji ima račune: poruka predlaže deaktivaciju.
@@ -310,7 +338,34 @@ Provere:
 - [ ] **Bezbednost**: aktivna sesija sa oznakom „Ovaj uređaj“. Prijavi se istim nalogom u drugom pregledaču, pa ga ovde odjavi: u drugom pregledaču sledeća radnja vodi na prijavu.
 - [ ] Ostavi aplikaciju 4 minuta bez aktivnosti: pojavljuje se odbrojavanje; posle još minut sledi odjava i poruka na ekranu za prijavu.
 
+### C1. Trajni nalozi
+
+Priprema: klijent sa najmanje 10.000 RSD na računu i drugi klijent kao primalac (ili sačuvani primalac).
+
+- [ ] **Trajni nalozi** je prazan i nudi **Novi trajni nalog**.
+- [ ] Novi nalog: primalac, 3.000 RSD, mesečno, prvo plaćanje danas, kraj posle 12 plaćanja. **Pregled** desno pokazuje današnji datum i naredna tri meseca i „Ukupno plaćanja: 12“.
+- [ ] Pokušaj sa prvim plaćanjem 31. u mesecu i proveri u pregledu da se u kraćim mesecima pomera na poslednji dan meseca.
+- [ ] **Aktiviraj trajni nalog** traži lozinku; posle potvrde otvara se detalj naloga.
+- [ ] U roku od oko minut osveži detalj: u **Istoriji izvršenja** je današnje plaćanje sa referencom, sledeće plaćanje je za mesec dana, a stanje računa je umanjeno jednom.
+- [ ] Plaćanje se vidi i u **Nalozi** i u **Transakcije**; u **Obaveštenjima** je „Trajni nalog je aktiviran“.
+- [ ] **Izmeni**: promeni iznos na 3.500 i broj plaćanja na 6; potvrdi lozinkom; detalj prikazuje nove vrednosti.
+- [ ] **Pauziraj**, pa **Nastavi**: status se menja, a lista sledećih datuma ostaje u budućnosti.
+- [ ] Kao drugi klijent sa skoro praznim računom napravi trajni nalog za danas na iznos veći od stanja: posle oko minut u istoriji je „Nije izvršen“ sa razlogom, novac nije skinut, a stiže obaveštenje „Trajni nalog nije izvršen“.
+- [ ] Kod sačuvanog primaoca klikni **Trajni nalog**: obrazac ima popunjenog primaoca.
+- [ ] Kao bankar na detalju klijenta vidi tabelu **Trajni nalozi klijenta**; kao klijent u **Privatnost**, **Ko je video moje podatke** vidi taj uvid.
+- [ ] **Otkaži** nalog: status je Otkazan, nalog prelazi u tabelu završenih i otkazanih i više nema dugmad za izmenu.
+
+### C2. Klijent: profil, pomoć i privatnost
+
+- [ ] **Profil**: promeni ime i sačuvaj; pozdrav u gornjoj traci i meni korisnika prikazuju novo ime.
+- [ ] **Profil**, **Promena lozinke**: indikator jačine reaguje dok kucaš; posle promene je prijava u drugom pregledaču odjavljena, a stara lozinka više ne važi.
+- [ ] **Privatnost**, uključi **Sakrij stanja pri prijavi** i sačuvaj; odjavi se i prijavi ponovo: iznosi su odmah sakriveni.
+- [ ] **Pomoć i cenovnik**: pretraga „naknada“ sužava listu pitanja; klik na pitanje otvara odgovor; cenovnik prikazuje naknadu za plaćanje drugoj banci.
+
 ### D. Ponovo bankar
+
+- [ ] **Pregled**: kartice zadataka prikazuju broj novih prigovora i klijenata koji čekaju proveru identiteta; klik vodi na odgovarajuću listu.
+- [ ] **Transakcije**: pretraga po referenci iz priznanice nalazi plaćanje; klik na red otvara detalje.
 
 - [ ] **Prigovori**: novi prigovor je u listi; **Preuzmi predmet**, interna beleška, odgovor klijentu, produženje roka, status Rešen sa obrazloženjem.
 - [ ] Kao klijent proveri da interna beleška nije vidljiva, a odgovor jeste.
@@ -324,6 +379,7 @@ Provere:
 - [ ] **Audit log**: pretraga „prijava“, klik na red prikazuje detalje.
 - [ ] **Centar za pomoć**: dodaj pitanje, proveri ga na stranici Pomoć, obriši ga.
 - [ ] **Pregled sistema**: **Pokreni čišćenje sada** prikazuje broj obrisanih zapisa.
+- [ ] **Računi**: pretraga po imenu klijenta; **Blokiraj** jedan račun. Kao klijent proveri da se blokiran račun ne nudi pri plaćanju; kao administrator **Aktiviraj** ga ponovo.
 - [ ] **Glavna knjiga**: posle svih radnji bilans je i dalje uravnotežen.
 
 ### F. Opšte
@@ -333,3 +389,4 @@ Provere:
 - [ ] Navigacija samo tastaturom (Tab): fokus je vidljiv, modal se zatvara na Escape.
 - [ ] Klijent koji ručno upiše adresu `/admin` vraća se na svoju početnu.
 - [ ] Nepostojeća adresa prikazuje stranicu 404.
+- [ ] Bez prijave: na ekranu za prijavu linkovi **Pomoć i cenovnik**, **Politika privatnosti** i **Uslovi korišćenja** otvaraju stranice bez prijave, a dugme **Prijava** vraća nazad.

@@ -51,6 +51,9 @@ import type {
   Transaction,
   TransactionStatus,
   TransactionType,
+  StandingOrder,
+  StandingOrderDetail,
+  StandingOrderRequest,
   TrialBalanceLine,
   TwoFactorChallengeResponse,
   TwoFactorStatus,
@@ -108,6 +111,19 @@ export const paymentsApi = {
     get<PagedResponse<PaymentOrder>>('/payments', { status, page, pageSize }),
   get: (id: number) => get<PaymentOrder>(`/payments/${id}`),
   cancel: (id: number) => post<PaymentOrder>(`/payments/${id}/cancel`),
+}
+
+export const standingOrdersApi = {
+  list: () => get<StandingOrder[]>('/standing-orders'),
+  get: (id: number) => get<StandingOrderDetail>(`/standing-orders/${id}`),
+  create: (request: StandingOrderRequest) => post<StandingOrder>('/standing-orders', request),
+  update: (
+    id: number,
+    request: { amount: number; purpose: string; referenceModel: string | null; referenceNumber: string | null; endDate: string | null; maxExecutions: number | null },
+  ) => put<StandingOrder>(`/standing-orders/${id}`, request),
+  pause: (id: number) => post<StandingOrder>(`/standing-orders/${id}/pause`),
+  resume: (id: number) => post<StandingOrder>(`/standing-orders/${id}/resume`),
+  cancel: (id: number) => post<StandingOrder>(`/standing-orders/${id}/cancel`),
 }
 
 export const beneficiariesApi = {
@@ -204,6 +220,7 @@ export const usersApi = {
   remove: (id: number) => del(`/users/${id}`),
   updateKyc: (id: number, status: KycStatus, riskRating: RiskLevel) => post<User>(`/users/${id}/kyc`, { status, riskRating }),
   resetTwoFactor: (id: number) => post<void>(`/users/${id}/two-factor/reset`),
+  standingOrders: (id: number) => get<StandingOrder[]>(`/users/${id}/standing-orders`),
 }
 
 export const transactionsApi = {

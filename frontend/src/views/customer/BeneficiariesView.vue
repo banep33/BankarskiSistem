@@ -152,6 +152,7 @@ onMounted(load)
           <RouterLink :to="{ path: '/placanja/novo', query: { primalac: beneficiary.id } }" class="pay">
             <AppIcon name="send" :size="16" /> Plati
           </RouterLink>
+          <RouterLink :to="{ path: '/trajni-nalozi/novi', query: { primalac: beneficiary.id } }" class="standing">Trajni nalog</RouterLink>
           <AppButton variant="ghost" size="sm" icon="edit" @click="openForm(beneficiary)">Izmeni</AppButton>
           <AppButton variant="ghost" size="sm" icon="trash" :aria-label="`Obriši ${beneficiary.nickname}`" @click="toDelete = beneficiary">Obriši</AppButton>
         </div>
@@ -244,6 +245,13 @@ onMounted(load)
   font-size: var(--font-size-sm);
   font-weight: 600;
   text-decoration: none;
+}
+
+.standing {
+  padding: 0.4rem 0.6rem;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary-hover);
 }
 
 .form-error {
