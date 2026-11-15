@@ -82,6 +82,7 @@ namespace BankarskiSistem.Infrastructure
             services.AddScoped<IStandingOrderService, StandingOrderService>();
             services.AddScoped<ICurrencyExchangeService, CurrencyExchangeService>();
             services.AddScoped<IReversalService, ReversalService>();
+            services.AddScoped<IStatementService, StatementService>();
             services.AddScoped<IPreferencesService, PreferencesService>();
             services.AddScoped<IDataRetentionService, DataRetentionService>();
 

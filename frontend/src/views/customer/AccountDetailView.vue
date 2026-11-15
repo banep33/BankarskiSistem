@@ -150,6 +150,7 @@ onMounted(load)
         </div>
         <div class="row">
           <AppButton variant="secondary" icon="file" @click="copyNumber">Kopiraj broj</AppButton>
+          <RouterLink :to="`/racuni/${account.id}/izvod`" class="statement-link">Izvod</RouterLink>
           <AppButton v-if="account.status === 'Aktivan'" variant="secondary" icon="arrow-up" @click="openWithdrawal">Isplata gotovine</AppButton>
           <RouterLink :to="{ path: '/placanja/novo', query: { racun: account.id } }" class="pay-link">Plati sa ovog računa</RouterLink>
         </div>
@@ -216,6 +217,15 @@ onMounted(load)
 .back {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.statement-link {
+  padding: 0.65rem 1.2rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  font-weight: 600;
   text-decoration: none;
 }
 

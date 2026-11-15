@@ -1,6 +1,7 @@
-import { del, get, post, put, REFRESH_HEADER, withIdempotency } from './http'
+import { del, download, get, post, put, REFRESH_HEADER, withIdempotency } from './http'
 import type {
   Account,
+  AccountStatement,
   AccountStatistics,
   AccountStatus,
   AppNotification,
@@ -134,6 +135,12 @@ export const exchangeApi = {
   mine: (page = 1) => get<PagedResponse<CurrencyExchange>>('/exchange', { page }),
   publish: (rates: { currency: string; buyRate: number; middleRate: number; sellRate: number }[]) =>
     post<ExchangeRate[]>('/admin/exchange-rates', { rates }),
+}
+
+export const statementsApi = {
+  get: (accountId: number, from: string, to: string) => get<AccountStatement>(`/accounts/${accountId}/statement`, { from, to }),
+  csv: (accountId: number, from: string, to: string) =>
+    download(`/accounts/${accountId}/statement/csv`, { from, to }, `izvod-${accountId}-${from}-${to}.csv`),
 }
 
 export const reversalsApi = {

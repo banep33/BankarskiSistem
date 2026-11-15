@@ -221,3 +221,28 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+@media print {
+  .sidebar,
+  .topbar,
+  .mobile-nav,
+  .skip-link,
+  .toast-host,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .shell {
+    display: block !important;
+  }
+
+  .content {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}

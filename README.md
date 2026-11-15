@@ -13,6 +13,7 @@ Edukativni sistem elektronskog bankarstva prilagođen platnom prometu u Republic
 - trajni nalozi (nedeljno, mesečno, kvartalno, godišnje) sa automatskim izvršenjem, istorijom izvršenja, pauzom posle uzastopnih neuspeha i izmenom uz potvrdu lozinkom;
 - menjačnica između sopstvenih dinarskih i deviznih računa po kursnoj listi banke (kupovni, srednji, prodajni kurs), sa zaštitom od promene kursa između obračuna i potvrde;
 - sačuvani primaoci, istorija transakcija sa filterima i kursor paginacijom;
+- izvod po računu za izabrani period iz glavne knjige, preuzimanje u CSV (srpski Excel format) i štampa ili PDF iz pregledača;
 - prigovori sa zakonskim rokom od 15 dana i prepiskom sa bankom;
 - centar za privatnost: saglasnosti, uvid u to ko je pristupao podacima, zahtevi po ZZPL, izvoz podataka u JSON;
 - bezbednost: dvostepena prijava (TOTP) sa rezervnim kodovima, aktivne sesije i odjava uređaja, istorija prijava, automatska odjava zbog neaktivnosti, sakrivanje stanja.

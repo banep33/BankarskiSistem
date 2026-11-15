@@ -124,6 +124,19 @@ export async function del(url: string): Promise<void> {
   await client.delete(url)
 }
 
+export async function download(url: string, params: Record<string, unknown>, fallbackName: string): Promise<void> {
+  const response = await client.get<Blob>(url, { params: cleanParams(params), responseType: 'blob' })
+  const disposition = String(response.headers['content-disposition'] ?? '')
+  const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition)
+  const name = match?.[1] ? decodeURIComponent(match[1]) : fallbackName
+  const objectUrl = URL.createObjectURL(response.data)
+  const link = document.createElement('a')
+  link.href = objectUrl
+  link.download = name
+  link.click()
+  URL.revokeObjectURL(objectUrl)
+}
+
 export function withIdempotency(key: string): AxiosRequestConfig {
   return { headers: { 'Idempotency-Key': key } }
 }

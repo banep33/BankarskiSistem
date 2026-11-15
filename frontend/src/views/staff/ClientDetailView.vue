@@ -219,6 +219,7 @@ onMounted(load)
                   <td><AppBadge :tone="accountStatusLabels[account.status].tone">{{ accountStatusLabels[account.status].label }}</AppBadge></td>
                   <td class="numeric"><MoneyAmount :amount="account.balance" :currency="account.currency" :sensitive="false" /></td>
                   <td class="actions">
+                    <RouterLink :to="`/bankar/racuni/${account.id}/izvod`" class="statement-link">Izvod</RouterLink>
                     <AppButton v-if="account.status === 'Aktivan'" size="sm" variant="secondary" icon="arrow-down" @click="openDeposit(account)">Uplata</AppButton>
                     <AppButton v-if="account.status === 'Aktivan'" size="sm" variant="ghost" @click="changeStatus(account, 'Blokiran')">Blokiraj</AppButton>
                     <AppButton v-else size="sm" variant="ghost" @click="changeStatus(account, 'Aktivan')">Aktiviraj</AppButton>
@@ -359,6 +360,14 @@ onMounted(load)
   display: flex;
   gap: var(--space-1);
   justify-content: flex-end;
+}
+
+.statement-link {
+  align-self: center;
+  margin-right: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary-hover);
 }
 
 .selected {

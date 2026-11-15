@@ -130,6 +130,11 @@ namespace BankarskiSistem.Core.Interfaces
         (int UserId, int TokenVersion)? ReadTwoFactorChallenge(string token);
     }
 
+    public interface IStatementService
+    {
+        Task<AccountStatement> GetAsync(int accountId, DateOnly from, DateOnly to, Actor actor);
+    }
+
     public interface IReversalService
     {
         Task<TransactionReversal> RequestAsync(int transactionId, string reason, Actor actor);

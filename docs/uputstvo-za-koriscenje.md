@@ -78,6 +78,16 @@ Zahtev važi 72 sata. Novi zahtev poništava prethodni, a dnevno se mogu poslati
   - **Plati sa ovog računa** otvara nalog sa unapred izabranim računom;
   - listu transakcija sa dugmetom **Učitaj još**.
 
+### Izvod po računu
+
+- Na detalju računa klikni **Izvod**.
+- Period: **Ovaj mesec**, **Prethodni mesec**, **Poslednjih 90 dana** ili **Izaberi period** (najviše godinu dana).
+- Izvod prikazuje vlasnika, račun, valutu, vreme izrade, početno stanje, ukupno duguje i potražuje, krajnje stanje i sve promene sa stanjem posle svake.
+  - **Duguje** umanjuje stanje (plaćanja, isplate, naknade), a **potražuje** uvećava (uplate, prilivi).
+  - Naknada za plaćanje drugoj banci je uključena u iznos stavke, pa se zbir uvek slaže sa stanjem računa.
+- **Preuzmi CSV**: fajl za Excel, sa tačka-zarezom i zapetom za decimale.
+- **Štampaj ili sačuvaj PDF**: otvara prozor za štampu sa izvodom bez menija; za PDF izaberi „Sačuvaj kao PDF“ kao štampač.
+
 ### Novo plaćanje
 
 Plaćanje ima tri koraka.
@@ -200,6 +210,7 @@ Svako otvaranje ove stranice beleži se i klijent to vidi u svom odeljku Privatn
 - **Provera identiteta (KYC)**: izaberi status (Verifikovan, Nije verifikovan, Odbijen) i rizik (nizak, srednji, visok) i sačuvaj.
 - **Otvaranje računa**: moguće je tek kada je identitet verifikovan i nalog aktivan. Izaberi valutu i klikni **Otvori račun**.
 - **Trajni nalozi klijenta**: pregled svih trajnih naloga sa statusom, sledećim datumom i razlogom poslednjeg neuspeha, da bi bankar mogao da pomogne klijentu. Izmene vrši samo klijent. Uvid se evidentira u klijentovom odeljku Privatnost.
+- **Izvod** u redu računa otvara izvod klijenta za izabrani period, sa preuzimanjem CSV i štampom. Izrada izvoda se evidentira u klijentovom odeljku Privatnost.
 - **Računi klijenta**:
   - **Uplata** proknjižava gotovinsku uplatu na šalteru. Uplate iznad praga automatski se prijavljuju AML proveri;
   - **Blokiraj** i **Aktiviraj** menjaju status računa;
@@ -271,6 +282,7 @@ Administrator ima sve što i bankar, plus sledeće.
 |---|---|
 | „Sesija je istekla ili je odjavljena sa drugog uređaja“ | prijavi se ponovo; ako nisi ti odjavio uređaj, promeni lozinku |
 | Nalog je zaključan | sačekaj 30 minuta ili zamoli bankara da ga otključa |
+| CSV se u Excel-u otvara u jednoj koloni | otvori ga preko Podaci, Iz teksta i izaberi tačka-zarez kao razdvajač, ili proveri da je Windows podešen na srpski format |
 | U istoriji vidim „Storno“ | banka je ispravila pogrešnu transakciju; original ima oznaku Stornirana, a razlog je u obaveštenju |
 | Konverzija javlja da je kurs promenjen | banka je objavila novu kursnu listu; proveri novi obračun i potvrdi ponovo |
 | Ne mogu da menjam EUR u USD | menjaj u dva koraka preko dinarskog računa |
@@ -416,6 +428,15 @@ Priprema: dva administratora (drugog napravi u **Korisnici**), bankar i dva klij
 - [ ] Zahtev za storniranje plaćanja drugoj banci se odbija uz objašnjenje o kliringu.
 - [ ] Uplati klijentu 3.000, klijent podigne 2.500, pa zatraži storniranje uplate: odobrenje ne uspeva zbog nedovoljnih sredstava; **Odbij** sa razlogom.
 - [ ] **Glavna knjiga**: bilans uravnotežen, bez razlika.
+
+### C1d. Izvod
+
+- [ ] Na detalju računa klikni **Izvod**: prikazuje se izvod za ovaj mesec.
+- [ ] Proveri da je početno stanje + potražuje − duguje = krajnje stanje, i da je krajnje stanje jednako trenutnom stanju računa.
+- [ ] Promeni period na **Poslednjih 90 dana** i na **Izaberi period** sa datumom „do“ pre datuma „od“: greška.
+- [ ] **Preuzmi CSV** i otvori fajl u Excel-u: kolone su razdvojene, iznosi imaju zapetu, srpska slova su ispravna.
+- [ ] **Štampaj ili sačuvaj PDF**: u pregledu štampe nema menija ni dugmadi, samo izvod; sačuvaj kao PDF.
+- [ ] Kao bankar na detalju klijenta klikni **Izvod** kod računa; kao klijent u **Privatnost**, **Ko je video moje podatke** vidi „Izvod“.
 
 ### C2. Klijent: profil, pomoć i privatnost
 

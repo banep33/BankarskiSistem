@@ -482,6 +482,34 @@ export interface AuditLogEntry {
   createdAt: string
 }
 
+export interface StatementLine {
+  date: string
+  reference: string
+  type: TransactionType | null
+  description: string
+  counterparty: string
+  debit: number
+  credit: number
+  balanceAfter: number
+  transactionId: number | null
+}
+
+export interface AccountStatement {
+  accountId: number
+  accountNumber: string
+  currency: string
+  ownerUserId: number
+  ownerName: string
+  from: string
+  to: string
+  openingBalance: number
+  totalDebits: number
+  totalCredits: number
+  closingBalance: number
+  generatedAt: string
+  lines: StatementLine[]
+}
+
 export interface ExchangeRate {
   id: number
   currency: string
