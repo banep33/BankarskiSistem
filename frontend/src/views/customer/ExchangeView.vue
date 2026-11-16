@@ -175,8 +175,8 @@ onMounted(load)
           <p v-if="fromAccount" class="subtle balance">Raspoloživo: <MoneyAmount :amount="fromAccount.balance" :currency="fromAccount.currency" /></p>
 
           <div class="segmented" role="group" aria-label="Šta unosite">
-            <button type="button" :class="{ active: !amountIsTarget }" :aria-pressed="!amountIsTarget" @click="amountIsTarget = false">Iznos koji menjam</button>
-            <button type="button" :class="{ active: amountIsTarget }" :aria-pressed="amountIsTarget" @click="amountIsTarget = true">Iznos koji želim da dobijem</button>
+            <button type="button" :class="{ active: !amountIsTarget }" :aria-pressed="!amountIsTarget" @click="amountIsTarget = false">Iznos koji dajem</button>
+            <button type="button" :class="{ active: amountIsTarget }" :aria-pressed="amountIsTarget" @click="amountIsTarget = true">Iznos koji dobijam</button>
           </div>
           <AppField v-model="amount" class="amount" :label="`Iznos (${amountCurrency})`" inputmode="decimal" placeholder="0,00" />
 
@@ -305,6 +305,19 @@ onMounted(load)
   box-shadow: var(--shadow-sm);
 }
 
+@media (max-width: 520px) {
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .segmented button {
+    padding: 0.45rem 0.5rem;
+    white-space: nowrap;
+  }
+}
+
 .amount {
   margin: var(--space-4) 0;
 }
@@ -346,10 +359,6 @@ onMounted(load)
   background: var(--color-danger-soft);
   color: var(--color-danger);
   font-size: var(--font-size-sm);
-}
-
-.numeric {
-  text-align: right;
 }
 
 @media (max-width: 1000px) {

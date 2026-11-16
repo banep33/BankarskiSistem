@@ -139,10 +139,6 @@ onMounted(load)
   align-items: end;
 }
 
-.numeric {
-  text-align: right;
-}
-
 .clickable {
   cursor: pointer;
 }

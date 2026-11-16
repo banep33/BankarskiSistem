@@ -132,10 +132,6 @@ onMounted(load)
   opacity: 0.8;
 }
 
-.numeric {
-  text-align: right;
-}
-
 .danger {
   color: var(--color-danger);
   font-weight: 600;

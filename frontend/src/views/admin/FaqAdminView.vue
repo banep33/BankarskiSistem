@@ -131,7 +131,6 @@ onMounted(load)
 
 <style scoped>
 .actions {
-  text-align: right;
   white-space: nowrap;
 }
 

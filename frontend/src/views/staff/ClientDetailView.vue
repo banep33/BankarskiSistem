@@ -379,12 +379,7 @@ onMounted(load)
   flex: 1;
 }
 
-.numeric {
-  text-align: right;
-}
-
 .actions {
-  text-align: right;
   white-space: nowrap;
 }
 

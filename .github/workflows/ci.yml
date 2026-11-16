@@ -85,3 +85,76 @@ jobs:
           ./database/migrate.ps1 -Database bankarski_ci -MySqlPath (Get-Command mysql).Source
           $count = mysql -uroot -N -e "SELECT COUNT(*) FROM bankarski_ci.schema_migrations WHERE Checksum IS NULL;"
           if ([int]$count -ne 0) { throw "Neke migracije nemaju kontrolnu sumu." }
+
+  e2e:
+    name: E2E testovi interfejsa (racunar i telefon)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://localhost:5039
+      ConnectionStrings__DefaultConnection: "Server=127.0.0.1;Port=3306;Database=bankarski_e2e;User=root;Password=root;"
+      Seed__Administrator__Email: e2e.admin@test.local
+      Seed__Administrator__Password: E2eAdmin123!
+      E2E_ADMIN_EMAIL: e2e.admin@test.local
+      E2E_ADMIN_PASSWORD: E2eAdmin123!
+      SecuritySettings__RequireTwoFactorForStaff: "false"
+      RateLimiting__LoginPermitLimit: "1000"
+      RateLimiting__SensitivePermitLimit: "1000"
+      RateLimiting__SubmissionsPermitLimit: "1000"
+      RateLimiting__PaymentsPermitLimit: "1000"
+      E2E_BASE_URL: http://localhost:5173
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pokretanje MySQL servisa i migracije
+        shell: pwsh
+        env:
+          MYSQL_PWD: root
+        run: |
+          sudo systemctl start mysql.service
+          ./database/migrate.ps1 -Database bankarski_e2e -MySqlPath (Get-Command mysql).Source
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Pokretanje API-ja
+        run: |
+          export Jwt__SecretKey="$(openssl rand -hex 48)"
+          dotnet run --project backend/src/BankarskiSistem.API -c Release > api.log 2>&1 &
+          for i in $(seq 1 90); do curl -sf http://localhost:5039/health/ready && break; sleep 2; done
+          curl -sf http://localhost:5039/health/ready
+
+      - name: Frontend zavisnosti i pregledac
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Pokretanje frontenda
+        working-directory: frontend
+        run: |
+          VITE_API_PROXY_TARGET=http://localhost:5039 npx vite --port 5173 --strictPort > ../vite.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:5173/api/v1/help/faq > /dev/null && break; sleep 1; done
+
+      - name: E2E testovi
+        working-directory: frontend
+        run: npm run test:e2e
+
+      - name: Izvestaj i logovi pri gresci
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-izvestaj
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+            api.log
+            vite.log

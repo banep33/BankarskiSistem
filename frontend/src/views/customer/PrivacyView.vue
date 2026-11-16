@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppButton from '@/components/ui/AppButton.vue'
@@ -37,7 +37,8 @@ const dataAccessPage = ref(1)
 const requests = ref<PrivacyRequest[]>([])
 const isLoading = ref(false)
 const error = ref<string | null>(null)
-const isSaving = ref(false)
+const savingSection = ref<'notifications' | 'privacy' | null>(null)
+const saved = ref<Preferences | null>(null)
 const isExporting = ref(false)
 const isSubmittingRequest = ref(false)
 const thresholdEnabled = ref(false)
@@ -52,6 +53,19 @@ const notificationToggles: { key: keyof Preferences; label: string; hint: string
   { key: 'notifySecurityEvents', label: 'Bezbednosna obaveštenja', hint: 'Uvek uključeno radi zaštite naloga.', locked: true },
 ]
 
+const notificationKeys = ['notifyIncomingPayments', 'notifyOutgoingPayments', 'notifyAccountChanges', 'notifyComplaintUpdates'] as const
+const privacyKeys = ['marketingConsent', 'hideBalancesByDefault'] as const
+
+const notificationsDirty = computed(() =>
+  preferences.value !== null && saved.value !== null && notificationKeys.some((key) => preferences.value![key] !== saved.value![key]),
+)
+const privacyDirty = computed(() => {
+  if (!preferences.value || !saved.value) return false
+  const currentThreshold = thresholdEnabled.value ? String(threshold.value) : ''
+  const savedThreshold = saved.value.extraConfirmationThreshold === null ? '' : String(saved.value.extraConfirmationThreshold)
+  return privacyKeys.some((key) => preferences.value![key] !== saved.value![key]) || currentThreshold !== savedThreshold
+})
+
 const requestTypeOptions = Object.entries(privacyRequestTypeLabels).map(([value, label]) => ({ value, label }))
 
 async function loadTab(): Promise<void> {
@@ -60,6 +74,7 @@ async function loadTab(): Promise<void> {
   try {
     if (tab.value === 'podesavanja') {
       ;[preferences.value, consentHistory.value] = await Promise.all([privacyApi.preferences(), privacyApi.consentHistory()])
+      saved.value = { ...preferences.value }
       thresholdEnabled.value = preferences.value.extraConfirmationThreshold !== null
       threshold.value = preferences.value.extraConfirmationThreshold ?? ''
     } else if (tab.value === 'dokumenti') {
@@ -76,32 +91,40 @@ async function loadTab(): Promise<void> {
   }
 }
 
-async function savePreferences(): Promise<void> {
-  if (!preferences.value) return
+async function savePreferences(section: 'notifications' | 'privacy'): Promise<void> {
+  if (!preferences.value || !saved.value) return
   const value = Number(String(threshold.value).replace(',', '.'))
-  if (thresholdEnabled.value && (!Number.isFinite(value) || value <= 0)) {
+  if (section === 'privacy' && thresholdEnabled.value && (!Number.isFinite(value) || value <= 0)) {
     ui.notify('Prag za dodatnu potvrdu mora biti veći od nule.', 'danger')
     return
   }
-  isSaving.value = true
+  const current = preferences.value
+  const base = saved.value
+  const source = section === 'notifications' ? current : base
+  const privacySource = section === 'privacy' ? current : base
+  savingSection.value = section
   try {
-    const current = preferences.value
-    preferences.value = await privacyApi.updatePreferences({
-      notifyIncomingPayments: current.notifyIncomingPayments,
-      notifyOutgoingPayments: current.notifyOutgoingPayments,
-      notifyAccountChanges: current.notifyAccountChanges,
-      notifyComplaintUpdates: current.notifyComplaintUpdates,
-      marketingConsent: current.marketingConsent,
-      hideBalancesByDefault: current.hideBalancesByDefault,
-      extraConfirmationThreshold: thresholdEnabled.value ? value : null,
+    const result = await privacyApi.updatePreferences({
+      notifyIncomingPayments: source.notifyIncomingPayments,
+      notifyOutgoingPayments: source.notifyOutgoingPayments,
+      notifyAccountChanges: source.notifyAccountChanges,
+      notifyComplaintUpdates: source.notifyComplaintUpdates,
+      marketingConsent: privacySource.marketingConsent,
+      hideBalancesByDefault: privacySource.hideBalancesByDefault,
+      extraConfirmationThreshold: section === 'privacy' ? (thresholdEnabled.value ? value : null) : base.extraConfirmationThreshold,
     })
-    if (preferences.value.hideBalancesByDefault && !ui.hideBalances) ui.toggleBalances()
-    consentHistory.value = await privacyApi.consentHistory()
-    ui.notify('Podešavanja su sačuvana.')
+    saved.value = { ...result }
+    const keep = section === 'notifications' ? privacyKeys : notificationKeys
+    preferences.value = { ...result, ...Object.fromEntries(keep.map((key) => [key, current[key]])) }
+    if (section === 'privacy') {
+      if (result.hideBalancesByDefault && !ui.hideBalances) ui.toggleBalances()
+      consentHistory.value = await privacyApi.consentHistory()
+    }
+    ui.notify(section === 'notifications' ? 'Podešavanja obaveštenja su sačuvana.' : 'Podešavanja privatnosti su sačuvana.')
   } catch (caught) {
     ui.notify(errorMessage(caught), 'danger')
   } finally {
-    isSaving.value = false
+    savingSection.value = null
   }
 }
 
@@ -182,6 +205,10 @@ onMounted(loadTab)
             </span>
             <input v-model="preferences[toggle.key]" type="checkbox" role="switch" :disabled="toggle.locked" />
           </label>
+          <div class="card-footer">
+            <span v-if="notificationsDirty" class="subtle">Imate nesačuvane izmene.</span>
+            <AppButton :loading="savingSection === 'notifications'" :disabled="!notificationsDirty || savingSection !== null" @click="savePreferences('notifications')">Sačuvaj obaveštenja</AppButton>
+          </div>
         </AppCard>
 
         <div class="stack">
@@ -208,7 +235,10 @@ onMounted(loadTab)
               <input v-model="thresholdEnabled" type="checkbox" role="switch" />
             </label>
             <AppField v-if="thresholdEnabled" v-model="threshold" label="Iznos praga" inputmode="decimal" placeholder="npr. 10000" />
-            <AppButton class="save" :loading="isSaving" @click="savePreferences">Sačuvaj podešavanja</AppButton>
+            <div class="card-footer">
+              <span v-if="privacyDirty" class="subtle">Imate nesačuvane izmene.</span>
+              <AppButton :loading="savingSection === 'privacy'" :disabled="!privacyDirty || savingSection !== null" @click="savePreferences('privacy')">Sačuvaj podešavanja privatnosti</AppButton>
+            </div>
           </AppCard>
 
           <AppCard title="Istorija saglasnosti">
@@ -409,8 +439,41 @@ onMounted(loadTab)
   box-shadow: var(--focus-ring);
 }
 
-.save {
+.card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
   margin-top: var(--space-4);
+}
+
+.card-footer .subtle {
+  margin-right: auto;
+}
+
+@media (max-width: 720px) {
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .tabs button {
+    justify-content: center;
+    padding: 0.55rem 0.5rem;
+    font-size: var(--font-size-xs);
+  }
+
+  .tabs button:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 520px) {
+  .card-footer > :deep(.app-button) {
+    width: 100%;
+  }
 }
 
 .history {

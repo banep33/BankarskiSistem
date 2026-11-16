@@ -43,7 +43,7 @@ function Invoke-MySql {
 
 Invoke-MySql -Sql "CREATE DATABASE IF NOT EXISTS ``$Database`` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" | Out-Null
 
-$migrationsDirectory = Join-Path $PSScriptRoot "migrations"
+$migrationsDirectory = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "migrations"
 $migrations = Get-ChildItem $migrationsDirectory -Filter "V*.sql" | Sort-Object Name
 
 function Get-MigrationChecksum {

@@ -192,10 +192,6 @@ onMounted(load)
   color: var(--color-danger);
 }
 
-.numeric {
-  text-align: right;
-}
-
 @media (max-width: 960px) {
   .summary {
     grid-template-columns: minmax(0, 1fr);

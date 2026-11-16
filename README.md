@@ -56,7 +56,7 @@ backend/
   tests/BankarskiSistem.LoadTests      load test
 database/
   migrations/                          V001 do V015
-  migrate.ps1, backup.ps1, restore.ps1, create-app-user.ps1
+  migrate.ps1, backup.ps1, restore.ps1, verify-backup.ps1, create-app-user.ps1
 docs/                                  uputstvo, bezbednosni koncepti, rezultati load testa
 frontend/                              Vue aplikacija
 ```
@@ -126,7 +126,27 @@ npm run build
 npm run lint
 ```
 
-Na svaki push i pull request GitHub Actions (`.github/workflows/ci.yml`) pokreće: build backenda bez upozorenja, sve backend testove na MySQL-u, proveru ranjivih NuGet paketa, frontend testove, proveru tipova, oba lintera, build, `npm audit` za produkcione zavisnosti i primenu svih migracija na praznoj bazi sa proverom kontrolnih suma.
+E2E testovi (Playwright) proveravaju raspored svih stranica na računaru i telefonu: bez bočnog pomeranja, kartice iste širine, centrirane kolone tabela, meniji bez prelamanja, centrirani modali i bez grešaka u konzoli. Proveravaju i glavne tokove (potvrda blokiranja računa, odvojeno čuvanje podešavanja, odjava samo iz menija). Pokreću se nad aplikacijom koja radi; lokalno koriste instalirani Chrome, a podrazumevani administrator se zadaje promenljivama `E2E_ADMIN_EMAIL` i `E2E_ADMIN_PASSWORD`. Backend za ove testove treba da ima `SecuritySettings:RequireTwoFactorForStaff=false`.
+
+```powershell
+cd frontend
+$env:E2E_BASE_URL = "http://localhost:5173"
+npm run test:e2e
+```
+
+Provera rezervne kopije vraća poslednji backup u privremenu bazu, proverava knjigu, usaglašenost i verziju šeme, pa briše privremenu bazu:
+
+```powershell
+cd database
+powershell -ExecutionPolicy Bypass -File .\verify-backup.ps1
+```
+
+Na svaki push i pull request GitHub Actions (`.github/workflows/ci.yml`) pokreće: build backenda bez upozorenja, sve backend testove na MySQL-u, proveru ranjivih NuGet paketa, frontend testove, proveru tipova, oba lintera, build, `npm audit` za produkcione zavisnosti, primenu svih migracija na praznoj bazi sa proverom kontrolnih suma i E2E testove interfejsa nad pravim API-jem i bazom.
+
+## Arhitektura i plan razvoja
+
+- [`docs/adr`](docs/adr/README.md): zapisi arhitektonskih odluka (slojevi, dvojno knjiženje, zaključavanje, tokeni, obavezna 2FA, migracije, UTC, frontend).
+- [`docs/plan-razvoja.md`](docs/plan-razvoja.md): plan za stvarnu upotrebu (passkey, šifrovanje, skaliranje, integracija sa NBS IPS i kliringom, regulativa), sa fazama i standardima na koje se oslanja.
 
 ## Bezbednost u kratkim crtama
 

@@ -32,9 +32,6 @@ defineProps<{ rates: ExchangeRate[] }>()
 </template>
 
 <style scoped>
-.numeric {
-  text-align: right;
-}
 
 .note {
   margin-top: var(--space-3);

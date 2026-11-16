@@ -9,13 +9,13 @@ const auth = useAuthStore()
   <div class="public">
     <header class="public-header">
       <RouterLink to="/prijava" class="brand">Bankarski Sistem</RouterLink>
-      <nav class="row">
+      <RouterLink :to="auth.isAuthenticated ? auth.homeRoute : '/prijava'" class="cta">
+        {{ auth.isAuthenticated ? 'U aplikaciju' : 'Prijava' }}
+      </RouterLink>
+      <nav class="public-nav" aria-label="Javne stranice">
         <RouterLink to="/javno/pomoc">Pomoć i cenovnik</RouterLink>
         <RouterLink to="/javno/dokumenti/privatnost">Privatnost</RouterLink>
         <RouterLink to="/javno/dokumenti/uslovi">Uslovi</RouterLink>
-        <RouterLink :to="auth.isAuthenticated ? auth.homeRoute : '/prijava'" class="cta">
-          {{ auth.isAuthenticated ? 'Nazad u aplikaciju' : 'Prijava' }}
-        </RouterLink>
       </nav>
     </header>
     <main class="public-content">
@@ -30,36 +30,94 @@ const auth = useAuthStore()
 }
 
 .public-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'brand nav cta';
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
   gap: var(--space-4);
   max-width: var(--content-max-width);
   margin: var(--space-4) auto 0;
   padding: var(--space-3) var(--space-6);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
 }
 
 .brand {
+  grid-area: brand;
   font-weight: 700;
   text-decoration: none;
   font-size: var(--font-size-lg);
+  white-space: nowrap;
 }
 
-nav a {
+.public-nav {
+  grid-area: nav;
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.public-nav a {
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-pill);
   text-decoration: none;
   font-weight: 500;
   font-size: var(--font-size-sm);
+  white-space: nowrap;
+  color: var(--color-text-muted);
+}
+
+.public-nav a:hover,
+.public-nav a.router-link-active {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
 }
 
 .cta {
+  grid-area: cta;
   padding: 0.45rem 1rem;
   border-radius: var(--radius-pill);
   background: var(--color-primary);
   color: #fff;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .public-header {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'brand cta'
+      'nav nav';
+    margin: var(--space-3) var(--space-3) 0;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    row-gap: var(--space-3);
+  }
+
+  .public-nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-1);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .public-nav a {
+    padding: 0.45rem 0.25rem;
+    text-align: center;
+    font-size: var(--font-size-xs);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .public-content {
+    padding: var(--space-5) var(--space-4);
+  }
 }
 
 .public-content {

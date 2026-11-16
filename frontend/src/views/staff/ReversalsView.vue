@@ -179,12 +179,7 @@ onMounted(load)
   font-size: var(--font-size-xs);
 }
 
-.numeric {
-  text-align: right;
-}
-
 .actions {
-  text-align: right;
   white-space: nowrap;
 }
 </style>

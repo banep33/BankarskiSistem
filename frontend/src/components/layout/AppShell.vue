@@ -9,7 +9,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { useInactivityLogout } from '@/composables/useInactivityLogout'
 import { notificationsApi, privacyApi } from '@/api/bank'
-import { greetingForNow, initials } from '@/utils/format'
+import { initials } from '@/utils/format'
 import { roleLabels } from '@/utils/labels'
 
 const auth = useAuthStore()
@@ -144,10 +144,6 @@ onBeforeUnmount(() => {
         <button type="button" class="icon-button menu-button" aria-label="Otvori meni" @click="ui.sidebarOpen = true">
           <AppIcon name="menu" />
         </button>
-        <div class="greeting">
-          <p class="greeting-small">{{ greetingForNow() }},</p>
-          <p class="greeting-name">{{ auth.session?.firstName }}</p>
-        </div>
         <div class="topbar-actions">
           <button
             type="button"
@@ -343,23 +339,6 @@ onBeforeUnmount(() => {
   background: color-mix(in srgb, var(--color-bg) 88%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--color-border);
-}
-
-.greeting-small {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.greeting {
-  min-width: 0;
-}
-
-.greeting-name {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .topbar-actions {
@@ -589,19 +568,10 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 520px) {
-  .greeting-small {
-    display: none;
-  }
-
   .icon-button {
     width: 38px;
     height: 38px;
   }
 }
 
-@media (max-width: 360px) {
-  .greeting {
-    display: none;
-  }
-}
 </style>

@@ -267,10 +267,6 @@ onMounted(async () => {
   color: var(--color-success);
 }
 
-.numeric {
-  text-align: right;
-}
-
 .nowrap {
   white-space: nowrap;
 }

@@ -374,10 +374,6 @@ onMounted(load)
   font-size: var(--font-size-xs);
 }
 
-.numeric {
-  text-align: right;
-}
-
 .nowrap {
   white-space: nowrap;
 }

@@ -80,11 +80,3 @@ export function toIsoDate(date: Date): string {
 export function initials(firstName?: string | null, lastName?: string | null): string {
   return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase() || 'BS'
 }
-
-export function greetingForNow(): string {
-  const hour = new Date().getHours()
-  if (hour < 5) return 'Dobro veče'
-  if (hour < 12) return 'Dobro jutro'
-  if (hour < 18) return 'Dobar dan'
-  return 'Dobro veče'
-}

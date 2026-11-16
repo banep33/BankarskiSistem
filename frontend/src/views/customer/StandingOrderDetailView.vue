@@ -348,10 +348,6 @@ onMounted(load)
   font-size: var(--font-size-sm);
 }
 
-.numeric {
-  text-align: right;
-}
-
 .form-error {
   color: var(--color-danger);
   font-size: var(--font-size-sm);

@@ -4,12 +4,16 @@ param(
     [int]$Port = 3306,
     [string]$User = "root",
     [string]$Database = "bankarskisistemdb",
-    [string]$OutputDirectory = (Join-Path $PSScriptRoot "backups"),
+    [string]$OutputDirectory,
     [int]$KeepLast = 14,
     [string]$MySqlDumpPath
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $OutputDirectory) {
+    $OutputDirectory = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "backups"
+}
 
 function Resolve-MySqlDump {
     param([string]$ExplicitPath)

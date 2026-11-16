@@ -246,7 +246,6 @@ onMounted(load)
 }
 
 .actions {
-  text-align: right;
   white-space: nowrap;
 }
 

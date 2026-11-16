@@ -152,10 +152,6 @@ onMounted(load)
   padding-bottom: var(--space-3);
 }
 
-.numeric {
-  text-align: right;
-}
-
 .segmented {
   display: inline-flex;
   padding: 3px;

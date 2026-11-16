@@ -98,7 +98,4 @@ onMounted(load)
   font-weight: 600;
 }
 
-.numeric {
-  text-align: right;
-}
 </style>

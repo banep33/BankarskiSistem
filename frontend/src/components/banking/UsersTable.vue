@@ -238,7 +238,6 @@ onMounted(load)
 <style scoped>
 .actions {
   min-width: 220px;
-  text-align: right;
 }
 
 .email {

@@ -178,10 +178,6 @@ onMounted(load)
   color: var(--color-contrast-text);
 }
 
-.numeric {
-  text-align: right;
-}
-
 .reason {
   margin-top: 4px;
   font-size: var(--font-size-xs);

@@ -343,7 +343,8 @@ onMounted(load)
 
 @media (max-width: 720px) {
   .hero {
-    padding: var(--space-5);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
   }
 
   .quick-action {

@@ -189,8 +189,12 @@ textarea {
   font-size: var(--font-size-sm);
 }
 
+.data-table th,
+.data-table td {
+  text-align: center;
+}
+
 .data-table th {
-  text-align: left;
   font-weight: 600;
   color: var(--color-text-muted);
   padding: var(--space-3) var(--space-4);

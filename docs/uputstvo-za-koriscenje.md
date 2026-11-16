@@ -54,7 +54,7 @@ Zahtev važi 72 sata. Novi zahtev poništava prethodni, a dnevno se mogu poslati
 ### Raspored ekrana
 
 - **Bočni meni** levo sadrži sve odeljke dostupne tvojoj ulozi. Na telefonu se otvara ikonicom menija, a na dnu ekrana je traka sa 5 najvažnijih stavki.
-- **Gornja traka**: pozdrav, ikonica oka za sakrivanje iznosa, promena teme (svetla ili tamna), zvonce sa brojem nepročitanih obaveštenja i meni na inicijalima (**Bezbednost i uređaji**, za klijente **Privatnost**, i **Odjavi se**, jedino mesto za odjavu). Meni se zatvara klikom van njega ili tasterom Escape.
+- **Gornja traka**: ikonica oka za sakrivanje iznosa, promena teme (svetla ili tamna), zvonce sa brojem nepročitanih obaveštenja i meni na inicijalima (**Bezbednost i uređaji**, za klijente **Privatnost**, i **Odjavi se**, jedino mesto za odjavu). Meni se zatvara klikom van njega ili tasterom Escape.
 - **Tema** se primenjuje na celu aplikaciju, uključujući bočni meni, istaknute kartice i grafikone. **Sistemska** tema (u Postavkama) prati podešavanje uređaja.
 - Na telefonu i tabletu stranica se nikada ne pomera bočno; široke tabele se skroluju unutar svoje kartice.
 
@@ -148,7 +148,7 @@ Konverzija između sopstvenih dinarskih i deviznih računa (EUR, USD), odmah i b
 
 - Potrebni su dinarski i bar jedan devizni račun; devizni račun otvara bankar.
 - **Sa računa** i **Na račun**: biraju se samo sopstveni aktivni računi. Jedan mora biti dinarski. Dugme sa strelicama menja smer.
-- **Iznos koji menjam** ili **Iznos koji želim da dobijem**: možeš da uneseš koliko daješ ili koliko želiš da dobiješ (na primer tačno 100 EUR za put).
+- **Iznos koji dajem** ili **Iznos koji dobijam**: možeš da uneseš koliko daješ ili koliko želiš da dobiješ (na primer tačno 100 EUR za put).
 - Obračun se pojavljuje odmah dok kucaš: koliko daješ, koliko dobijaš, primenjeni kurs, srednji kurs za poređenje, razlika u odnosu na srednji kurs i stanje posle.
   - Kada kupuješ devize, važi **prodajni** kurs banke; kada ih prodaješ, važi **kupovni**.
   - Iznosi se zaokružuju na pare tako da nikad ne dobiješ više nego što si platio, niti platiš više nego što obračun prikazuje.
@@ -217,11 +217,13 @@ Dodavanje, izmena i brisanje sačuvanih primalaca. Dugme **Plati** na kartici ot
 
 | Kartica | Šta se tu radi |
 |---|---|
-| Podešavanja i saglasnosti | vrste obaveštenja, marketinške poruke (podrazumevano isključene), sakrivanje stanja pri prijavi, lični prag za dodatnu potvrdu lozinkom, istorija saglasnosti |
+| Podešavanja i saglasnosti | kartica **Obaveštenja** (vrste obaveštenja, dugme **Sačuvaj obaveštenja**) i kartica **Privatnost i zaštita** (marketinške poruke, podrazumevano isključene; sakrivanje stanja pri prijavi; lični prag za dodatnu potvrdu lozinkom; dugme **Sačuvaj podešavanja privatnosti**). Svaka kartica čuva samo svoja podešavanja, a dugme je aktivno tek kada postoji izmena. Ispod je istorija saglasnosti. |
 | Dokumenti | verzije Politike privatnosti i Uslova koje si prihvatio i kada |
 | Ko je video moje podatke | svaki put kada zaposleni otvori tvoje podatke: ko, kada, šta i zašto |
 | Zahtevi po ZZPL | zahtev za pristup, ispravku, brisanje, ograničenje obrade ili prigovor; rok za odgovor je 30 dana |
 | Preuzmi moje podatke | preuzimanje svih podataka u JSON fajlu, uz ponovni unos lozinke |
+
+Link **Politika privatnosti** otvara dokument, a dugme **Nazad** na njemu vraća na stranicu sa koje si došao. Na telefonu su tabovi Privatnosti poređani u dve kolone, bez bočnog pomeranja.
 
 Bezbednosna obaveštenja ne mogu da se isključe. Podaci o transakcijama čuvaju se propisani broj godina zbog propisa o sprečavanju pranja novca, pa zahtev za brisanje može biti delimično usvojen.
 
@@ -438,7 +440,9 @@ Provere:
 - [ ] **Prigovori**, novi prigovor povezan sa transakcijom: dobija broj i rok; u detalju dopiši poruku.
 - [ ] **Obaveštenja**: brojač na zvoncu, **Označi sve kao pročitano**, brojevi računa su skraćeni.
 - [ ] **Privatnost**:
-  - [ ] uključi marketing i lični prag od 10.000: istorija saglasnosti beleži promenu;
+  - [ ] promeni jedno obaveštenje: aktivno je samo **Sačuvaj obaveštenja**, a dugme u kartici Privatnost i zaštita ostaje neaktivno; posle čuvanja oba su neaktivna;
+  - [ ] uključi marketing i lični prag od 10.000, pa **Sačuvaj podešavanja privatnosti**: istorija saglasnosti beleži promenu, a nesačuvana izmena obaveštenja (ako postoji) ostaje nesačuvana;
+  - [ ] **Politika privatnosti**, pa **Nazad**: vraća na Privatnost;
   - [ ] plaćanje od 15.000 sada traži lozinku i kod poznatog primaoca;
   - [ ] **Ko je video moje podatke** prikazuje uvid bankara;
   - [ ] **Zahtevi po ZZPL**: podnesi zahtev za ispravku;
@@ -469,7 +473,7 @@ Priprema: klijent sa dinarskim računom (bar 20.000 RSD) i deviznim EUR računom
 
 - [ ] Odjavljen, otvori **Pomoć i cenovnik** sa ekrana za prijavu: kursna lista je vidljiva.
 - [ ] Kao klijent otvori **Menjačnica**: levo je obrazac, desno kursna lista.
-- [ ] Sa dinarskog na EUR račun, **Iznos koji želim da dobijem** 100: obračun prikazuje prodajni kurs i da daješ 100 × prodajni kurs dinara.
+- [ ] Sa dinarskog na EUR račun, **Iznos koji dobijam** 100: obračun prikazuje prodajni kurs i da daješ 100 × prodajni kurs dinara.
 - [ ] **Potvrdi konverziju**: EUR račun ima 100 EUR, dinarski je umanjen tačno za prikazani iznos; konverzija je u istoriji i u obaveštenjima.
 - [ ] Zamenom smera (strelice) prodaj 50 EUR: primenjuje se kupovni kurs.
 - [ ] U **Transakcije** filtriraj EUR račun: vide se stavke „Menjačnica“.
@@ -547,7 +551,7 @@ Priprema: klijent sa verifikovanim identitetom i bar 50.000 RSD na tekućem rač
 
 ### C2. Klijent: postavke, pomoć i privatnost
 
-- [ ] **Postavke**: promeni ime i sačuvaj; pozdrav u gornjoj traci i meni korisnika prikazuju novo ime.
+- [ ] **Postavke**: promeni ime i sačuvaj; meni na inicijalima prikazuje novo ime i nove inicijale.
 - [ ] Upiši adresu `/profil`: otvara se stranica **Postavke**.
 - [ ] **Postavke**, **Promena lozinke**: indikator jačine reaguje dok kucaš; posle promene je prijava u drugom pregledaču odjavljena, a stara lozinka više ne važi.
 - [ ] **Privatnost**, uključi **Sakrij stanja pri prijavi** i sačuvaj; odjavi se i prijavi ponovo: iznosi su odmah sakriveni.
@@ -581,6 +585,11 @@ Priprema: klijent sa verifikovanim identitetom i bar 50.000 RSD na tekućem rač
 - [ ] Početna sa 1, 2 i 3 računa: kartice računa i prometa uvek popunjavaju celu širinu (1 račun preko cele širine, 2 po pola), a „Svi računi“ je poravnato sa karticama. Na stranici Računi sa 5 računa raspored je 3 + 2, kartice iste širine.
 - [ ] Brojevi uz imenice su gramatički tačni: „1 aktivan od 1 računa“, „2 aktivna od 2 računa“, „5 aktivnih od 5 računa“.
 - [ ] Vreme prijave u **Bezbednost**, Aktivne sesije, poklapa se sa satom na računaru („aktivnost pre nekoliko sekundi“, ne „pre 1 sata“).
+- [ ] Gornja traka nema pozdrav, samo ikonice i meni na inicijalima.
+- [ ] U svim tabelama (Računi, Korisnici, Transakcije, Kursna lista, Izvod…) sadržaj svake kolone je centriran ispod naslova kolone.
+- [ ] Na telefonu su naslovna kartica na Početnoj i kartice ispod nje iste širine i istog zaobljenja.
+- [ ] Javne stranice (Pomoć, Privatnost, Uslovi) na telefonu: naziv i dugme **U aplikaciju** u prvom redu, tri jednake stavke menija ispod, bez prelamanja teksta.
+- [ ] **Menjačnica** na telefonu: dugmad **Iznos koji dajem** i **Iznos koji dobijam** su u jednom redu, bez prelamanja.
 - [ ] Modali (izmena i brisanje korisnika, blokiranje računa, brisanje pitanja u centru za pomoć, detalji transakcije) su centrirani na računaru, tabletu i telefonu, a stranica iza njih se ne pomera.
 - [ ] Na širini telefona (DevTools, 375 px) stranice **Korisnici** i **Računi** nemaju bočno pomeranje; tabela se skroluje unutar kartice, a donja traka ostaje na mestu.
 - [ ] Na početnoj, veliki iznos (na primer više od 10 miliona) ostaje unutar kartice na svim širinama.
