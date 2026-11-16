@@ -1,8 +1,19 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
+import AppButton from '@/components/ui/AppButton.vue'
 import { useAuthStore } from '@/stores/auth'
+import { publicOrigin } from '@/utils/publicOrigin'
 
 const auth = useAuthStore()
+const router = useRouter()
+
+const backTarget = computed(() => publicOrigin(auth.isAuthenticated ? auth.homeRoute : '/prijava'))
+const backTitle = computed(() => String(router.resolve(backTarget.value).meta.title ?? 'prethodna stranica'))
+
+function goBack(): void {
+  router.push(backTarget.value)
+}
 </script>
 
 <template>
@@ -19,6 +30,9 @@ const auth = useAuthStore()
       </nav>
     </header>
     <main class="public-content">
+      <AppButton class="back" variant="ghost" size="sm" icon="arrow-left" :title="`Povratak na: ${backTitle}`" :aria-label="`Nazad na stranicu ${backTitle}`" @click="goBack">
+        Nazad
+      </AppButton>
       <RouterView />
     </main>
   </div>
@@ -121,8 +135,15 @@ const auth = useAuthStore()
 }
 
 .public-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   max-width: 960px;
   margin: 0 auto;
   padding: var(--space-8) var(--space-4);
+}
+
+.back {
+  align-self: flex-start;
 }
 </style>

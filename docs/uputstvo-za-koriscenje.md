@@ -223,7 +223,7 @@ Dodavanje, izmena i brisanje sačuvanih primalaca. Dugme **Plati** na kartici ot
 | Zahtevi po ZZPL | zahtev za pristup, ispravku, brisanje, ograničenje obrade ili prigovor; rok za odgovor je 30 dana |
 | Preuzmi moje podatke | preuzimanje svih podataka u JSON fajlu, uz ponovni unos lozinke |
 
-Link **Politika privatnosti** otvara dokument, a dugme **Nazad** na njemu vraća na stranicu sa koje si došao. Na telefonu su tabovi Privatnosti poređani u dve kolone, bez bočnog pomeranja.
+Link **Politika privatnosti** otvara javni deo (Pomoć i cenovnik, Privatnost, Uslovi). Dugme **Nazad** postoji na svakom od tih tabova i uvek vraća na stranicu aplikacije sa koje si ušao (ovde: Privatnost), bez obzira na to koliko si puta promenio tab. Ako si javne stranice otvorio sa ekrana za prijavu, **Nazad** vraća na prijavu. Na telefonu su tabovi Privatnosti poređani u dve kolone, bez bočnog pomeranja.
 
 Bezbednosna obaveštenja ne mogu da se isključe. Podaci o transakcijama čuvaju se propisani broj godina zbog propisa o sprečavanju pranja novca, pa zahtev za brisanje može biti delimično usvojen.
 
@@ -442,7 +442,8 @@ Provere:
 - [ ] **Privatnost**:
   - [ ] promeni jedno obaveštenje: aktivno je samo **Sačuvaj obaveštenja**, a dugme u kartici Privatnost i zaštita ostaje neaktivno; posle čuvanja oba su neaktivna;
   - [ ] uključi marketing i lični prag od 10.000, pa **Sačuvaj podešavanja privatnosti**: istorija saglasnosti beleži promenu, a nesačuvana izmena obaveštenja (ako postoji) ostaje nesačuvana;
-  - [ ] **Politika privatnosti**, pa **Nazad**: vraća na Privatnost;
+  - [ ] **Politika privatnosti**, pa redom tabovi **Uslovi**, **Pomoć i cenovnik**, **Privatnost**: na svakom tabu postoji **Nazad**, a klik na njega (sa bilo kog taba) vraća na stranicu Privatnost u aplikaciji;
+  - [ ] na ekranu za prijavu otvori **Politika privatnosti**, promeni tab, pa **Nazad**: vraća na prijavu;
   - [ ] plaćanje od 15.000 sada traži lozinku i kod poznatog primaoca;
   - [ ] **Ko je video moje podatke** prikazuje uvid bankara;
   - [ ] **Zahtevi po ZZPL**: podnesi zahtev za ispravku;

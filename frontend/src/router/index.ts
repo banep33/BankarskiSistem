@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { rememberPublicOrigin } from '@/utils/publicOrigin'
 import type { UserRole } from '@/types/api'
 
 declare module 'vue-router' {
@@ -90,9 +91,10 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
 })
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
   const auth = useAuthStore()
   await auth.initialize()
+  if (from.matched.length) rememberPublicOrigin(from.fullPath, to.path)
 
   if (to.path === '/prijava' && auth.isAuthenticated) return auth.homeRoute
   if (to.meta.public) return true

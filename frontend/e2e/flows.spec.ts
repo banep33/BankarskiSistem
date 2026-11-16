@@ -38,13 +38,29 @@ test('meni na inicijalima nema Postavke, a odjava postoji samo u njemu', async (
   await expect(page.getByRole('button', { name: /Odjavi se/ })).toHaveCount(0)
 })
 
-test('povratak sa politike privatnosti vraca na stranicu Privatnost', async ({ page }) => {
+test('Nazad na bilo kom javnom tabu vraca na stranicu sa koje se uslo (Privatnost)', async ({ page }) => {
   await signIn(page, seed.customers.three)
   await openRoute(page, '/privatnost')
-  await page.getByRole('link', { name: 'Politika privatnosti' }).click()
+  await page.getByRole('link', { name: 'Politika privatnosti' }).first().click()
   await expect(page).toHaveURL(/\/javno\/dokumenti\/privatnost/)
-  await page.getByRole('button', { name: 'Nazad' }).click()
+  const nav = page.getByRole('navigation', { name: 'Javne stranice' })
+  for (const [tab, url] of [['Uslovi', /uslovi/], ['Pomoć i cenovnik', /javno\/pomoc/], ['Privatnost', /dokumenti\/privatnost/]] as const) {
+    await nav.getByRole('link', { name: tab }).click()
+    await expect(page).toHaveURL(url)
+    await expect(page.getByRole('button', { name: /Nazad/ })).toBeVisible()
+  }
+  await nav.getByRole('link', { name: 'Uslovi' }).click()
+  await page.getByRole('button', { name: /Nazad/ }).click()
   await expect(page).toHaveURL(/\/privatnost$/)
+})
+
+test('Nazad sa javnih stranica otvorenih sa prijave vraca na prijavu', async ({ page }) => {
+  await page.goto('/prijava')
+  await page.getByRole('link', { name: 'Politika privatnosti' }).click()
+  await page.getByRole('navigation', { name: 'Javne stranice' }).getByRole('link', { name: 'Pomoć i cenovnik' }).click()
+  await expect(page).toHaveURL(/javno\/pomoc/)
+  await page.getByRole('button', { name: /Nazad/ }).click()
+  await expect(page).toHaveURL(/\/prijava/)
 })
 
 test('obavestenja i privatnost imaju odvojena dugmad za cuvanje', async ({ page }) => {
